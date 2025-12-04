@@ -12,6 +12,10 @@ app.use(morgan('dev'));
 
 app.use('/api', routes);
 
+app.get('/favicon.ico', (req, res) => {
+  res.status(204).end();  // No Content
+});
+
 app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
 });
