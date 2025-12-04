@@ -15,6 +15,7 @@ export const getMeDetails = async (req, res, next) => {
 
 export const getUserPublicProfile = async (req, res, next) => {
   try {
+    console.log(req.params.id);
     const user = await getUserById(req.params.id);
     res.json({ user });
   } catch (err) {

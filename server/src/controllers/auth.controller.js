@@ -1,11 +1,18 @@
 import { registerUser, loginUser, getMe } from '../services/auth.service.js';
+import AppError from '../utils/AppError.js';
 
 export const register = async (req, res, next) => {
   try {
     const { name, email, password } = req.body;
+
+    if (!name || !email || !password) {
+      return next(new AppError('All fields are required', 400));
+    }
+    console.log(req.body);
     const { user, token } = await registerUser({ name, email, password });
     res.status(201).json({ user, token });
   } catch (err) {
+    console.log(err); 
     next(err);
   }
 };
