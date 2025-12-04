@@ -1,5 +1,5 @@
 import Request from '../models/request.model.js';
-import Book from '../models/books.model.js';
+import Book from '../models/book.model.js';
 
 export const getTopBooks = async () => {
   const agg = await Request.aggregate([
