@@ -1,0 +1,8 @@
+{
+  "/books/page": "app/books/page.js",
+  "/notifications/page": "app/notifications/page.js",
+  "/page": "app/page.js",
+  "/profile/page": "app/profile/page.js",
+  "/requests/page": "app/requests/page.js",
+  "/tracking/page": "app/tracking/page.js"
+}
