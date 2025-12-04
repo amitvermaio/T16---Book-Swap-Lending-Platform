@@ -21,8 +21,11 @@ export default function Navigation() {
     { href: "/books", label: "Browse Books" },
     { href: "/requests", label: "Requests" },
     { href: "/tracking", label: "Tracking" },
+    { href: "/users", label: "Community" },
+    { href: "/analytics", label: "Analytics" },
     { href: "/notifications", label: "Notifications" },
-    ]
+    { href: "/profile", label: "Profile" },
+  ]
 
   return (
     <nav className="sticky top-0 z-50 bg-background/95 backdrop-blur border-b border-border">
@@ -124,3 +127,4 @@ export default function Navigation() {
     </nav>
   )
 }
+
