@@ -1,6 +1,7 @@
 "use client"
 
-import { useState } from "react"
+import axios from "axios"
+import { useState, useEffect } from "react"
 import Navigation from "@/components/navigation"
 import BookCatalog from "@/components/books/book-catalog"
 import BookSearchFilters from "@/components/books/book-search-filters"
@@ -14,6 +15,8 @@ export default function BooksPage() {
     location: "",
     condition: "",
   })
+
+  const [books, setBooks] = useState([])
 
   return (
     <main className="min-h-screen bg-background">

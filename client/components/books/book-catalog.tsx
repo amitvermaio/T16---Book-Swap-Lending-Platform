@@ -1,9 +1,10 @@
 "use client"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import BookCard from "./book-card"
 import BookDetailModal from "./book-detail-modal"
 import { useToast } from "@/hooks/use-toast"
 import { Search } from "lucide-react"
+import axios from "axios"
 
 interface BookCatalogProps {
   searchTerm: string
@@ -135,6 +136,8 @@ export default function BookCatalog({ searchTerm, filters }: BookCatalogProps) {
   const [detailModalOpen, setDetailModalOpen] = useState(false)
   const { toast } = useToast()
 
+  const [books, setBooks] = useState([])
+
   const filteredBooks = mockBooks.filter((book) => {
     const matchesSearch =
       !searchTerm ||
@@ -147,6 +150,19 @@ export default function BookCatalog({ searchTerm, filters }: BookCatalogProps) {
 
     return matchesSearch && matchesGenre && matchesAvailability && matchesCondition
   })
+
+  const fetchBooks = async () => {
+    try {
+      const { data } = await axios.get("http://localhost:5000/api/books")
+      setBooks(data)
+    } catch (error) {
+      console.error("Error fetching books:", error)
+    }
+  }
+
+  useEffect(() => {
+    fetchBooks()
+  }, [])
 
   const handleRequest = (book: (typeof mockBooks)[0]) => {
     setSelectedBook(book)
