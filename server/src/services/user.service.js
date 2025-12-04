@@ -1,5 +1,5 @@
 import User from '../models/user.model.js';
-import Request from '../models/Request.js';
+import Request from '../models/request.model.js';
 import AppError from '../utils/AppError.js';
 
 export const getUserById = async (id) => {

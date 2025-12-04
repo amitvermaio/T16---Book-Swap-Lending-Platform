@@ -3,7 +3,7 @@ import 'dotenv/config';
 import http from 'http';
 import app from './src/app.js';
 import connectDB from './src/config/db.js';
-import { initSocket } from './src/sockets/index.js';
+import { initSocket } from './src/sockets/socket.js';
 
 const PORT = process.env.PORT || 5000;
 

@@ -1,5 +1,4 @@
-// src/models/Request.js
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';  
 
 const requestSchema = new mongoose.Schema(
   {
@@ -35,4 +34,4 @@ const requestSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-module.exports = mongoose.model('Request', requestSchema);
+export default mongoose.model('Request', requestSchema);

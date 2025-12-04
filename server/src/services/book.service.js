@@ -1,4 +1,4 @@
-import Book from '../models/Book.js';
+import Book from '../models/book.model.js';
 import AppError from '../utils/AppError.js';
 
 export const createBook = async (ownerId, data) => {
