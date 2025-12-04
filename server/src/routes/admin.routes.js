@@ -1,0 +1,18 @@
+import { Router } from 'express';
+import { protect } from '../middlewares/auth.middleware.js';
+import { requireRole } from '../middlewares/role.middleware.js';
+import {
+  listUsersController,
+  banUserController,
+  listAllRequestsController,
+} from '../controllers/admin.controller.js';
+
+const router = Router();
+
+router.use(protect, requireRole('admin'));
+
+router.get('/users', listUsersController);
+router.patch('/users/:id/ban', banUserController);
+router.get('/requests', listAllRequestsController);
+
+export default router;
