@@ -1,5 +1,8 @@
 import { registerUser, loginUser, getMe } from '../services/auth.service.js';
 import AppError from '../utils/AppError.js';
+import debug from 'debug';
+
+const dbgr = debug('dev:auth:controllers');
 
 export const register = async (req, res, next) => {
   try {
@@ -8,11 +11,12 @@ export const register = async (req, res, next) => {
     if (!name || !email || !password) {
       return next(new AppError('All fields are required', 400));
     }
-    console.log(req.body);
+    
     const { user, token } = await registerUser({ name, email, password });
+
     res.status(201).json({ user, token });
   } catch (err) {
-    console.log(err); 
+    dbgr(err); 
     next(err);
   }
 };
@@ -23,6 +27,7 @@ export const login = async (req, res, next) => {
     const { user, token } = await loginUser({ email, password });
     res.json({ user, token });
   } catch (err) {
+    dbgr(err); 
     next(err);
   }
 };

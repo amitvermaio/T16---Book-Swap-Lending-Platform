@@ -12,7 +12,7 @@ const signToken = (user) =>
 
 export const registerUser = async ({ name, email, password }) => {
   const existing = await User.findOne({ email });
-  console.log("Error from servies");
+
   if (existing) throw new AppError('Email already registered', 400);
 
   const hash = await bcrypt.hash(password, 10);

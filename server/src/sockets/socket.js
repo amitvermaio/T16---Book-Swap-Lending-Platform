@@ -1,5 +1,8 @@
 import { Server } from 'socket.io';
 import jwt from 'jsonwebtoken';
+import debug from 'debug';
+
+const dbgr = debug('dev:socket');
 
 let io;
 
@@ -23,13 +26,13 @@ export const initSocket = (server) => {
       const payload = jwt.verify(token, process.env.JWT_SECRET);
       const userId = payload.id;
       socket.join(`user:${userId}`);
-      console.log(`Socket connected: user ${userId}`);
+      dbgr(`Socket connected: user ${userId}`);
 
       socket.on('disconnect', () => {
-        console.log(`Socket disconnected: user ${userId}`);
+        dbgr(`Socket disconnected: user ${userId}`);
       });
     } catch (err) {
-      console.error('Socket auth error', err.message);
+      dbgr('Socket auth error', err.message);
       socket.disconnect(true);
     }
   });
