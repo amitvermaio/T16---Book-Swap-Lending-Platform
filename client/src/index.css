@@ -25,8 +25,7 @@ a:hover {
 body {
   margin: 0;
   display: flex;
-  place-items: center;
-  min-width: 320px;
+  /* place-items: center; */
   min-height: 100vh;
 }
 
@@ -45,6 +44,7 @@ button {
   background-color: #1a1a1a;
   cursor: pointer;
   transition: border-color 0.25s;
+  overflow: hidden;
 }
 button:hover {
   border-color: #646cff;
@@ -65,4 +65,15 @@ button:focus-visible {
   button {
     background-color: #f9f9f9;
   }
+}
+
+.navbar-container {
+  display: flex;
+  align-items: center;
+  justify-items: center;
+  gap: 2;
+  padding: 2rem;
+  height: 2rem;
+  width: 100vw;
+  border: 1px solid blanchedalmond;
 }
