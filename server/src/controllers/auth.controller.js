@@ -1,5 +1,4 @@
 import { registerUser, loginUser, getMe } from '../services/auth.service.js';
-import AppError from '../utils/AppError.js';
 import debug from 'debug';
 
 const dbgr = debug('dev:auth:controllers');
@@ -7,10 +6,6 @@ const dbgr = debug('dev:auth:controllers');
 export const register = async (req, res, next) => {
   try {
     const { name, email, password } = req.body;
-
-    if (!name || !email || !password) {
-      return next(new AppError('All fields are required', 400));
-    }
     
     const { user, token } = await registerUser({ name, email, password });
 
