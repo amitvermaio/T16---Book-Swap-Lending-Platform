@@ -14,7 +14,6 @@ router.use(protect);
 router.get('/me', getMeDetails);
 router.patch('/me/preferences', updateMyPreferences);
 router.get('/me/history', getMyBorrowHistory);
-
 router.get('/:id', getUserPublicProfile);
 
 export default router;
