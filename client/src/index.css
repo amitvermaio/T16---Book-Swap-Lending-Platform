@@ -1,5 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Playfair+Display:wght@400;600;800&family=Inter:wght@300;400;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=BBH+Bogle&family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Outfit:wght@100..900&family=Roboto:ital,wght@0,100..900;1,100..900&family=Zain:ital,wght@0,200;0,300;0,400;0,700;0,800;0,900;1,300;1,400&display=swap');
 @import "tailwindcss";
+
 
 @theme {
   --font-poppins: "Poppins", sans-serif;
@@ -8,10 +10,38 @@
   --primary-color: #fbf7f3;
 }
 
-html {
-  font-family: var(--font-inter);
+* {
+  box-sizing: border-box;
 }
 
-body {
+html, body {
+  height: 100%;
+  width: 100%;
+  font-family: var(--font-inter);
   background-color: var(--primary-color);
 }
+
+.roboto {
+  font-family: "Roboto", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 500;
+  font-style: normal;
+  font-variation-settings: "wdth" 100;
+}
+
+.scroll-container {
+  scroll-snap-type: x mandatory;
+}
+.scroll-item {
+  scroll-snap-align: start;
+}
+
+.scroll-container::-webkit-scrollbar {
+  display: none;
+}
+
+.scroll-container {
+  -ms-overflow-style: none;  /* IE + Edge */
+  scrollbar-width: none;     /* Firefox */
+}
+
