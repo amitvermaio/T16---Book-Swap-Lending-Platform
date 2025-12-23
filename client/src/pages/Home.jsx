@@ -1,6 +1,9 @@
 import Navbar from '../components/Navbar';
 import HeroSection from '../components/landing/HeroSection';
 import TopBooks from '../components/landing/TopBooks';
+import HowItWorks from '../components/landing/HowItWorks';
+import Why from '../components/landing/Why';
+import Footer from "../components/Footer";
 
 const Home = () => {
   return (
@@ -8,6 +11,9 @@ const Home = () => {
       <Navbar />
       <HeroSection /> 
       <TopBooks />
+      <HowItWorks />
+      <Why />
+      <Footer />
     </div>
   )
 }

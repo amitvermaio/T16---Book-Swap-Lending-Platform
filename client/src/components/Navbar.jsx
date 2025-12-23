@@ -19,7 +19,7 @@ const Navbar = () => {
           {/* Desktop Nav Links */}
           <div className="hidden lg:flex font-Inter items-center gap-12 text-xs tracking-tight text-black uppercase">
             <NavLink
-              to="/browse-books"
+              to="/books"
               className={({ isActive }) =>
                 isActive
                   ? "underline underline-offset-4"
