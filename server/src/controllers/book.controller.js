@@ -46,7 +46,7 @@ export const deleteBookController = async (req, res, next) => {
 export const searchBooksController = async (req, res, next) => {
   try {
     const books = await searchBooks(req.query);
-    res.json({ books });
+    res.json(books);
   } catch (err) {
     next(err);
   }

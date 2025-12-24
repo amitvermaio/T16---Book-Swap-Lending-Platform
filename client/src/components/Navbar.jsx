@@ -12,9 +12,9 @@ const Navbar = () => {
         <div className="max-w-7xl mx-auto flex items-center justify-between py-7">
 
           {/* Logo */}
-          <div className="flex items-center">
+          <Link to={'/'} className="flex items-center">
             <img src={Logo} alt="Logo" className="h-10 object-contain" />
-          </div>
+          </Link>
 
           {/* Desktop Nav Links */}
           <div className="hidden lg:flex font-Inter items-center gap-12 text-xs tracking-tight text-black uppercase">

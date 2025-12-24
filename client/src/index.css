@@ -30,6 +30,15 @@ html, body {
   font-variation-settings: "wdth" 100;
 }
 
+.hide-scrollbar {
+  -ms-overflow-style: none;  /* IE, Edge */
+  scrollbar-width: none;     /* Firefox */
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;             /* Chrome, Safari */
+}
+
 .scroll-container {
   scroll-snap-type: x mandatory;
 }

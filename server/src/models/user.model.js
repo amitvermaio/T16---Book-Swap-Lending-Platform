@@ -41,9 +41,11 @@ const userSchema = new mongoose.Schema(
       avgRating: { type: Number, default: 0 },
       totalRatings: { type: Number, default: 0 },
     },
-  },
-  { timestamps: true }
-);
+    favorites: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Book'
+    }],
+  },{ timestamps: true });
 
 userSchema.index({ location: '2dsphere' });
 
