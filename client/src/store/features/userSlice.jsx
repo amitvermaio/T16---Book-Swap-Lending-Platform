@@ -15,11 +15,16 @@ const userSlice = createSlice({
       state.isAuthorized = true
       state.loading = false
     },
+    removeuser: (state, action) => {
+      state.user = null;
+      state.isAuthorized = false;
+      state.loading = false
+    },
     setuserloading: (state, action) => {
       state.loading = action.payload;
     } 
   }
 });
 
-export const { loaduser, setuserloading } = userSlice.actions;
+export const { loaduser, removeuser, setuserloading } = userSlice.actions;
 export default userSlice.reducer;

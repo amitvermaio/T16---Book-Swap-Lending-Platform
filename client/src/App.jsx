@@ -1,4 +1,8 @@
+import { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+
+import { asyncloaduser } from './store/actions/usersAction';
 
 import AuthWrapper from './components/auth/AuthWrapper';
 import UnAuthWrapper from './components/auth/UnAuthWrapper';
@@ -9,8 +13,21 @@ import BookDetailsPage from './pages/BookDetailsPage';
 import Requests from './pages/Requests';
 import Register from './pages/auth/Register';
 import Login from './pages/auth/Login';
+import AddBookForm from './pages/AddBookForm';
 
 const App = () => {
+
+  const dispatch = useDispatch();
+  const user = useSelector((state) => state.users);
+
+  useEffect(() => {
+    const token = localStorage.getItem("BookSwap_Token");
+    
+    if (token && !user.isAuthorized) {
+      dispatch(asyncloaduser());
+    }
+  }, [dispatch, user.isAuthorized]);
+  
   return (
     <Router>
       <Routes>
@@ -18,6 +35,7 @@ const App = () => {
         <Route path="/books" element={<Books />} />
         <Route path="/books/:id" element={<BookDetailsPage />} />
         <Route path="/requests" element={<Requests />} />
+        <Route path="/add-book" element={<AddBookForm />} />
 
         {/* Auth routes */}
         <Route path='/sign-up' element={

@@ -25,9 +25,12 @@ const AuthWrapper = () => {
       }
 
       try {
-        const { data } = await axios.get('/auth/me');
+        const { data } = await axios.get('/auth/me', {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
         
-        // Update Redux with the user data
         dispatch(loaduser(data.user));
       } catch (error) {
         console.log("Session expired or invalid:", error);

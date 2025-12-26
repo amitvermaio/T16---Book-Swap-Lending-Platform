@@ -14,7 +14,6 @@ export const protect = (req, res, next) => {
     req.user = { id: payload.id, role: payload.role };
     next();
   } catch (err) {
-    console.log("Tagda error from here")
     next(new AppError('Invalid token', 401));
   }
 };

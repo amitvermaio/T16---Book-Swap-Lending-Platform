@@ -9,5 +9,6 @@ const router = Router();
 router.post("/register", registerValidation, validate, register);
 router.post("/login", loginValidation, validate, login);
 router.get('/me', protect, getProfile);
+// router.get('/logout', )
 
 export default router;
