@@ -67,7 +67,6 @@ export const books = [
 ];
 
 export const CONDITIONS = ["New", "Like New", "Good", "Fair", "Decent", "Poor"];
-export const TYPES = ["Hardcover", "Paperback", "E-Book", "Audiobook", "Magazine"];
 export const AVAILABILITY = ["Available", "Swapped", "Reserved", "Wishlist Only"];
 export const SORT_OPTIONS = ["Newest First", "Oldest First", "Price: Low to High", "Price: High to Low", "Distance: Nearest"];
 

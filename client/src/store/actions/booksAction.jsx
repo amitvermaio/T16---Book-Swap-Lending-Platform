@@ -1,21 +1,14 @@
 import axios from '../../config/axiosconfig';
-import { setloading, loadbooks } from '../features/bookSlice';
+import { setloading, loadbooks, setcurrentbook, setcurrentbookloading } from '../features/bookSlice';
 
 export const asyncloadbooks = (pageNo) => async (dispatch, getState) => {
   try {
     const { currentPage, hasMore, loading } = getState().books;
-    console.log("Call aya for " + currentPage);
-
     if (!hasMore || loading) return;
 
     dispatch(setloading(true));
 
-    console.log("Call aya for page:", currentPage);
-
     const { data } = await axios.get(`/books?page=${currentPage}&limit=8`);
-
-    console.log(data);
-    console.log(data.pagination.hasMore);
 
     dispatch(loadbooks({
       books: data.books,
@@ -29,3 +22,16 @@ export const asyncloadbooks = (pageNo) => async (dispatch, getState) => {
     console.log(error);
   }
 } 
+
+export const asyncloadcurrentbook = (id) => async (dispatch) => {
+  try {
+    dispatch(setcurrentbookloading(true));
+
+    const { data } = await axios.get(`/books/${id}`);
+    dispatch(setcurrentbook(data));
+  } catch (error) {
+    console.error("Failed to load book", error);
+  } finally {
+    dispatch(setcurrentbookloading(false));
+  }
+};

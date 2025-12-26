@@ -5,8 +5,15 @@ const initialState = {
   currentPage: 1,
   hasMore: true,
   loading: false,
-  currentBook: null,
-}
+
+  bookDetails: {
+    book: null,
+    related: [],
+    favorite: false,
+  },
+
+  loadingBookDetails: false,
+};
 
 const bookSlice = createSlice({
   name: 'books',  
@@ -26,9 +33,19 @@ const bookSlice = createSlice({
       state.currentPage = 1;
       state.hasMore = true;
     },
+    setcurrentbook: (state, action) => {
+      state.bookDetails.book = action.payload.book;
+      state.bookDetails.related = action.payload.relatedBooks
+    },
+    setcurrentbookloading: (state, action) => {
+      state.loadingCurrentBook = action.payload;
+    },
+    setbookfavorite: (state, action) => {
+      state.bookDetails.favorite = action.payload;
+    }
   }
 })
 
-export const { setloading, loadbooks, resetbooks } = bookSlice.actions;
+export const { setloading, loadbooks, resetbooks, setcurrentbook, setcurrentbookloading, setbookfavorite } = bookSlice.actions;
 export default bookSlice.reducer;
 

@@ -1,10 +1,20 @@
 import Logo from "../assets/Logo.png";
 import { Link, NavLink } from "react-router-dom";
 import { MoveRight, LogIn, Search, Menu, X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+import { asyncloaduser } from "../store/actions/usersAction";
+import { useDispatch } from "react-redux";
 
 const Navbar = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const dispatch = useDispatch();
+  const user = useSelector(state => state.users);
+
+  useEffect(() => {
+    localStorage.getItem('BookSwap_Token') && dispatch(asyncloaduser());
+    console.log(user?.isAuthorized);
+  }, []);
 
   return (
     <>
@@ -86,13 +96,17 @@ const Navbar = () => {
             </button>
 
             {/* Signup Button */}
-            <Link
-              to="/signup"
-              className="bg-black text-white rounded-full px-5 py-2 text-xs sm:text-sm font-medium"
-            >
-              <span className="hidden sm:inline">Sign Up</span>
-              <LogIn className="inline-block sm:ml-2 h-4 w-4" />
-            </Link>
+            {
+              user?.isAuthorized ? 
+              <div className="w-10 h-10 rounded-full">Profile</div> : 
+              <Link
+                to="/sign-up"
+                className="bg-black text-white rounded-full px-5 py-2 text-xs sm:text-sm font-medium"
+              >
+                <span className="hidden sm:inline">Sign Up</span>
+                <LogIn className="inline-block sm:ml-2 h-4 w-4" />
+              </Link>
+            }
 
             {/* Hamburger */}
             <button

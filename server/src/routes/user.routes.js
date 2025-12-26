@@ -5,6 +5,7 @@ import {
   getUserPublicProfile,
   updateMyPreferences,
   getMyBorrowHistory,
+  addToFavorite
 } from '../controllers/user.controller.js';
 
 const router = Router();
@@ -15,5 +16,6 @@ router.get('/me', getMeDetails);
 router.patch('/me/preferences', updateMyPreferences);
 router.get('/me/history', getMyBorrowHistory);
 router.get('/:id', getUserPublicProfile);
+router.post('/favourites', addToFavorite);
 
 export default router;

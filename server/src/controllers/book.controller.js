@@ -19,7 +19,7 @@ export const createBookController = async (req, res, next) => {
 export const getBookController = async (req, res, next) => {
   try {
     const book = await getBookById(req.params.id);
-    res.json({ book });
+    res.json(book);
   } catch (err) {
     next(err);
   }

@@ -9,11 +9,10 @@ import {
   setSort, 
   selectFilters 
 } from '../store/features/filtersSlice'; 
-import { CONDITIONS, TYPES, AVAILABILITY, SORT_OPTIONS, bookGenres as BOOK_GENRES } from "../utils/constants";
+import { CONDITIONS, AVAILABILITY, SORT_OPTIONS, bookGenres as BOOK_GENRES } from "../utils/constants";
 
 const SearchFilterBar = () => {
   const dispatch = useDispatch();
-  
   const filters = useSelector(selectFilters);
 
   const [activeDropdown, setActiveDropdown] = useState(null);
@@ -84,7 +83,6 @@ const SearchFilterBar = () => {
           {[
             { label: 'Genre', key: 'genre', options: BOOK_GENRES },
             { label: 'Condition', key: 'condition', options: CONDITIONS },
-            { label: 'Type', key: 'type', options: TYPES },
             { label: 'Availability', key: 'availability', options: AVAILABILITY },
           ].map((filter) => {
              // Safe check if array exists in redux state

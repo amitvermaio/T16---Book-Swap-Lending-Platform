@@ -40,3 +40,13 @@ export const getMyBorrowHistory = async (req, res, next) => {
     next(err);
   }
 };
+
+
+export const addToFavorite = async (req, res, next) => {
+  try {
+    const { user, book } = req.body;
+    res.json({ user, book });
+  } catch (error) {
+    next(error);
+  }
+}
