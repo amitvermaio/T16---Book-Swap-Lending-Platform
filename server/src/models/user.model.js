@@ -1,52 +1,43 @@
 import mongoose from 'mongoose';
 
-const userSchema = new mongoose.Schema(
-  {
-    name: { type: String, required: true },
-    email: { type: String, required: true, unique: true, lowercase: true },
-    passwordHash: { type: String, required: true },
+const userSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  email: { type: String, required: true, unique: true, lowercase: true },
+  passwordHash: { type: String, required: true },
 
-    role: {
+  role: {
+    type: String,
+    enum: ['user', 'admin'],
+    default: 'user',
+  },
+
+  address: { type: String },
+  city: { type: String },
+  state: { type: String },
+  country: { type: String },
+  pincode: { type: Number },
+
+  lendingPreferences: {
+    visibility: {
       type: String,
-      enum: ['user', 'admin'],
-      default: 'user',
+      enum: ['all', 'friends', 'verified'],
+      default: 'all',
     },
+    onlyLocal: { type: Boolean, default: true },
+  },
 
-    location: {
-      city: String,
-      state: String,
-      country: String,
+  ratingStats: {
+    avgRating: { type: Number, default: 0 },
+    totalRatings: { type: Number, default: 0 },
+  },
 
-      type: {
-        type: String,
-        enum: ['Point'],
-        default: 'Point',
-      },
-      coordinates: {
-        type: [Number],
-        default: [0, 0],
-      },
-    },
+  favorites: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Book'
+  }],
+}, { timestamps: true });
 
-    lendingPreferences: {
-      visibility: {
-        type: String,
-        enum: ['all', 'friends', 'verified'],
-        default: 'all',
-      },
-      onlyLocal: { type: Boolean, default: true },
-    },
+userSchema.index({ city: 1 });
 
-    ratingStats: {
-      avgRating: { type: Number, default: 0 },
-      totalRatings: { type: Number, default: 0 },
-    },
-    favorites: [{
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Book'
-    }],
-  },{ timestamps: true });
-
-userSchema.index({ location: '2dsphere' });
-
-export default mongoose.model('User', userSchema);
+const User = mongoose.model('User', userSchema);
+export default User;

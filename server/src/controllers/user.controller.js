@@ -1,5 +1,6 @@
 import {
   getUserById,
+  updateUserProfile,
   updatePreferences,
   getBorrowHistory,
 } from '../services/user.service.js';
@@ -12,6 +13,25 @@ export const getMeDetails = async (req, res, next) => {
     next(err);
   }
 };
+
+export const updateMyDetails = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    const updates = req.body;
+
+    const user = await updateUserProfile(userId, updates);
+
+    res.status(200).json({
+      status: "success",
+      message: "Profile updated successfully",
+      data: {
+        user,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+}
 
 export const getUserPublicProfile = async (req, res, next) => {
   try {

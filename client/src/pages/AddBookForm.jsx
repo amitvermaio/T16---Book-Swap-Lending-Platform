@@ -1,35 +1,56 @@
 import { useState } from "react";
-import { Upload, X, Image as ImageIcon, Loader2, MapPin } from "lucide-react";
 import { toast } from "react-hot-toast";
-// import axios from "axios"; // Uncomment when ready to connect
+import { bookGenres as BOOK_GENRES } from "../utils/constants";
+import { Upload, X, Image as ImageIcon, Loader2, ArrowLeft } from "lucide-react"; // Added ArrowLeft
+import { useNavigate } from "react-router-dom";
+
+import axios from "../config/axiosconfig"; 
 
 const AddBookForm = () => {
+  const navigate = useNavigate();
+
   const [loading, setLoading] = useState(false);
   
-  // Form State
   const [formData, setFormData] = useState({
     title: "",
     author: "",
     description: "",
-    genre: "", // We will split this by comma on submit
-    city: "",
-    state: "",
-    availabilityType: "swap", // Default value matching schema enum
+    genre: [],
+    availabilityType: [], 
   });
 
-  // Image State
   const [coverImage, setCoverImage] = useState(null);
   const [coverPreview, setCoverPreview] = useState(null);
-  const [galleryImages, setGalleryImages] = useState([]); // Max 5
+  const [galleryImages, setGalleryImages] = useState([]); 
   const [galleryPreviews, setGalleryPreviews] = useState([]);
 
-  // Handle Text Inputs
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Handle Cover Image
+  const handleGenreToggle = (selectedGenre) => {
+    setFormData((prev) => {
+      const currentGenres = prev.genre;
+      if (currentGenres.includes(selectedGenre)) {
+        return { ...prev, genre: currentGenres.filter((g) => g !== selectedGenre) };
+      } else {
+        return { ...prev, genre: [...currentGenres, selectedGenre] };
+      }
+    });
+  };
+
+  const handlePurposeToggle = (type) => {
+    setFormData((prev) => {
+      const currentTypes = prev.availabilityType;
+      if (currentTypes.includes(type)) {
+        return { ...prev, availabilityType: currentTypes.filter((t) => t !== type) };
+      } else {
+        return { ...prev, availabilityType: [...currentTypes, type] };
+      }
+    });
+  };
+
   const handleCoverChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -38,7 +59,6 @@ const AddBookForm = () => {
     }
   };
 
-  // Handle Gallery Images (Max 5)
   const handleGalleryChange = (e) => {
     const files = Array.from(e.target.files);
     
@@ -52,48 +72,67 @@ const AddBookForm = () => {
     setGalleryPreviews((prev) => [...prev, ...newPreviews]);
   };
 
-  // Remove a gallery image
   const removeGalleryImage = (index) => {
     setGalleryImages((prev) => prev.filter((_, i) => i !== index));
     setGalleryPreviews((prev) => prev.filter((_, i) => i !== index));
   };
 
-  // Submit Handler
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!coverImage) return toast.error("Cover image is required!");
     if (!formData.title || !formData.author) return toast.error("Title and Author are required!");
+    
+    if (formData.availabilityType.length === 0) {
+      return toast.error("Please select at least one purpose.");
+    }
+    if (formData.genre.length === 0) {
+      return toast.error("Please select at least one genre.");
+    }
 
     setLoading(true);
 
-    const data = new FormData();
-    data.append("title", formData.title);
-    data.append("author", formData.author);
-    data.append("description", formData.description);
-    data.append("availabilityType", formData.availabilityType);
+    const form = new FormData();
+    form.append("title", formData.title);
+    form.append("author", formData.author);
+    form.append("description", formData.description);
     
-    // Convert comma-separated string to array for Genre
-    const genreArray = formData.genre.split(",").map((g) => g.trim()).filter((g) => g !== "");
-    data.append("genre", JSON.stringify(genreArray)); 
+    form.append("availabilityType", JSON.stringify(formData.availabilityType));
+    
+    form.append("genre", JSON.stringify(formData.genre)); 
 
-    // Location
-    data.append("city", formData.city);
-    data.append("state", formData.state);
-
-    // Images
-    data.append("coverImage", coverImage);
+    form.append("coverImage", coverImage);
+    
     galleryImages.forEach((img) => {
-      data.append("galleryImages", img);
+      form.append("galleryImages", img);
     });
 
     try {
-      // await axios.post('/api/books/add', data, { headers: { 'Content-Type': 'multipart/form-data' } });
-      console.log("Form Data Prepared:", Object.fromEntries(data));
-      toast.success("Book added successfully!");
-      // Reset form logic here...
+      const token = localStorage.getItem('BookSwap_Token');
+
+      const { data } = await axios.post(`/books/add`, form, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      
+      if (data.statusCode === 400) {
+        toast.error(data.message ? data.message : 'Something went wrong!');
+      } else {
+        toast.success(data.message ? data.message : "Book added successfully!");      
+        // Optional: Redirect after success
+        // navigate('/my-books');
+      }
+        
     } catch (error) {
       console.error(error);
-      toast.error("Failed to add book");
+      // Check for location/profile specific errors
+      const errMessage = error.response?.data?.message || "";
+      
+      if (errMessage.includes("location") || errMessage.includes("profile")) {
+         toast.error("Incomplete Profile: Please add your Address in settings first.", { duration: 4000 });
+      } else {
+         toast.error(errMessage || "Failed to add book");
+      }
     } finally {
       setLoading(false);
     }
@@ -101,7 +140,18 @@ const AddBookForm = () => {
 
   return (
     <div className="max-w-4xl mx-auto p-6 bg-white rounded-2xl shadow-sm border border-gray-100 my-10">
-      <h2 className="text-2xl font-bold text-gray-900 mb-6">List a Book</h2>
+      
+      {/* HEADER WITH BACK BUTTON */}
+      <div className="flex items-center gap-4 mb-6">
+        <button 
+          onClick={() => navigate(-1)}
+          className="p-2 rounded-full hover:bg-gray-100 text-gray-600 transition-colors"
+          title="Go Back"
+        >
+          <ArrowLeft size={24} />
+        </button>
+        <h2 className="text-2xl font-bold text-gray-900">List a Book</h2>
+      </div>
 
       <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-8">
         
@@ -140,10 +190,10 @@ const AddBookForm = () => {
             </div>
           </div>
 
-          {/* Additional Images (Max 5) */}
+          {/* Additional Images */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Additional Images (Max 5). <span className="text-red-500 tracking-tighter text-xs">Make sure you're adding real image of your book here.</span>
+              Additional Images (Max 5). <span className="text-red-500 tracking-tighter text-xs"><br/>Make sure you're adding real images of your book here.*</span>
             </label>
             <div className="grid grid-cols-3 gap-3">
               {galleryPreviews.map((src, index) => (
@@ -172,11 +222,11 @@ const AddBookForm = () => {
                 </div>
               )}
             </div>
-          </div>
+          </div>   
         </div>
 
         {/* RIGHT COLUMN: DETAILS */}
-        <div className="space-y-5">
+        <div className="space-y-5 "> 
           
           {/* Title & Author */}
           <div className="space-y-4">
@@ -204,73 +254,52 @@ const AddBookForm = () => {
             </div>
           </div>
 
-          {/* Genre */}
+          {/* Genre Selection (Multi-Select Tags) */}
           <div>
-            <label className="block text-xs font-bold uppercase text-gray-500 mb-1">Genre (Comma separated)</label>
-            <input
-              type="text"
-              name="genre"
-              value={formData.genre}
-              onChange={handleInputChange}
-              placeholder="Fiction, Philosophy, Adventure"
-              className="w-full rounded-lg border border-gray-200 px-4 py-2.5 text-sm focus:border-orange-500 focus:ring-1 focus:ring-orange-500 outline-none transition-all"
-            />
+            <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Genre (Select Multiple)</label>
+            <div className="flex flex-wrap gap-2">
+              {BOOK_GENRES.map((genreItem) => {
+                const isSelected = formData.genre.includes(genreItem);
+                return (
+                  <button
+                    key={genreItem}
+                    type="button" // Prevents form submission
+                    onClick={() => handleGenreToggle(genreItem)}
+                    className={`
+                      px-3 py-1.5 rounded-full text-xs font-medium border transition-all
+                      ${isSelected 
+                        ? "bg-orange-500 border-orange-500 text-white shadow-sm" 
+                        : "bg-white border-gray-200 text-gray-600 hover:border-orange-300 hover:bg-orange-50"}
+                    `}
+                  >
+                    {genreItem}
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
-          {/* Availability Type (Custom Radio Tiles) */}
+          {/* Availability Type (Multi-Select) */}
           <div>
-            <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Purpose</label>
+            <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Purpose (Select all that apply)</label>
             <div className="grid grid-cols-3 gap-3">
-              {['swap', 'lend', 'donate'].map((type) => (
-                <label 
-                  key={type}
-                  className={`
-                    cursor-pointer text-center py-2.5 rounded-lg border text-sm font-medium capitalize transition-all
-                    ${formData.availabilityType === type 
-                      ? "bg-orange-500 border-orange-500 text-white shadow-md" 
-                      : "bg-white border-gray-200 text-gray-600 hover:border-orange-300 hover:bg-orange-50"}
-                  `}
-                >
-                  <input
-                    type="radio"
-                    name="availabilityType"
-                    value={type}
-                    checked={formData.availabilityType === type}
-                    onChange={handleInputChange}
-                    className="hidden"
-                  />
-                  {type}
-                </label>
-              ))}
-            </div>
-          </div>
-
-          {/* Location */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-bold uppercase text-gray-500 mb-1">City</label>
-              <div className="relative">
-                <MapPin className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
-                <input
-                  type="text"
-                  name="city"
-                  value={formData.city}
-                  onChange={handleInputChange}
-                  className="w-full rounded-lg border border-gray-200 pl-9 pr-4 py-2.5 text-sm focus:border-orange-500 outline-none"
-                  placeholder="City"
-                />
-              </div>
-            </div>
-            <div>
-              <label className="block text-xs font-bold uppercase text-gray-500 mb-1">State</label>
-              <input
-                type="text"
-                name="state"
-                value={formData.state}
-                onChange={handleInputChange}
-                className="w-full rounded-lg border border-gray-200 px-4 py-2.5 text-sm focus:border-orange-500 outline-none"
-                placeholder="State"
-              />
+              {['swap', 'lend', 'donate'].map((type) => {
+                const isSelected = formData.availabilityType.includes(type);
+                return (
+                  <div
+                    key={type}
+                    onClick={() => handlePurposeToggle(type)}
+                    className={`
+                      cursor-pointer text-center py-2.5 rounded-lg border text-sm font-medium capitalize transition-all select-none
+                      ${isSelected 
+                        ? "bg-orange-500 border-orange-500 text-white shadow-md" 
+                        : "bg-white border-gray-200 text-gray-600 hover:border-orange-300 hover:bg-orange-50"}
+                    `}
+                  >
+                    {type}
+                  </div>
+                );
+              })}
             </div>
           </div>
 
@@ -279,7 +308,7 @@ const AddBookForm = () => {
             <label className="block text-xs font-bold uppercase text-gray-500 mb-1">Description</label>
             <textarea
               name="description"
-              rows={4}
+              rows={5}
               value={formData.description}
               onChange={handleInputChange}
               className="w-full rounded-lg border border-gray-200 px-4 py-2.5 text-sm focus:border-orange-500 focus:ring-1 focus:ring-orange-500 outline-none resize-none transition-all"

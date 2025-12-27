@@ -1,19 +1,49 @@
+import { uploadToImageKit } from './storage.service.js';
+
 import Book from '../models/book.model.js';
 import AppError from '../utils/AppError.js';
-
-export const createBook = async (ownerId, data) => {
-  const book = await Book.create({
-    ...data,
-    owner: ownerId,
-  });
-  return book;
-};
 
 export const getBookById = async (id) => {
   const book = await Book.findById(id).populate('owner', 'name ratingStats');
   const relatedBooks = await Book.find({ _id: { $ne: id }, genre: { $in: book.genre } }).limit(4);
   if (!book) throw new AppError('Book not found', 404);
   return { book, relatedBooks };
+};
+
+export const createBook = async (user, bookData, files) => {
+  const coverImageUrl = await uploadToImageKit(files.coverImage[0], "/bookswap_covers");
+
+  let additionalImages = [];
+  if (files.galleryImages && files.galleryImages.length > 0) {
+    const uploadPromises = files.galleryImages.map((file) =>
+      uploadToImageKit(file, "/bookswap_gallery")
+    );
+    additionalImages = await Promise.all(uploadPromises);
+  }
+
+  const locationData = {
+    address: user.address,
+    city: user.city,
+    state: user.state,
+    pincode: user.pincode 
+  };
+
+  if (user.country) locationData.country = user.country;
+
+  const newBook = new Book({
+    owner: user._id,
+    title: bookData.title,
+    author: bookData.author,
+    description: bookData.description,
+    genre: bookData.genre,
+    availabilityType: bookData.availabilityType,
+    location: locationData,
+    coverImageUrl: coverImageUrl,
+    additionalImages: additionalImages,
+  });
+
+  await newBook.save();
+  return newBook;
 };
 
 export const updateBook = async (bookId, ownerId, data) => {

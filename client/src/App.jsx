@@ -14,6 +14,7 @@ import Requests from './pages/Requests';
 import Register from './pages/auth/Register';
 import Login from './pages/auth/Login';
 import AddBookForm from './pages/AddBookForm';
+import UserProfile from './pages/UserProfile';
 
 const App = () => {
 
@@ -36,6 +37,8 @@ const App = () => {
         <Route path="/books/:id" element={<BookDetailsPage />} />
         <Route path="/requests" element={<Requests />} />
         <Route path="/add-book" element={<AddBookForm />} />
+
+        <Route path="/profile" element={<UserProfile />} />
 
         {/* Auth routes */}
         <Route path='/sign-up' element={

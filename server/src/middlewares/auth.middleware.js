@@ -1,13 +1,12 @@
 import jwt from 'jsonwebtoken';
 import AppError from '../utils/AppError.js';
 
-export const protect = (req, res, next) => {
+export const protect = async (req, res, next) => {
   const authHeader = req.headers.authorization;
   if (!authHeader?.startsWith('Bearer ')) {
-    console.log("Error from here")
     return next(new AppError('Not authenticated', 401));
   }
-
+  
   const token = authHeader.split(' ')[ 1 ];
   try {
     const payload = jwt.verify(token, process.env.JWT_SECRET);
