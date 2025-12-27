@@ -9,7 +9,6 @@ export const createBookValidation = [
   body("author")
     .notEmpty().withMessage("Author is required")
     .trim(),
-
   body("availabilityType")
     .notEmpty().withMessage("availabilityType is required")
     .custom((value) => {
@@ -38,6 +37,10 @@ export const createBookValidation = [
 
       return true;
     }),
+  
+  body('condition')
+    .notEmpty().withMessage('Condition of book required!')
+    .isIn(['new', 'like_new', 'good', 'fair']).withMessage('Invalid Value')
 ];
 
 export const updateBookValidation = [

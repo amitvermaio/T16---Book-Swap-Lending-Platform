@@ -11,6 +11,8 @@ import Home from './pages/Home';
 import Books from './pages/Books'
 import BookDetailsPage from './pages/BookDetailsPage';
 import Requests from './pages/Requests';
+import Tracking from './pages/Tracking';
+import About from './pages/About';
 import Register from './pages/auth/Register';
 import Login from './pages/auth/Login';
 import AddBookForm from './pages/AddBookForm';
@@ -36,8 +38,9 @@ const App = () => {
         <Route path="/books" element={<Books />} />
         <Route path="/books/:id" element={<BookDetailsPage />} />
         <Route path="/requests" element={<Requests />} />
+        <Route path="/tracking" element={<Tracking />} />
+        <Route path="/about" element={<About />} />
         <Route path="/add-book" element={<AddBookForm />} />
-
         <Route path="/profile" element={<UserProfile />} />
 
         {/* Auth routes */}

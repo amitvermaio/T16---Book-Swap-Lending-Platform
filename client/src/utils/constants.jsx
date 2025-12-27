@@ -66,7 +66,7 @@ export const books = [
   },
 ];
 
-export const CONDITIONS = ["New", "Like New", "Good", "Fair", "Decent", "Poor"];
+export const CONDITIONS = ["New", "Like New", "Good", "Fair"];
 export const AVAILABILITY = ["Available", "Swapped", "Reserved", "Wishlist Only"];
 export const SORT_OPTIONS = ["Newest First", "Oldest First", "Price: Low to High", "Price: High to Low", "Distance: Nearest"];
 

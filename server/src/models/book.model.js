@@ -10,7 +10,15 @@ const bookSchema = new mongoose.Schema({
 
   availabilityType: { type: [String], enum: ['lend', 'swap', 'donate'], required: true },
 
+  // eslint-disable-next-line no-dupe-keys
   genre: { type: [String], default: [] },
+
+  condition: {
+    type: String,
+    enum: ['new', 'like_new', 'good', 'fair'],
+    required: true,
+    default: 'good'
+  },
 
   additionalImages: { type: [String] },
   

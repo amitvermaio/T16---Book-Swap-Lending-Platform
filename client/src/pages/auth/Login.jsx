@@ -119,7 +119,7 @@ const Login = () => {
 
         <div className="mt-5 text-center text-xs text-gray-600">
           Don't have an account?{' '}
-          <button onClick={() => navigate('/register')} className="text-orange-600 font-bold hover:underline">
+          <button onClick={() => navigate('/sign-up')} className="text-orange-600 font-bold hover:underline">
             Register here
           </button>
         </div>

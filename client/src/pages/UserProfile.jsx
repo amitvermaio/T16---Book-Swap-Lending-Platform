@@ -90,7 +90,7 @@ const UserProfilePage = () => {
           <button 
             onClick={() => navigate(-1)} 
             className="p-2 bg-white/10 backdrop-blur-md hover:bg-white/20 text-white rounded-full transition-all"
-          >
+          > 
             <ArrowLeft size={20} />
           </button>
         </div>

@@ -55,6 +55,7 @@ export const createBookController = async (req, res, next) => {
       title: req.body.title,
       author: req.body.author,
       description: req.body.description,
+      condition: req.body.condition,
       genre: parsedGenre,
       availabilityType: parsedAvailability,
     };
