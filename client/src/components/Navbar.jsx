@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, NavLink } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { toast } from "react-hot-toast";
-import { MoveRight, Search, Menu, X, User, Settings, LogOut, Bell } from "lucide-react";
+import { MoveRight, Menu, X, User, Settings, LogOut, Bell } from "lucide-react";
 import { removeuser } from "../store/features/userSlice";
 import LogoImg from "../assets/Logo.png";
 
@@ -26,22 +26,6 @@ const DesktopNav = () => (
         {link.label}
       </NavLink>
     ))}
-  </div>
-);
-
-const SearchBar = () => (
-  <div className="relative hidden sm:block">
-    <Search
-      className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
-      strokeWidth={2}
-    />
-    <input
-      type="text"
-      placeholder="Search..."
-      className="w-40 sm:w-48 rounded-full border border-black pl-10 pr-4 py-2 text-sm font-medium outline-none
-      transition-all duration-300 ease-in-out
-      focus:border-orange-500 focus:ring-1 focus:ring-orange-500 focus:w-64 placeholder:text-gray-400"
-    />
   </div>
 );
 
@@ -103,10 +87,10 @@ const UserActions = ({ user, isAuthorized, profileOpen, setProfileOpen }) => {
   if (!isAuthorized) {
     return (
       <Link
-        to="/sign-up"
+        to="/sign-in"
         className="bg-black text-white rounded-full px-5 py-2 text-xs sm:text-sm font-medium"
       >
-        <span className="hidden sm:inline">Sign Up</span>
+        <span className="hidden sm:inline">Sign In</span>
         <MoveRight className="inline-block sm:ml-2 h-4 w-4" />
       </Link>
     );
@@ -190,11 +174,7 @@ const Navbar = () => {
           <DesktopNav />
 
           <div className="flex items-center gap-4">
-            <SearchBar />
-            <button className="block sm:hidden">
-              <Search className="h-5 w-5 text-black" strokeWidth={2} />
-            </button>
-
+            
             <UserActions 
               user={users?.user} 
               isAuthorized={users?.isAuthorized}

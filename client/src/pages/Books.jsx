@@ -49,7 +49,7 @@ const Books = () => {
               </span>
             </p>
           </div>
-          <div>
+          <div className="">
             <Link 
               to={users?.isAuthorized ? '/add-book' : '/sign-in'} 
               className="

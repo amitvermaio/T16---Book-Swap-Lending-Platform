@@ -8,12 +8,11 @@ import {
 
 export const createRequestController = async (req, res, next) => {
   try {
-    const payload = {
-      requesterId: req.user.id,
-      ...req.body,
-    };
+    const { bookId, type, offeredBookId, dueDate, notes } = req.body;
+    const payload = { requesterId: req.user.id, bookId, type, offeredBookId, dueDate, notes };
+
     const request = await createRequest(payload);
-    res.status(201).json({ request });
+    res.status(201).json({ success: true, request });
   } catch (err) {
     next(err);
   }
@@ -40,13 +39,14 @@ export const getRequestController = async (req, res, next) => {
 
 export const updateRequestStatusController = async (req, res, next) => {
   try {
-    const { action } = req.body; // 'approve' | 'reject' | 'cancel'
+    const { action } = req.body;
     const request = await updateRequestStatus({
       requestId: req.params.id,
       userId: req.user.id,
       action,
     });
-    res.json({ request });
+
+    res.json({ success: true, request });
   } catch (err) {
     next(err);
   }

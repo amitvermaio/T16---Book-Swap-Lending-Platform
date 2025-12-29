@@ -1,31 +1,42 @@
-const BookHero = ({ images = [] }) => {
-  const cover = images?.[0] || "/placeholder.jpg";
+import { useState, useEffect } from 'react';
+
+const BookHero = ({ images }) => {
+  const [mainImage, setMainImage] = useState("");
+
+  // Update mainImage whenever the images prop changes (i.e., when data loads)
+  useEffect(() => {
+    if (images && images.length > 0) {
+      setMainImage(images[0]);
+    }
+  }, [images]);
+
+  if (!images || images.length === 0) return null;
 
   return (
-    <div className="relative w-full h-[420px] rounded-3xl overflow-hidden bg-gray-200">
-
-      {/* BLURRED BG */}
-      <div
-        className="absolute inset-0 bg-cover bg-center blur-xl scale-110 opacity-60"
-        style={{ backgroundImage: `url(${cover})` }}
-      />
-
-      {/* MAIN IMAGE */}
-      <div className="relative z-10 w-full h-full flex items-center justify-center">
+    <div className="flex flex-col gap-4">
+      <div className="w-full h-[400px] md:h-[500px] bg-gray-100 rounded-3xl overflow-hidden flex items-center justify-center shadow-xl">
         <img
-          src={cover}
+          src={mainImage}
           alt="Book Cover"
-          className="h-[85%] object-contain drop-shadow-2xl"
+          className="h-full w-full object-contain drop-shadow-2xl transition-all duration-300"
         />
       </div>
 
-      {/* SLIDER BUTTONS (static for now) */}
-      <button className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/30 backdrop-blur p-3 rounded-full">
-        ←
-      </button>
-      <button className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/30 backdrop-blur p-3 rounded-full">
-        →
-      </button>
+      <div className="flex gap-4 overflow-x-auto pb-2 hide-scrollbar">
+        {images.map((img, index) => (
+          <button
+            key={index}
+            onClick={() => setMainImage(img)}
+            className={`flex-shrink-0 w-20 h-20 rounded-xl overflow-hidden border-2 transition-all ${
+              mainImage === img 
+                ? 'border-orange-500 shadow-md scale-105' 
+                : 'border-transparent opacity-70 hover:opacity-100'
+            }`}
+          >
+            <img src={img} alt={`Thumbnail ${index + 1}`} className="w-full h-full object-cover" />
+          </button>
+        ))}
+      </div>
     </div>
   );
 };

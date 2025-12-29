@@ -15,7 +15,7 @@ const TermsModal = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-white text-neutral-900 font-sans selection:bg-orange-100 selection:text-orange-900">
       
       {/* Backdrop */}
       <div 
@@ -26,7 +26,6 @@ const TermsModal = ({ isOpen, onClose }) => {
       {/* Modal Container */}
       <div className="relative w-full max-w-4xl max-h-[85vh] bg-white shadow-2xl border border-neutral-200 flex flex-col animate-in fade-in zoom-in-95 duration-200">
         
-        {/* Header */}
         <div className="flex items-center justify-between px-6 py-5 border-b border-neutral-100 bg-neutral-50">
           <div className="flex items-center gap-3">
             <Scale className="w-5 h-5 text-orange-600" />
@@ -43,10 +42,8 @@ const TermsModal = ({ isOpen, onClose }) => {
           </button>
         </div>
 
-        {/* Scrollable Content */}
         <div className="overflow-y-auto p-6 md:p-10 space-y-10 custom-scrollbar text-neutral-700">
           
-          {/* Intro */}
           <div className="border-l-4 border-orange-600 pl-6 py-1">
             <p className="text-sm font-mono text-neutral-500 mb-2">LAST UPDATED: DECEMBER 2025</p>
             <p className="leading-relaxed">
@@ -124,7 +121,6 @@ const TermsModal = ({ isOpen, onClose }) => {
 
         </div>
 
-        {/* Footer Actions */}
         <div className="border-t border-neutral-200 p-6 bg-white flex flex-col sm:flex-row justify-between items-center gap-4">
            <p className="text-xs text-neutral-400 font-mono">
              By clicking "I Acknowledge", you digitally sign this hash.

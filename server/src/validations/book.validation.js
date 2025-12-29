@@ -28,7 +28,7 @@ export const createBookValidation = [
       }
 
       // Check if ALL items in the array are valid
-      const validOptions = ["lend", "swap", "donate"];
+      const validOptions = ["borrow", "swap", "donate"];
       const invalidItems = types.filter(item => !validOptions.includes(item));
 
       if (invalidItems.length > 0) {
@@ -56,7 +56,7 @@ export const updateBookValidation = [
       }
       if (!Array.isArray(types)) types = [types];
 
-      const validOptions = ["lend", "swap", "donate"];
+      const validOptions = ["borrow", "swap", "donate"];
       const invalidItems = types.filter(item => !validOptions.includes(item));
 
       if (invalidItems.length > 0) {

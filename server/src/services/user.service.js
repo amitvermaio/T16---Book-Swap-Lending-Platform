@@ -1,4 +1,5 @@
 import User from '../models/user.model.js';
+import Book from '../models/book.model.js';
 import Request from '../models/request.model.js';
 import AppError from '../utils/AppError.js';
 
@@ -75,4 +76,24 @@ export const getBorrowHistory = async (userId) => {
     .sort({ createdAt: -1 });
 
   return history;
+};
+
+
+export const addBookToFavorites = async (userId, bookId) => {
+  const bookExists = await Book.findById(bookId);
+  if (!bookExists) {
+    throw new Error("Book not found");
+  }
+
+  const updatedUser = await User.findByIdAndUpdate(
+    userId,
+    { $addToSet: { favorites: bookId } }, 
+    { new: true }
+  );
+
+  if (!updatedUser) {
+    throw new Error("User not found");
+  }
+  
+  return updatedUser;
 };

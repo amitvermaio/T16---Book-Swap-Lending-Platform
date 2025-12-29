@@ -4,8 +4,12 @@ import HeroImage2 from "../../assets/hero-image-2.jpg";
 import HeroImage3 from "../../assets/hero-image-3.jpg";
 import BookIcon from "../../assets/BookIcon.png";
 import BookIconHeroLeft from "../../assets/BookIconHeroLeft.png";
+import { useNavigate } from "react-router-dom";
 
 const HeroSection = () => {
+
+  const navigate = useNavigate();
+
   return (
     <section className="w-full h-auto md:h-[calc(100vh-100px)] flex flex-col md:flex-row py-10 md:py-0">
 
@@ -27,7 +31,7 @@ const HeroSection = () => {
         </p>
 
         {/* CTA */}
-        <button className="mt-8 px-8 py-3 text-sm font-bold tracking-wide rounded-full bg-orange-400 hover:bg-orange-500 text-white shadow-lg hover:shadow-xl transition-all">
+        <button onClick={() => navigate('/books')} className="mt-8 px-8 py-3 text-sm font-bold tracking-wide rounded-full bg-orange-400 hover:bg-orange-500 text-white shadow-lg hover:shadow-xl transition-all">
           Explore Now
         </button>
 

@@ -16,7 +16,7 @@ const initialState = {
 };
 
 const bookSlice = createSlice({
-  name: 'books',  
+  name: 'books',
   initialState,
   reducers: {
     setloading: (state, action) => {
@@ -41,7 +41,17 @@ const bookSlice = createSlice({
       state.loadingCurrentBook = action.payload;
     },
     setbookfavorite: (state, action) => {
-      state.bookDetails.favorite = action.payload;
+      const bookId = action.payload;
+
+      const bookInList = state.books.find(b => b._id === bookId);
+      if (bookInList) {
+        bookInList.favorite = true;
+      }
+
+      if (state.bookDetails.book && state.bookDetails.book._id === bookId) {
+        state.bookDetails.book.favorite = true;
+        state.bookDetails.favorite = true;     
+      }
     }
   }
 })

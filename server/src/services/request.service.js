@@ -18,6 +18,11 @@ export const createRequest = async ({
     throw new AppError('Book not available', 400);
   }
 
+  if (type === 'swap' && !offeredBookId) {
+    throw new AppError('offeredBookId is required for swap', 400);
+  }
+
+
   const request = await Request.create({
     book: book._id,
     owner: book.owner._id,

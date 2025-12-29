@@ -20,14 +20,10 @@ const About = () => {
   const [isTermsOpen, setIsTermsOpen] = useState(false);
 
   return (
-    <div className="w-screen min-h-screen px-6 lg:px-12 bg-white text-neutral-900 font-sans selection:bg-orange-100 selection:text-orange-900">
+    <div className="w-screen min-h-screen px-6 lg:px-12">
       <Navbar />
 
-      <main className="w-full max-w-7xl mx-auto py-10">
-        
-        {/* ---------------------------------------------------------------------------
-            SECTION 1: SYSTEM HEADER / ABSTRACT
-           --------------------------------------------------------------------------- */}
+      <main className="w-full max-w-7xl mx-auto py-10 bg-white text-neutral-900 font-sans selection:bg-orange-100 selection:text-orange-900">        
         <section className="mb-24 border-b border-neutral-200 pb-16">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
             <div>
@@ -91,9 +87,6 @@ const About = () => {
           </div>
         </section>
 
-        {/* ---------------------------------------------------------------------------
-            SECTION 2: CORE MODULES
-           --------------------------------------------------------------------------- */}
         <section className="mb-24">
           <div className="flex items-center justify-between mb-12">
             <h2 className="text-2xl font-bold tracking-tight flex items-center gap-3">
@@ -161,9 +154,6 @@ const About = () => {
           </div>
         </section>
 
-        {/* ---------------------------------------------------------------------------
-            SECTION 3: WORKFLOW SPECIFICATION
-           --------------------------------------------------------------------------- */}
         <section className="mb-24 py-16 border-t border-b border-neutral-100 bg-neutral-50 -mx-6 lg:-mx-12 px-6 lg:px-12">
           
           <div className="flex flex-col md:flex-row gap-16 max-w-7xl mx-auto">
@@ -194,7 +184,7 @@ const About = () => {
                   </p>
                 </div>
 
-                {/* Step 2 */}
+
                 <div className="relative">
                   <span className="absolute -left-[39px] top-1 h-5 w-5 rounded-full border-4 border-white bg-neutral-400"></span>
                   <h4 className="text-lg font-bold text-black mb-2 flex items-center gap-2">
@@ -205,7 +195,7 @@ const About = () => {
                   </p>
                 </div>
 
-                {/* Step 3 */}
+
                 <div className="relative">
                   <span className="absolute -left-[39px] top-1 h-5 w-5 rounded-full border-4 border-white bg-neutral-400"></span>
                   <h4 className="text-lg font-bold text-black mb-2 flex items-center gap-2">
@@ -221,9 +211,6 @@ const About = () => {
           </div>
         </section>
 
-        {/* ---------------------------------------------------------------------------
-            SECTION 4: FOOTER
-           --------------------------------------------------------------------------- */}
         <footer className="pt-12">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center border-t border-neutral-900 pt-8">
             <div className="flex items-center gap-2 mb-4 md:mb-0">

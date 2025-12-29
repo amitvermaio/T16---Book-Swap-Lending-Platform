@@ -8,7 +8,7 @@ const bookSchema = new mongoose.Schema({
   description: String,
   coverImageUrl: { type: String, required: true },
 
-  availabilityType: { type: [String], enum: ['lend', 'swap', 'donate'], required: true },
+  availabilityType: { type: [String], enum: ['borrow', 'swap', 'donate'], required: true },
 
   // eslint-disable-next-line no-dupe-keys
   genre: { type: [String], default: [] },

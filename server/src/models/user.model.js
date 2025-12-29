@@ -35,6 +35,17 @@ const userSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Book'
   }],
+
+  emailVerified: {
+    type: Boolean,
+    default: false,
+  },
+
+  emailVerificationOTP: String,
+  emailVerificationOTPExpiry: Date,
+
+  resetPasswordOTP: String,
+  resetPasswordOTPExpiry: Date,
 }, { timestamps: true });
 
 userSchema.index({ city: 1 });

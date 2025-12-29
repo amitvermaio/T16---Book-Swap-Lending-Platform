@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Navbar from "../components/Navbar";
 import RequestCard from "../components/RequestCard"; 
 import { ArrowRightLeft } from 'lucide-react';
+import { socket } from '../socket';
+import { useSelector } from 'react-redux';
 
-// --- MOCK DATA ---
 const INCOMING_REQUESTS = [
   {
     id: 1,
@@ -30,7 +31,7 @@ const INCOMING_REQUESTS = [
     book: {
       title: 'Dune',
       author: 'Frank Herbert',
-      cover: 'https://images-na.ssl-images-amazon.com/images/I/9158ofE+gSL.jpg'
+      cover: 'https://m.media-amazon.com/images/I/81Ua99CURsL._AC_UY218_.jpg'
     },
     requester: {
       name: 'Emily Davis',
@@ -64,7 +65,16 @@ const SENT_REQUESTS = [
 const Requests = () => {
   const [activeTab, setActiveTab] = useState('incoming');
 
+  const users = useSelector(state => state.users);
   const requests = activeTab === 'incoming' ? INCOMING_REQUESTS : SENT_REQUESTS;
+
+  useEffect(() => {
+    if (users.isAuthorized) {
+      socket.on('notification:new', (data) => {
+        console.log(data);
+      })
+    }
+  }, [users.isAuthorized]);
 
   return (
     <div className="w-screen min-h-screen px-6 lg:px-12 bg-white text-gray-900 pb-20">

@@ -3,7 +3,11 @@ import {
   updateUserProfile,
   updatePreferences,
   getBorrowHistory,
+  addBookToFavorites
 } from '../services/user.service.js';
+import { welcomeTemplate, otpTemplate, requestTemplate } from "../templates/email.template.js";
+
+import sendEmail from '../services/email.service.js';
 
 export const getMeDetails = async (req, res, next) => {
   try {
@@ -61,12 +65,23 @@ export const getMyBorrowHistory = async (req, res, next) => {
   }
 };
 
-
 export const addToFavorite = async (req, res, next) => {
   try {
     const { user, book } = req.body;
-    res.json({ user, book });
+
+    if (!user || !book) {
+      return res.status(400).json({ message: "User ID and Book ID are required" });
+    }
+
+    const updatedUser = await addBookToFavorites(user, book);
+
+    res.status(200).json({
+      success: true,
+      message: "Book added to favorites successfully",
+      favorites: updatedUser.favorites 
+    });
+    
   } catch (error) {
     next(error);
   }
-}
+};

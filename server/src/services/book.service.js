@@ -5,7 +5,12 @@ import AppError from '../utils/AppError.js';
 
 export const getBookById = async (id) => {
   const book = await Book.findById(id).populate('owner', 'name ratingStats');
-  const relatedBooks = await Book.find({ _id: { $ne: id }, genre: { $in: book.genre } }).limit(4);
+  
+  const relatedBooks = await Book.find({
+    _id: { $ne: id },
+    genre: { $in: book.genre }
+  }).limit(4);
+
   if (!book) throw new AppError('Book not found', 404);
   return { book, relatedBooks };
 };

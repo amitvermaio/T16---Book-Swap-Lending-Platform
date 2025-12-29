@@ -1,5 +1,5 @@
 import axios from '../../config/axiosconfig';
-import { setloading, loadbooks, setcurrentbook, setcurrentbookloading } from '../features/bookSlice';
+import { setloading, loadbooks, setcurrentbook, setcurrentbookloading, setbookfavorite } from '../features/bookSlice';
 
 export const asyncloadbooks = (pageNo) => async (dispatch, getState) => {
   try {
@@ -35,3 +35,21 @@ export const asyncloadcurrentbook = (id) => async (dispatch) => {
     dispatch(setcurrentbookloading(false));
   }
 };
+
+
+export const asyncaddbooktofavorites = (userId, bookId) => async (dispatch) => {
+  try {
+    const token = localStorage.getItem('BookSwap_Token')
+    const { data } = await axios.post(`/users/favourites`, { userId, bookId }, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+    console.log(data);
+    if (data.success) {
+      dispatch(setbookfavorite(bookId));
+    }
+  } catch (error) {
+    console.error("Failed to add in Favorites", error);
+  } 
+} 
