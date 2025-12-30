@@ -20,10 +20,10 @@ const About = () => {
   const [isTermsOpen, setIsTermsOpen] = useState(false);
 
   return (
-    <div className="w-screen min-h-screen px-6 lg:px-12">
+    <div className="w-screen min-h-screen px-6 lg:px-12 bg-white selection:bg-orange-100 selection:text-orange-900">
       <Navbar />
 
-      <main className="w-full max-w-7xl mx-auto py-10 bg-white text-neutral-900 font-sans selection:bg-orange-100 selection:text-orange-900">        
+      <main className="w-full max-w-7xl mx-auto py-10 text-neutral-900 font-sans">        
         <section className="mb-24 border-b border-neutral-200 pb-16">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
             <div>

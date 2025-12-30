@@ -13,16 +13,17 @@ const requestSchema = new mongoose.Schema(
       enum: ['pending', 'approved', 'rejected', 'cancelled', 'completed'],
       default: 'pending',
     },
-
-    // A secret code generated when Approved. Requester gives this to Owner upon receipt.
     exchangeCode: { type: String }, 
-
     rejectionReason: { type: String }, 
-
     dueDate: Date,
     returnedAt: Date,
-    offeredBook: { type: mongoose.Schema.Types.ObjectId, ref: 'Book' }, // Used when swap request
+    offeredBook: { type: mongoose.Schema.Types.ObjectId, ref: 'Book' }, 
     notes: String,
+    pickupInfo: {
+      location: String,
+      datetime: Date,
+      note: String,
+    },
   },
   { timestamps: true }
 );

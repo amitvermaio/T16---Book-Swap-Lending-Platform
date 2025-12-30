@@ -4,6 +4,7 @@ import {
   getRequestById,
   updateRequestStatus,
   markReturned,
+  getActiveTrackings,
 } from '../services/request.service.js';
 
 export const createRequestController = async (req, res, next) => {
@@ -39,11 +40,12 @@ export const getRequestController = async (req, res, next) => {
 
 export const updateRequestStatusController = async (req, res, next) => {
   try {
-    const { action } = req.body;
+    const { action, pickupInfo } = req.body;
     const request = await updateRequestStatus({
       requestId: req.params.id,
       userId: req.user.id,
       action,
+      pickupInfo,
     });
 
     res.json({ success: true, request });
@@ -59,6 +61,15 @@ export const markReturnedController = async (req, res, next) => {
       ownerId: req.user.id,
     });
     res.json({ request });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const getActiveTrackingsController = async (req, res, next) => {
+  try {
+    const trackings = await getActiveTrackings(req.user.id);
+    res.status(200).json({ success: true, data: trackings });
   } catch (err) {
     next(err);
   }

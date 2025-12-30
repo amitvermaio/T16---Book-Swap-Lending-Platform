@@ -1,9 +1,11 @@
-import axios from '../../config/axiosconfig';
-import { 
+import { toast } from 'react-hot-toast';
+import {
   loadallincomingrequest,
-  loadoutgoingrequests, 
-  loadnewoutgoingrequest,  
+  loadoutgoingrequests,
+  loadnewoutgoingrequest,
+  removeincomingrequest,
 } from '../features/requestSlice';
+import axios from '../../config/axiosconfig';
 
 export const asyncloadallincomingrequests = () => async (dispatch) => {
   try {
@@ -14,7 +16,6 @@ export const asyncloadallincomingrequests = () => async (dispatch) => {
         Authorization: `Bearer ${token}`
       },
     });
-
     if (data.requests) {
       dispatch(loadallincomingrequest(data.requests));
     }
@@ -55,8 +56,32 @@ export const asyncsendbookrequest = (bookInfo) => async (dispatch) => {
     } else {
       return false;
     }
-    
+
   } catch (error) {
     console.error(error);
+  }
+}
+
+export const asyncupdaterequeststatus = ({ requestId, action, pickupInfo }) => async (dispatch) => {
+  try {
+    const token = localStorage.getItem('BookSwap_Token');
+    const { data } = await axios.patch(`/requests/${requestId}/status`, { action, pickupInfo }, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+
+    if (data.success && action === 'approved') {
+      dispatch(removeincomingrequest(requestId));
+      toast.success("Request Approved! Book moved to Tracking.");
+      return true;
+    } else if (data.success && action === 'rejected') {
+      dispatch(removeincomingrequest(requestId));
+      toast.success("Request Rejected.");
+      return true;
+    }
+  } catch (error) {
+    console.error(error);
+    toast.error("Failed to update status");
   }
 }

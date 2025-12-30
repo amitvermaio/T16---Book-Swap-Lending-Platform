@@ -1,12 +1,14 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { Link, NavLink } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { toast } from "react-hot-toast";
-import { MoveRight, Menu, X, User, Settings, LogOut, Bell, BookOpen } from "lucide-react";
+import { MoveRight, Menu, X, User, Settings, LogOut } from "lucide-react";
 import { removeuser } from "../store/features/userSlice";
-import { incrementnewrequest, removenewincomingrequest } from "../store/features/requestSlice";
-import { socket } from "../socket";
+import { asyncfetchnotifications } from "../store/actions/notificationActions";
+
 import LogoImg from "../assets/Logo.png";
+import NotificationBell from "./NotificationBell";
+
 
 const NAV_LINKS = [
   { path: "/books", label: "Browse Books" },
@@ -31,43 +33,13 @@ const DesktopNav = () => (
   </div>
 );
 
-const NotificationDropdown = ({ notifications, close }) => {
-  return (
-    <div className="absolute right-0 top-12 w-72 bg-white rounded-xl shadow-xl border border-gray-100 py-2 z-50 animate-in fade-in zoom-in-95">
-      <div className="px-4 py-2 border-b border-gray-50">
-        <h3 className="text-sm font-bold text-gray-900">Notifications</h3>
-      </div>
-      <div className="max-h-64 overflow-y-auto">
-        {notifications.length > 0 ? (
-          notifications.map((notif, idx) => (
-            <div key={idx} className="px-4 py-3 hover:bg-gray-50 border-b border-gray-50 last:border-0 flex gap-3">
-              {/* Small Image/Icon */}
-              <div className="w-10 h-10 rounded-md bg-orange-100 flex-shrink-0 flex items-center justify-center text-orange-600">
-                <BookOpen size={18} />
-              </div>
-              <div>
-                <p className="text-xs font-bold text-gray-800 uppercase">{notif.type.replace('_', ' ')}</p>
-                <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">{notif.message}</p>
-              </div>
-            </div>
-          ))
-        ) : (
-          <div className="px-4 py-6 text-center text-gray-400 text-xs">
-            No new notifications
-          </div>
-        )}
-      </div>
-    </div>
-  );
-};
-
 const ProfileMenu = ({ user, closeMenu }) => {
   const dispatch = useDispatch();
 
   const handleLogout = () => {
-    localStorage.removeItem('BookSwap_Token');
+    localStorage.removeItem("BookSwap_Token");
     dispatch(removeuser());
-    toast.success('Logged Out Successfully!');
+    toast.success("Logged Out Successfully!");
     closeMenu();
   };
 
@@ -114,31 +86,7 @@ const ProfileMenu = ({ user, closeMenu }) => {
   );
 };
 
-
 const UserActions = ({ user, isAuthorized, profileOpen, setProfileOpen }) => {
-  const dispatch = useDispatch();
-  const requestState = useSelector(state => state.requests);
-  const [notifOpen, setNotifOpen] = useState(false);
-  const [localNotifications, setLocalNotifications] = useState([]);
-
-  useEffect(() => {
-    if (isAuthorized) {
-      socket.on('notification:new', (data) => {
-        setLocalNotifications(prev => [data, ...prev]);
-        dispatch(incrementnewrequest());
-        toast(data.message, { icon: '🔔' });
-      });
-    }
-    return () => {
-      socket.off('notification:new');
-    }
-  }, [isAuthorized, dispatch]);
-
-  const toggleNotif = () => {
-    setNotifOpen(!notifOpen);
-    setProfileOpen(false);
-  };
-
   if (!isAuthorized) {
     return (
       <Link
@@ -153,41 +101,29 @@ const UserActions = ({ user, isAuthorized, profileOpen, setProfileOpen }) => {
 
   return (
     <div className="flex items-center gap-4">
-      {/* Notification Bell */}
-      <div className="relative">
-        <button
-          onClick={toggleNotif}
-          className="relative group text-black hover:text-orange-500 transition-colors"
-        >
-          <Bell className="h-5 w-5" strokeWidth={2} />
-          {requestState.newIncomingRequest > 0 && (
-            <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] text-white ring-2 ring-white">
-              {requestState.newIncomingRequest}
-            </span>
-          )}
-        </button>
+      <NotificationBell
+        isAuthorized={isAuthorized}
+        closeProfile={() => setProfileOpen(false)}
+      />
 
-        {notifOpen && (
-          <NotificationDropdown
-            notifications={localNotifications}
-            close={() => setNotifOpen(false)}
-          />
-        )}
-      </div>
-
-      {/* Profile */}
       <div className="relative">
         <button
           onClick={() => {
             setProfileOpen(!profileOpen);
-            setNotifOpen(false);
           }}
           className={`w-10 h-10 rounded-full flex items-center justify-center overflow-hidden transition-all duration-200 border border-gray-200 outline-none
-            ${profileOpen ? "ring-2 ring-orange-500 ring-offset-2" : "hover:ring-2 hover:ring-orange-500 hover:ring-offset-2"}
+            ${profileOpen
+              ? "ring-2 ring-orange-500 ring-offset-2"
+              : "hover:ring-2 hover:ring-orange-500 hover:ring-offset-2"
+            }
           `}
         >
           {user?.avatar ? (
-            <img src={user.avatar.url || user.avatar} alt="Profile" className="w-full h-full object-cover" />
+            <img
+              src={user.avatar.url || user.avatar}
+              alt="Profile"
+              className="w-full h-full object-cover"
+            />
           ) : (
             <div className="w-full h-full bg-black text-white flex items-center justify-center font-semibold text-sm">
               {user?.name ? user.name.charAt(0).toUpperCase() : "U"}
@@ -227,17 +163,26 @@ const MobileSidebar = ({ isOpen, closeSidebar }) => (
       </div>
     </div>
     {isOpen && (
-      <div onClick={closeSidebar} className="fixed inset-0 bg-black/30 z-40 lg:hidden" />
+      <div
+        onClick={closeSidebar}
+        className="fixed inset-0 bg-black/30 z-40 lg:hidden"
+      />
     )}
   </>
 );
-
 
 const Navbar = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
 
+  const dispatch = useDispatch();
   const users = useSelector((state) => state.users);
+
+  useEffect(() => {
+    if (users.isAuthorized) {
+      dispatch(asyncfetchnotifications());
+    }
+  }, [users.isAuthorized, dispatch]);
 
   return (
     <>
@@ -246,10 +191,10 @@ const Navbar = () => {
           <Link to={"/"} className="flex items-center">
             <img src={LogoImg} alt="Logo" className="h-10 object-contain" />
           </Link>
+
           <DesktopNav />
 
           <div className="flex items-center gap-4">
-
             <UserActions
               user={users?.user}
               isAuthorized={users?.isAuthorized}
@@ -257,7 +202,10 @@ const Navbar = () => {
               setProfileOpen={setProfileOpen}
             />
 
-            <button onClick={() => setSidebarOpen(true)} className="lg:hidden">
+            <button
+              onClick={() => setSidebarOpen(true)}
+              className="lg:hidden"
+            >
               <Menu className="h-6 w-6 text-black" strokeWidth={2} />
             </button>
           </div>

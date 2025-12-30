@@ -58,8 +58,8 @@ export const listRequests = async (userId, as) => {
 
   return Request.find(filter)
     .populate('book')
-    .populate('requester', 'name')
-    .populate('owner', 'name')
+    .populate('requester', 'name avatar address city state pincode')
+    .populate('owner', 'name avatar')
     .sort({ createdAt: -1 });
 };
 
@@ -83,32 +83,34 @@ export const updateRequestStatus = async ({
   requestId,
   userId,
   action,
+  pickupInfo,
 }) => {
   const reqDoc = await Request.findById(requestId).populate('book');
   if (!reqDoc) throw new AppError('Request not found', 404);
 
   const isOwner = reqDoc.owner.toString() === userId;
   const isRequester = reqDoc.requester.toString() === userId;
-
-  if (action === 'approve' || action === 'reject') {
+  // 'pending', 'approved', 'rejected', 'cancelled', 'completed'
+  if (action === 'approved' || action === 'rejected') {
     if (!isOwner) throw new AppError('Only owner can approve/reject', 403);
   }
 
-  if (action === 'cancel') {
+  if (action === 'cancelled') {
     if (!isRequester) throw new AppError('Only requester can cancel', 403);
   }
 
   const io = getIO();
 
-  if (action === 'approve') {
+  if (action === 'approved') {
     reqDoc.status = 'approved';
+    reqDoc.pickupInfo = pickupInfo;
     reqDoc.book.status = 'lent';
     await reqDoc.book.save();
-  } else if (action === 'reject') {
+  } else if (action === 'rejected') {
     reqDoc.status = 'rejected';
     reqDoc.book.status = 'available';
     await reqDoc.book.save();
-  } else if (action === 'cancel') {
+  } else if (action === 'cancelled') {
     reqDoc.status = 'cancelled';
     reqDoc.book.status = 'available';
     await reqDoc.book.save();
@@ -118,12 +120,19 @@ export const updateRequestStatus = async ({
 
   const targetUserId = isOwner ? reqDoc.requester : reqDoc.owner;
 
+  const data = { requestId: reqDoc._id, status: reqDoc.status };
+  if (action === 'approved' && pickupInfo) {
+    data.pickupInfo = pickupInfo;
+  }
+
   const notif = await Notification.create({
     user: targetUserId,
-    type: 'REQUEST_UPDATED',
+    type: action === 'approved' ? 'REQUEST_APPROVED' :
+          action === 'rejected' ? 'REQUEST_REJECTED' :
+          'REQUEST_CANCELLED',
     title: `Request ${action}`,
     message: `Your request for "${reqDoc.book.title}" is ${reqDoc.status}`,
-    data: { requestId: reqDoc._id, status: reqDoc.status },
+    data: data,
   });
 
   io.to(`user:${targetUserId.toString()}`).emit('request:updated', {
@@ -168,4 +177,17 @@ export const markReturned = async ({ requestId, ownerId }) => {
   io.to(`user:${reqDoc.requester.toString()}`).emit('notification:new', notif);
 
   return reqDoc;
+};
+
+export const getActiveTrackings = async (userId) => {
+  const requests = await Request.find({
+    $or: [{ owner: userId }, { requester: userId }],
+    status: 'approved'
+  })
+    .populate('book')
+    .populate('requester', 'name avatar city state')
+    .populate('owner', 'name avatar city state')
+    .sort({ updatedAt: -1 });
+
+  return requests;
 };

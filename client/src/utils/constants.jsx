@@ -7,7 +7,7 @@ import DopamineDetox from "../assets/DopamineDetox.jpg";
 import StopOverThinking from "../assets/StopOverThinking.jpg";
 import TheMountainIsYou from "../assets/TheMountainIsYou.jpg";
 
-import { RefreshCcw, Banknote, HandHeart } from 'lucide-react';
+import { RefreshCcw, Banknote, HandHeart, ArrowRightLeft, BookOpen, Clock } from 'lucide-react';
 
 export const bookGenres = ["Fiction", "Non-Fiction", "Fantasy", "Science Fiction", "Romance",
   "Mystery", "Thriller", "Horror", "Historical", "Biography", "Autobiography", "Self-Help",
@@ -181,5 +181,22 @@ export const getAvailabilityBadge = (type) => {
         text: 'Available for Swap',
         icon: RefreshCcw
       };
+  }
+};
+
+export const getTypeIcon = (type) => {
+  return type === 'swap'
+    ? <div className="flex items-center gap-1 text-orange-600 bg-orange-50 px-2 py-0.5 rounded text-[10px] font-bold uppercase"><ArrowRightLeft  size={12} /> Swap</div>
+    : <div className="flex items-center gap-1 text-gray-700 bg-gray-100 px-2 py-0.5 rounded text-[10px] font-bold uppercase"><BookOpen size={12} /> Lend</div>;
+};
+
+export const getStatusBadge = (status) => {
+  switch (status) {
+    case 'accepted':
+      return <span className="px-3 py-1 bg-black text-white text-xs font-bold uppercase tracking-wide rounded-full">Accepted</span>;
+    case 'rejected':
+      return <span className="px-3 py-1 bg-gray-100 text-gray-500 text-xs font-bold uppercase tracking-wide rounded-full">Declined</span>;
+    default:
+      return <span className="px-3 py-1 bg-orange-100 text-orange-600 text-xs font-bold uppercase tracking-wide rounded-full flex items-center gap-1"><Clock size={12} /> Pending</span>;
   }
 };

@@ -1,84 +1,39 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux'; 
 import Navbar from "../components/Navbar";
 import TrackingCard from "../components/TrackingCard"; 
-import { PackageSearch } from 'lucide-react';
-
-// --- MOCK DATA (Updated Dates for Demo) ---
-const LENDING_TRACKING = [
-  {
-    id: 1,
-    type: 'lend',
-    status: 'active',
-    book: {
-      title: 'The Psychology of Money',
-      author: 'Morgan Housel',
-      cover: 'https://m.media-amazon.com/images/I/71g2ednj0JL._AC_UF1000,1000_QL80_.jpg'
-    },
-    user: {
-      name: 'Alex Johnson',
-      location: 'New York, NY',
-      avatar: 'https://images.unsplash.com/photo-1599566150163-29194dcaad36?q=80&w=100&auto=format&fit=crop'
-    },
-    startDate: '2025-12-20',
-    dueDate: '2025-12-30', // Future date (Active)
-    progress: 70, 
-  },
-  {
-    id: 2,
-    type: 'swap',
-    status: 'completed',
-    book: {
-      title: 'Dune',
-      author: 'Frank Herbert',
-      cover: 'https://images-na.ssl-images-amazon.com/images/I/9158ofE+gSL.jpg'
-    },
-    user: {
-      name: 'Sarah Jenkins',
-      location: 'Portland, OR',
-      avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=100&auto=format&fit=crop'
-    },
-    startDate: '2025-12-01',
-    dueDate: '2025-12-15',
-    progress: 100,
-  }
-];
-
-const BORROWING_TRACKING = [
-  {
-    id: 3,
-    type: 'lend',
-    status: 'overdue',
-    book: {
-      title: 'Atomic Habits',
-      author: 'James Clear',
-      cover: 'https://m.media-amazon.com/images/I/91bYsX41DVL.jpg'
-    },
-    user: {
-      name: 'Michael Brown',
-      location: 'San Francisco, CA',
-      avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=100&auto=format&fit=crop'
-    },
-    startDate: '2025-12-01',
-    dueDate: '2025-12-25', // Past date (Overdue)
-    progress: 100, 
-  }
-];
+import { PackageSearch, Loader2 } from 'lucide-react';
+import { asyncfetchactivetrackings } from '../store/actions/trackingActions'; // 2. Import Action
 
 const Tracking = () => {
+  const dispatch = useDispatch();
+  const { activeTrackings, isLoading } = useSelector((state) => state.trackings);
+  const user = useSelector((state) => state.users.user); 
+
   const [activeTab, setActiveTab] = useState('lending');
 
-  const transactions = activeTab === 'lending' ? LENDING_TRACKING : BORROWING_TRACKING;
+  useEffect(() => {
+    dispatch(asyncfetchactivetrackings());
+  }, [dispatch]);
+
+  const lendingList = activeTrackings.filter(
+    (item) => item.owner?._id === user?._id || item.owner === user?._id
+  );
+
+  const borrowingList = activeTrackings.filter(
+    (item) => item.requester?._id === user?._id || item.requester === user?._id
+  );
+
+  const transactions = activeTab === 'lending' ? lendingList : borrowingList;
 
   return (
     <div className="w-screen min-h-screen px-6 lg:px-12 bg-white text-gray-900 pb-20">
       <Navbar />
       
-      {/* Page Header */}
       <div className="max-w-3xl mx-auto pt-8 pb-4">
         <h1 className="text-2xl font-bold mb-1">Track Books</h1>
         <p className="text-sm text-gray-500">Monitor active loans, swaps, and returns.</p>
         
-        {/* Tabs */}
         <div className="flex gap-8 mt-8 border-b border-gray-100">
           <button 
             onClick={() => setActiveTab('lending')}
@@ -88,7 +43,7 @@ const Tracking = () => {
                 : 'border-transparent text-gray-400 hover:text-gray-600'
             }`}
           >
-            Lending <span className="ml-1 bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded text-[10px]">{LENDING_TRACKING.length}</span>
+            Lending <span className="ml-1 bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded text-[10px]">{lendingList.length}</span>
           </button>
           
           <button 
@@ -99,17 +54,20 @@ const Tracking = () => {
                 : 'border-transparent text-gray-400 hover:text-gray-600'
             }`}
           >
-            Borrowing <span className="ml-1 bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded text-[10px]">{BORROWING_TRACKING.length}</span>
+            Borrowing <span className="ml-1 bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded text-[10px]">{borrowingList.length}</span>
           </button>
         </div>
       </div>
 
-      {/* Content Area */}
       <div className="max-w-3xl mx-auto space-y-5 mt-6">
-        {transactions.length > 0 ? (
+        {isLoading ? (
+             <div className="flex justify-center py-20">
+                <Loader2 className="animate-spin text-orange-500" />
+             </div>
+        ) : transactions.length > 0 ? (
           transactions.map(item => (
             <TrackingCard 
-              key={item.id} 
+              key={item._id}
               data={item} 
               isLending={activeTab === 'lending'} 
             />

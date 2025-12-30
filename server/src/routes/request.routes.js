@@ -6,6 +6,7 @@ import {
   getRequestController,
   updateRequestStatusController,
   markReturnedController,
+  getActiveTrackingsController,
 } from '../controllers/request.controller.js';
 
 import {
@@ -21,6 +22,7 @@ router.use(protect);
 
 router.post('/', createRequestValidation, validate, createRequestController);
 router.get('/', listRequestsController);
+router.get('/active', getActiveTrackingsController);
 router.get('/:id', getRequestController);
 router.patch('/:id/status', updateRequestStatusValidation, validate, updateRequestStatusController);
 router.patch('/:id/returned', markReturnedController);
