@@ -1,91 +1,66 @@
 import React, { useEffect, useState } from 'react';
-import Navbar from "../components/Navbar";
-import RequestCard from "../components/RequestCard"; 
 import { ArrowRightLeft } from 'lucide-react';
+import { useDispatch, useSelector } from 'react-redux';
+
 import { socket } from '../socket';
-import { useSelector } from 'react-redux';
+import { asyncloadallincomingrequests, asyncloadoutgoingrequests } from '../store/actions/requestActions';
+import { removenewincomingrequest } from '../store/features/requestSlice';
 
-const INCOMING_REQUESTS = [
-  {
-    id: 1,
-    type: 'swap',
-    status: 'pending',
-    date: '2 hours ago',
-    book: {
-      title: 'The Psychology of Money',
-      author: 'Morgan Housel',
-      cover: 'https://m.media-amazon.com/images/I/71g2ednj0JL._AC_UF1000,1000_QL80_.jpg'
-    },
-    requester: {
-      name: 'Alex Johnson',
-      location: 'New York, NY',
-      avatar: 'https://images.unsplash.com/photo-1599566150163-29194dcaad36?q=80&w=100&auto=format&fit=crop'
-    },
-    message: "Hey! I have 'Rich Dad Poor Dad' to swap. Interested?"
-  },
-  {
-    id: 2,
-    type: 'lend',
-    status: 'pending',
-    date: '1 day ago',
-    book: {
-      title: 'Dune',
-      author: 'Frank Herbert',
-      cover: 'https://m.media-amazon.com/images/I/81Ua99CURsL._AC_UY218_.jpg'
-    },
-    requester: {
-      name: 'Emily Davis',
-      location: 'Brooklyn, NY',
-      avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=100&auto=format&fit=crop'
-    },
-    message: "I'd love to borrow this for a week. I promise to take care of it!"
-  }
-];
-
-const SENT_REQUESTS = [
-  {
-    id: 3,
-    type: 'swap',
-    status: 'accepted',
-    date: '3 days ago',
-    book: {
-      title: 'Atomic Habits',
-      author: 'James Clear',
-      cover: 'https://m.media-amazon.com/images/I/91bYsX41DVL.jpg'
-    },
-    owner: {
-      name: 'Michael Brown',
-      location: 'San Francisco, CA',
-      avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=100&auto=format&fit=crop'
-    },
-    message: "Offering my copy of 'Deep Work' for this."
-  }
-];
+import RequestCard from "../components/RequestCard"; 
+import Navbar from "../components/Navbar";
 
 const Requests = () => {
+  const dispatch = useDispatch();
+  const requestState = useSelector(state => state.requests);
+  const users = useSelector(state => state.users);
+
   const [activeTab, setActiveTab] = useState('incoming');
 
-  const users = useSelector(state => state.users);
-  const requests = activeTab === 'incoming' ? INCOMING_REQUESTS : SENT_REQUESTS;
+  const requests = activeTab === 'incoming' 
+    ? requestState.incomingRequests 
+    : requestState.outgoingRequests;
 
   useEffect(() => {
     if (users.isAuthorized) {
+      dispatch(asyncloadallincomingrequests());
+      dispatch(asyncloadoutgoingrequests());
+
+      if (activeTab === 'incoming') {
+        dispatch(removenewincomingrequest());
+      }
+
       socket.on('notification:new', (data) => {
-        console.log(data);
-      })
+        if (data.type === 'REQUEST_CREATED') {
+            dispatch(asyncloadallincomingrequests());
+        }
+      });
+      
+      socket.on('request:updated', () => {
+         dispatch(asyncloadallincomingrequests());
+         dispatch(asyncloadoutgoingrequests());
+      });
     }
-  }, [users.isAuthorized]);
+
+    return () => {
+      socket.off('notification:new');
+      socket.off('request:updated');
+    };
+  }, [users.isAuthorized, dispatch, activeTab]);
+
+  useEffect(() => {
+    if (activeTab === 'incoming') {
+        dispatch(removenewincomingrequest());
+    }
+  }, [activeTab, dispatch]);
 
   return (
     <div className="w-screen min-h-screen px-6 lg:px-12 bg-white text-gray-900 pb-20">
       <Navbar />
       
-      {/* Page Header */}
       <div className="max-w-3xl mx-auto pt-8 pb-4">
         <h1 className="text-2xl font-bold mb-1">Book Requests</h1>
         <p className="text-sm text-gray-500">Manage your swaps and lending history.</p>
         
-        {/* Tabs */}
         <div className="flex gap-8 mt-8 border-b border-gray-100">
           <button 
             onClick={() => setActiveTab('incoming')}
@@ -95,7 +70,10 @@ const Requests = () => {
                 : 'border-transparent text-gray-400 hover:text-gray-600'
             }`}
           >
-            Incoming <span className="ml-1 bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded text-[10px]">{INCOMING_REQUESTS.length}</span>
+            Incoming 
+            <span className="ml-1 bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded text-[10px]">
+                {requestState.incomingRequests?.length || 0}
+            </span>
           </button>
           
           <button 
@@ -106,17 +84,19 @@ const Requests = () => {
                 : 'border-transparent text-gray-400 hover:text-gray-600'
             }`}
           >
-            Sent <span className="ml-1 bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded text-[10px]">{SENT_REQUESTS.length}</span>
+            Sent 
+            <span className="ml-1 bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded text-[10px]">
+                {requestState.outgoingRequests?.length || 0}
+            </span>
           </button>
         </div>
       </div>
 
-      {/* Content Area */}
       <div className="max-w-3xl mx-auto space-y-4 mt-6">
-        {requests.length > 0 ? (
+        {requests && requests.length > 0 ? (
           requests.map(req => (
             <RequestCard 
-              key={req.id} 
+              key={req._id} 
               request={req} 
               isIncoming={activeTab === 'incoming'} 
             />

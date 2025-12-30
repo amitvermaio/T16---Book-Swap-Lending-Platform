@@ -1,20 +1,19 @@
 import React from 'react';
 import { 
   MapPin, 
-  Calendar, 
   MessageSquare, 
   Check, 
   X, 
   Clock, 
   ArrowRightLeft, 
   BookOpen,
-  MoreHorizontal
+  MoreHorizontal,
+  CalendarClock
 } from 'lucide-react';
 
 const RequestCard = ({ request, isIncoming }) => {
   const isPending = request.status === 'pending';
 
-  // Helper for Status Badge Styling
   const getStatusBadge = (status) => {
     switch(status) {
       case 'accepted': 
@@ -26,7 +25,6 @@ const RequestCard = ({ request, isIncoming }) => {
     }
   };
 
-  // Helper for Type Icon
   const getTypeIcon = (type) => {
     return type === 'swap' 
       ? <div className="flex items-center gap-1 text-orange-600 bg-orange-50 px-2 py-0.5 rounded text-[10px] font-bold uppercase"><ArrowRightLeft size={12} /> Swap</div>
@@ -35,27 +33,32 @@ const RequestCard = ({ request, isIncoming }) => {
 
   const otherUser = isIncoming ? request.requester : request.owner;
 
+  const formattedDueDate = request.dueDate 
+    ? new Date(request.dueDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) 
+    : null;
+
   return (
     <div className="group bg-white rounded-2xl p-4 border border-gray-100 shadow-sm hover:shadow-md hover:border-orange-200 transition-all duration-300">
       <div className="flex flex-col sm:flex-row gap-5">
         
-        {/* 1. Book Cover (Left) */}
         <div className="w-full sm:w-24 h-32 flex-shrink-0 bg-gray-100 rounded-xl overflow-hidden relative">
           <img src={request.book.cover} alt={request.book.title} className="w-full h-full object-cover" />
         </div>
 
-        {/* 2. Content (Middle) */}
         <div className="flex-1 flex flex-col justify-between">
           
           <div>
             <div className="flex justify-between items-start mb-2">
-              <div className="flex gap-2 items-center">
+              <div className="flex flex-wrap gap-2 items-center">
                 {getTypeIcon(request.type)}
-                <span className="text-xs text-gray-400 font-medium flex items-center gap-1">
-                   <Calendar size={12} /> {request.date}
-                </span>
+
+                {formattedDueDate && (
+                    <span className="text-xs font-medium text-red-600 bg-red-50 px-2 py-0.5 rounded flex items-center gap-1 border border-red-100">
+                       <CalendarClock size={12} /> Due: {formattedDueDate}
+                    </span>
+                )}
+
               </div>
-              {/* Status Badge (Desktop) */}
               <div className="hidden sm:block">
                  {getStatusBadge(request.status)}
               </div>
@@ -78,7 +81,6 @@ const RequestCard = ({ request, isIncoming }) => {
             </div>
           </div>
 
-          {/* Message Bubble */}
           {request.message && (
             <div className="mt-3 flex gap-2 items-start text-xs text-gray-600 italic">
                <MessageSquare size={14} className="text-orange-400 mt-0.5 flex-shrink-0" />
@@ -87,10 +89,8 @@ const RequestCard = ({ request, isIncoming }) => {
           )}
         </div>
 
-        {/* 3. Actions (Right) */}
         <div className="flex sm:flex-col justify-end gap-2 sm:border-l sm:border-gray-100 sm:pl-5 sm:w-32 flex-shrink-0">
           
-          {/* Mobile Status Badge */}
           <div className="sm:hidden mr-auto">{getStatusBadge(request.status)}</div>
 
           {isIncoming && isPending ? (
@@ -112,7 +112,6 @@ const RequestCard = ({ request, isIncoming }) => {
              </button>
           )}
         </div>
-
       </div>
     </div>
   );

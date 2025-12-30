@@ -74,7 +74,7 @@ export const searchBooks = async (query) => {
     genre,
     city,
     availabilityType,
-    status = 'available',
+    // status,
     page = 1,
     limit = 12,
   } = query;
@@ -86,7 +86,7 @@ export const searchBooks = async (query) => {
   if (genre) filter.genre = genre;
   if (city) filter['location.city'] = new RegExp(city, 'i');
   if (availabilityType) filter.availabilityType = availabilityType;
-  if (status) filter.status = status;
+  // if (status) filter.status = status;
 
   const skip = (page - 1) * limit;
   /**

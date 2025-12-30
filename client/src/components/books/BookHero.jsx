@@ -3,7 +3,6 @@ import { useState, useEffect } from 'react';
 const BookHero = ({ images }) => {
   const [mainImage, setMainImage] = useState("");
 
-  // Update mainImage whenever the images prop changes (i.e., when data loads)
   useEffect(() => {
     if (images && images.length > 0) {
       setMainImage(images[0]);

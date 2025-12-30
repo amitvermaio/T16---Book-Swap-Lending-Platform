@@ -1,25 +1,21 @@
-/* eslint-disable no-unused-vars */
 import axios from '../../config/axiosconfig';
 import { 
   loadallincomingrequest,
   loadoutgoingrequests, 
-  loadnewincomingrequest, 
   loadnewoutgoingrequest,  
-  removeincomingrequest,
-  removeoutgoingrequest,
-  removenewincomingrequest,
 } from '../features/requestSlice';
 
 export const asyncloadallincomingrequests = () => async (dispatch) => {
   try {
-    const token = localStorage.get('BookSwap_Token');
-    const { data } = await axios.get(`/requests/incoming`, {
+    const token = localStorage.getItem('BookSwap_Token');
+
+    const { data } = await axios.get(`/requests?as=owner`, {
       headers: {
         Authorization: `Bearer ${token}`
       },
     });
 
-    if (data.success) {
+    if (data.requests) {
       dispatch(loadallincomingrequest(data.requests));
     }
   } catch (error) {
@@ -30,13 +26,13 @@ export const asyncloadallincomingrequests = () => async (dispatch) => {
 export const asyncloadoutgoingrequests = () => async (dispatch) => {
   try {
     const token = localStorage.getItem('BookSwap_Token');
-    const { data } = await axios.get('/requests/outgoing', {
+    const { data } = await axios.get('/requests?as=requester', {
       headers: {
         Authorization: `Bearer ${token}`,
       }
     });
 
-    if (data.success) {
+    if (data.requests) {
       dispatch(loadoutgoingrequests(data.requests));
     }
   } catch (error) {
@@ -54,7 +50,7 @@ export const asyncsendbookrequest = (bookInfo) => async (dispatch) => {
     });
 
     if (data.success) {
-      dispatch(loadnewoutgoingrequest(data.requests));
+      dispatch(loadnewoutgoingrequest(data.request));
       return true;
     } else {
       return false;
