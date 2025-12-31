@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { toast } from "react-hot-toast";
 import { Bell } from "lucide-react";
 import { incrementnewrequest } from "../store/features/requestSlice";
-import { addNotification } from "../store/features/notificationSlice";
+import { addnotification } from "../store/features/notificationSlice";
 import { asyncmarkallread } from "../store/actions/notificationActions";
 import { socket } from "../socket";
 
@@ -18,7 +18,7 @@ const NotificationBell = ({ isAuthorized, closeProfile }) => {
   useEffect(() => {
     if (isAuthorized) {
       const handleNewNotification = (data) => {
-        dispatch(addNotification(data));
+        dispatch(addnotification(data));
 
         if (data.type === 'REQUEST_CREATED') {
           dispatch(incrementnewrequest());

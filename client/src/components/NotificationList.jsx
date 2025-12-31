@@ -2,7 +2,7 @@ import { BookOpen, Bell, CheckCheck } from "lucide-react";
 
 const NotificationList = ({ notifications, onMarkRead }) => {
   return (
-    <div className="absolute right-0 top-12 w-80 bg-white rounded-xl shadow-xl border border-gray-100 py-2 z-50 animate-in fade-in zoom-in-95">
+    <div className="absolute right-0 top-5 w-80 bg-white rounded-xl shadow-xl border border-gray-100 py-2 z-50 animate-in fade-in zoom-in-95">
       <div className="px-4 py-3 border-b border-gray-50 flex justify-between items-center">
         <h3 className="text-sm font-bold text-gray-900">Notifications</h3>
         {notifications.length > 0 && (
@@ -19,7 +19,7 @@ const NotificationList = ({ notifications, onMarkRead }) => {
           notifications.map((notif, idx) => (
             <div
               key={notif._id || idx}
-              className={`px-4 py-3 hover:bg-gray-50 border-b border-gray-50 last:border-0 flex gap-3 transition-colors ${!notif.read ? 'bg-orange-50/50' : ''}`}
+              className={`px-4 py-3 hover:bg-gray-50 border-b border-gray-50 last:border-0 flex gap-3 transition-colors ${!notif.isRead ? 'bg-orange-50/50' : ''}`}
             >
               <div className="w-10 h-10 rounded-md bg-white border border-gray-100 shadow-sm flex-shrink-0 flex items-center justify-center text-orange-600">
                 <BookOpen size={18} />

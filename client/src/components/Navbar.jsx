@@ -9,7 +9,6 @@ import { asyncfetchnotifications } from "../store/actions/notificationActions";
 import LogoImg from "../assets/Logo.png";
 import NotificationBell from "./NotificationBell";
 
-
 const NAV_LINKS = [
   { path: "/books", label: "Browse Books" },
   { path: "/requests", label: "Requests" },
@@ -32,115 +31,6 @@ const DesktopNav = () => (
     ))}
   </div>
 );
-
-const ProfileMenu = ({ user, closeMenu }) => {
-  const dispatch = useDispatch();
-
-  const handleLogout = () => {
-    localStorage.removeItem("BookSwap_Token");
-    dispatch(removeuser());
-    toast.success("Logged Out Successfully!");
-    closeMenu();
-  };
-
-  return (
-    <div className="absolute right-0 mt-3 w-56 bg-white rounded-xl shadow-xl border border-gray-100 py-3 animate-in fade-in zoom-in-95 duration-200 z-50">
-      <div className="px-4 py-2 border-b border-gray-100 mb-2">
-        <p className="text-sm font-bold text-gray-900 truncate">
-          {user?.name || "User"}
-        </p>
-        <p className="text-xs text-gray-500 truncate">
-          {user?.email || "user@example.com"}
-        </p>
-      </div>
-
-      <div className="flex flex-col">
-        <Link
-          to="/profile"
-          onClick={closeMenu}
-          className="flex items-center px-4 py-2.5 text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-colors"
-        >
-          <User className="w-4 h-4 mr-3" />
-          My Profile
-        </Link>
-        <Link
-          to="/settings"
-          onClick={closeMenu}
-          className="flex items-center px-4 py-2.5 text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-colors"
-        >
-          <Settings className="w-4 h-4 mr-3" />
-          Settings
-        </Link>
-
-        <div className="h-px bg-gray-100 my-2 mx-4"></div>
-
-        <button
-          onClick={handleLogout}
-          className="flex w-full items-center px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors"
-        >
-          <LogOut className="w-4 h-4 mr-3" />
-          Sign out
-        </button>
-      </div>
-    </div>
-  );
-};
-
-const UserActions = ({ user, isAuthorized, profileOpen, setProfileOpen }) => {
-  if (!isAuthorized) {
-    return (
-      <Link
-        to="/sign-in"
-        className="bg-black text-white rounded-full px-5 py-2 text-xs sm:text-sm font-medium"
-      >
-        <span className="hidden sm:inline">Sign In</span>
-        <MoveRight className="inline-block sm:ml-2 h-4 w-4" />
-      </Link>
-    );
-  }
-
-  return (
-    <div className="flex items-center gap-4">
-      <NotificationBell
-        isAuthorized={isAuthorized}
-        closeProfile={() => setProfileOpen(false)}
-      />
-
-      <div className="relative">
-        <button
-          onClick={() => {
-            setProfileOpen(!profileOpen);
-          }}
-          className={`w-10 h-10 rounded-full flex items-center justify-center overflow-hidden transition-all duration-200 border border-gray-200 outline-none
-            ${profileOpen
-              ? "ring-2 ring-orange-500 ring-offset-2"
-              : "hover:ring-2 hover:ring-orange-500 hover:ring-offset-2"
-            }
-          `}
-        >
-          {user?.avatar ? (
-            <img
-              src={user.avatar.url || user.avatar}
-              alt="Profile"
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <div className="w-full h-full bg-black text-white flex items-center justify-center font-semibold text-sm">
-              {user?.name ? user.name.charAt(0).toUpperCase() : "U"}
-            </div>
-          )}
-        </button>
-
-        {profileOpen && (
-          <ProfileMenu
-            user={user}
-            closeMenu={() => setProfileOpen(false)}
-          />
-        )}
-      </div>
-    </div>
-  );
-};
 
 const MobileSidebar = ({ isOpen, closeSidebar }) => (
   <>
@@ -176,18 +66,26 @@ const Navbar = () => {
   const [profileOpen, setProfileOpen] = useState(false);
 
   const dispatch = useDispatch();
-  const users = useSelector((state) => state.users);
+  const { user, isAuthorized } = useSelector((state) => state.users);
 
   useEffect(() => {
-    if (users.isAuthorized) {
+    if (isAuthorized) {
       dispatch(asyncfetchnotifications());
     }
-  }, [users.isAuthorized, dispatch]);
+  }, [isAuthorized, dispatch]);
+
+  const handleLogout = () => {
+    localStorage.removeItem("BookSwap_Token");
+    dispatch(removeuser());
+    toast.success("Logged Out Successfully!");
+    setProfileOpen(false);
+  };
 
   return (
     <>
-      <nav className="w-full border-b border-black/10">
+      <nav className="w-full border-b border-black/10 relative z-30 bg-white">
         <div className="max-w-7xl mx-auto flex items-center justify-between py-7 px-4 xl:px-0">
+
           <Link to={"/"} className="flex items-center">
             <img src={LogoImg} alt="Logo" className="h-10 object-contain" />
           </Link>
@@ -195,12 +93,91 @@ const Navbar = () => {
           <DesktopNav />
 
           <div className="flex items-center gap-4">
-            <UserActions
-              user={users?.user}
-              isAuthorized={users?.isAuthorized}
-              profileOpen={profileOpen}
-              setProfileOpen={setProfileOpen}
-            />
+
+            {!isAuthorized ? (
+              <Link
+                to="/sign-in"
+                className="bg-black text-white rounded-full px-5 py-2 text-xs sm:text-sm font-medium transition-transform hover:scale-105"
+              >
+                <span className="hidden sm:inline">Sign In</span>
+                <MoveRight className="inline-block sm:ml-2 h-4 w-4" />
+              </Link>
+            ) : (
+              <div className="flex items-center gap-4">
+
+                <NotificationBell
+                  isAuthorized={isAuthorized}
+                  closeProfile={() => setProfileOpen(false)}
+                />
+
+                <div className="relative">
+                  <button
+                    onClick={() => setProfileOpen(!profileOpen)}
+                    className={`w-10 h-10 rounded-full flex items-center justify-center overflow-hidden transition-all duration-200 border border-gray-200 outline-none
+                      ${profileOpen
+                        ? "ring-2 ring-orange-500 ring-offset-2"
+                        : "hover:ring-2 hover:ring-orange-500 hover:ring-offset-2"
+                      }
+                    `}
+                  >
+                    {user?.avatar ? (
+                      <img
+                        src={user.avatar.url || user.avatar}
+                        alt="Profile"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-black text-white flex items-center justify-center font-semibold text-sm">
+                        {user?.name ? user.name.charAt(0).toUpperCase() : "U"}
+                      </div>
+                    )}
+                  </button>
+
+                  {profileOpen && (
+                    <div className="absolute right-0 mt-3 w-56 bg-white rounded-xl shadow-xl border border-gray-100 py-3 animate-in fade-in zoom-in-95 duration-200 z-50">
+                      {/* User Info Header */}
+                      <div className="px-4 py-2 border-b border-gray-100 mb-2">
+                        <p className="text-sm font-bold text-gray-900 truncate">
+                          {user?.name || "User"}
+                        </p>
+                        <p className="text-xs text-gray-500 truncate">
+                          {user?.email || "user@example.com"}
+                        </p>
+                      </div>
+
+                      <div className="flex flex-col">
+                        <Link
+                          to="/profile"
+                          onClick={() => setProfileOpen(false)}
+                          className="flex items-center px-4 py-2.5 text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-colors"
+                        >
+                          <User className="w-4 h-4 mr-3" />
+                          My Profile
+                        </Link>
+                        <Link
+                          to="/settings"
+                          onClick={() => setProfileOpen(false)}
+                          className="flex items-center px-4 py-2.5 text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-colors"
+                        >
+                          <Settings className="w-4 h-4 mr-3" />
+                          Settings
+                        </Link>
+
+                        <div className="h-px bg-gray-100 my-2 mx-4"></div>
+
+                        <button
+                          onClick={handleLogout}
+                          className="flex w-full items-center px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                        >
+                          <LogOut className="w-4 h-4 mr-3" />
+                          Sign out
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
 
             <button
               onClick={() => setSidebarOpen(true)}
@@ -211,6 +188,7 @@ const Navbar = () => {
           </div>
         </div>
       </nav>
+
       <MobileSidebar
         isOpen={sidebarOpen}
         closeSidebar={() => setSidebarOpen(false)}

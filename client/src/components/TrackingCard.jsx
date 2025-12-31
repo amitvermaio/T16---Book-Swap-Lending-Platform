@@ -35,7 +35,7 @@ const TrackingCard = ({ data, isLending }) => {
   };
 
   const book = data.book || {};
-  const offeredBook = data.offeredBook; // For Swaps
+  const offeredBook = data.offeredBook; 
   const pickup = data.pickupInfo || {};
   
   const otherUser = isLending ? data.requester : data.owner;
