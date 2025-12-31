@@ -135,7 +135,6 @@ const Navbar = () => {
 
                   {profileOpen && (
                     <div className="absolute right-0 mt-3 w-56 bg-white rounded-xl shadow-xl border border-gray-100 py-3 animate-in fade-in zoom-in-95 duration-200 z-50">
-                      {/* User Info Header */}
                       <div className="px-4 py-2 border-b border-gray-100 mb-2">
                         <p className="text-sm font-bold text-gray-900 truncate">
                           {user?.name || "User"}
@@ -179,12 +178,10 @@ const Navbar = () => {
               </div>
             )}
 
-            <button
-              onClick={() => setSidebarOpen(true)}
-              className="lg:hidden"
-            >
+            <button onClick={() => setSidebarOpen(true)} className="lg:hidden" >
               <Menu className="h-6 w-6 text-black" strokeWidth={2} />
             </button>
+
           </div>
         </div>
       </nav>

@@ -22,6 +22,9 @@ export const createRequest = async ({
     throw new AppError('offeredBookId is required for swap', 400);
   }
 
+  if (book.owner._id.toString() === requesterId) {
+    throw new AppError('Cannot request your own book', 400);
+  }
 
   const request = await Request.create({
     book: book._id,
@@ -51,10 +54,10 @@ export const createRequest = async ({
 };
 
 export const listRequests = async (userId, as) => {
-  const filter =
-    as === 'owner'
-      ? { owner: userId }
-      : { requester: userId };
+  const filter = {
+    ...(as === 'owner' ? { owner: userId } : { requester: userId }),
+    status: { $in: ['pending', 'rejected', 'cancelled'] }
+  };
 
   return Request.find(filter)
     .populate('book')
@@ -128,8 +131,8 @@ export const updateRequestStatus = async ({
   const notif = await Notification.create({
     user: targetUserId,
     type: action === 'approved' ? 'REQUEST_APPROVED' :
-          action === 'rejected' ? 'REQUEST_REJECTED' :
-          'REQUEST_CANCELLED',
+      action === 'rejected' ? 'REQUEST_REJECTED' :
+        'REQUEST_CANCELLED',
     title: `Request ${action}`,
     message: `Your request for "${reqDoc.book.title}" is ${reqDoc.status}`,
     data: data,

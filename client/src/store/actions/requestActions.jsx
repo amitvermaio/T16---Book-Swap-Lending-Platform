@@ -52,13 +52,15 @@ export const asyncsendbookrequest = (bookInfo) => async (dispatch) => {
 
     if (data.success) {
       dispatch(loadnewoutgoingrequest(data.request));
+      toast.success("Request Sent Successfully!");
       return true;
     } else {
+      toast.error(data.message || "Failed to send request");
       return false;
     }
 
   } catch (error) {
-    console.error(error);
+    toast.error(error.response?.data?.message || "Failed to send request");
   }
 }
 

@@ -14,7 +14,7 @@ export const registerUser = async ({ name, email, password }) => {
   await User.collection.dropIndexes();
   const existing = await User.findOne({ email });
 
-  if (existing) throw new AppError('Email already registered', 400);
+  if (existing) throw new AppError('Email already registered', 409);
 
   const hash = await bcrypt.hash(password, 10);
 

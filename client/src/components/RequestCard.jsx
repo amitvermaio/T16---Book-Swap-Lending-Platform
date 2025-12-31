@@ -15,7 +15,7 @@ import { useDispatch } from 'react-redux';
 import { getStatusBadge, getTypeIcon } from '../utils/constants';
 import { asyncupdaterequeststatus } from '../store/actions/requestActions';
 
-const RequestCard = ({ request, isIncoming, onDecline }) => {
+const RequestCard = ({ request, isIncoming }) => {
   const dispatch = useDispatch();
 
   const [isAccepting, setIsAccepting] = useState(false);
@@ -41,6 +41,7 @@ const RequestCard = ({ request, isIncoming, onDecline }) => {
   };
 
   const handleCancel = () => {
+    dispatch(asyncupdaterequeststatus({ requestId: request._id, action: 'rejected' }))
     reset();
     setIsAccepting(false);
   };
@@ -124,7 +125,7 @@ const RequestCard = ({ request, isIncoming, onDecline }) => {
                 <Check size={14} /> Accept
               </button>
               <button
-                onClick={() => onDecline && onDecline(request._id)}
+                onClick={() => handleCancel()}
                 className="flex-1 sm:flex-none flex items-center justify-center gap-2 border border-gray-200 text-gray-600 px-4 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-gray-50 transition-colors"
               >
                 <X size={14} /> Decline

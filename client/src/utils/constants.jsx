@@ -162,10 +162,10 @@ export const booksData = [
 
 export const getAvailabilityBadge = (type) => {
   switch (type) {
-    case 'lend':
+    case 'borrow':
       return {
         color: 'bg-blue-500',
-        text: 'Available to Lend',
+        text: 'Available to Borrow',
         icon: Banknote
       };
     case 'donate':

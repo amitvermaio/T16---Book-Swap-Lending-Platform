@@ -18,7 +18,8 @@ import Register from './pages/auth/Register';
 import Login from './pages/auth/Login';
 import AddBookForm from './pages/AddBookForm';
 import UserProfile from './pages/UserProfile';
-import { LoaderCircle } from 'lucide-react';
+
+// https://ui-avatars.com/api/?name=${owner?.name}
 
 const App = () => {
 

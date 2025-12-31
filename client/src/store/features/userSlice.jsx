@@ -2,6 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   user: null,
+  bookCollection: [],
   isAuthorized: false,
   loading: false
 }
@@ -22,9 +23,12 @@ const userSlice = createSlice({
     },
     setuserloading: (state, action) => {
       state.loading = action.payload;
-    } 
+    },
+    loaduserbooks: (state, action) => {
+      state.bookCollection = action.payload;
+    }
   }
 });
 
-export const { loaduser, removeuser, setuserloading } = userSlice.actions;
+export const { loaduser, removeuser, setuserloading, loaduserbooks } = userSlice.actions;
 export default userSlice.reducer;

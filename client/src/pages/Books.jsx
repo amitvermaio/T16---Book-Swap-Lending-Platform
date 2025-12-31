@@ -20,7 +20,7 @@ const Books = () => {
     if (books.length === 0) {
       dispatch(asyncloadbooks());
     }
-  }, []);
+  }, [dispatch, books.length]);
 
   const fetchMoreBooks = () => {
     if (!loading && hasMore) {
@@ -34,7 +34,6 @@ const Books = () => {
       <Navbar />
 
       <div className="w-full mt-5">
-        {/* Header */}
         <div className="w-full flex items-start justify-between">
           <div>
             <h1 className="text-5xl tracking-tighter font-semibold">
@@ -70,10 +69,8 @@ const Books = () => {
           </div>
         </div>
 
-        {/* Search & Filters */}
         <SearchFilterBar />
 
-        {/* ✅ Infinite Scroll */}
         <InfiniteScroll
           className="hide-scrollbar"
           dataLength={books.length}   
