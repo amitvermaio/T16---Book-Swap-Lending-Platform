@@ -16,7 +16,6 @@ export const initSocket = (server) => {
 
   io.use(async (socket, next) => {
     try {
-      dbgr(socket.handshake.auth.token);
       const token = socket.handshake.auth.token;
 
       if (!token) return next(new Error("Authentication error"));

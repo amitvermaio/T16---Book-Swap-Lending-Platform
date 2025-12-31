@@ -1,9 +1,9 @@
 import Notification from '../models/notification.model.js';
 
 export const listNotifications = async (userId) => {
-  return Notification.find({ user: userId })
+  return await Notification.find({ user: userId })
     .sort({ createdAt: -1 })
-    .limit(100);
+    .limit(10);
 };
 
 export const markNotificationRead = async (userId, notifId) => {
@@ -15,8 +15,10 @@ export const markNotificationRead = async (userId, notifId) => {
 };
 
 export const markAllRead = async (userId) => {
-  await Notification.updateMany(
+  const res = await Notification.updateMany(
     { user: userId, isRead: false },
-    { isRead: true }
+    { isRead: true },
+    { new: true }
   );
+  console.log(res);
 };

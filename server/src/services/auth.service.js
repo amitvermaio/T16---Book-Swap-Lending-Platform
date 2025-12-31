@@ -41,5 +41,5 @@ export const loginUser = async ({ email, password }) => {
 };
 
 export const getMe = async (userId) => {
-  return User.findById(userId).select('-passwordHash');
+  return User.findById(userId).select('-passwordHash -role');
 };

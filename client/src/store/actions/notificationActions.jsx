@@ -1,7 +1,7 @@
 import axios from '../../config/axiosconfig';
 import { 
-  setNotifications, 
-  markAllRead 
+  setnotifications, 
+  markallread 
 } from '../features/notificationSlice';
 
 export const asyncfetchnotifications = () => async (dispatch) => {
@@ -12,7 +12,7 @@ export const asyncfetchnotifications = () => async (dispatch) => {
     });
 
     if (data.notifications) {
-      dispatch(setNotifications(data.notifications));
+      dispatch(setnotifications(data.notifications));
     }
   } catch (error) {
     console.error("Failed to fetch notifications", error);
@@ -26,7 +26,7 @@ export const asyncmarkallread = () => async (dispatch) => {
       headers: { Authorization: `Bearer ${token}` }
     });
     
-    dispatch(markAllRead());
+    dispatch(markallread());
   } catch (error) {
     console.error(error);
   }
