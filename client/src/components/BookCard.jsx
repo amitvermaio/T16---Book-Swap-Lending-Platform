@@ -60,13 +60,11 @@ const BookCard = ({
           </div>
         )}
 
-        {/* Availability Badges (Mapped to show ALL types) */}
         <div className="absolute bottom-3 left-3 flex flex-wrap gap-1.5 max-w-[90%]">
           {availabilityTypes.map((type, index) => {
             const info = getAvailabilityBadge(type);
             // Fallback if type isn't recognized
             if (!info) return null; 
-            
             return (
               <div 
                 key={index}
@@ -106,7 +104,6 @@ const BookCard = ({
           </div>
         </div>
 
-        {/* Action Button */}
         <div className="mt-auto pt-4">
           {status !== 'available' ? (
              <button disabled className="w-full bg-gray-200 text-gray-500 font-semibold py-2.5 rounded-xl cursor-not-allowed text-sm">

@@ -62,7 +62,8 @@ export const listRequests = async (userId, as) => {
   return Request.find(filter)
     .populate('book')
     .populate('requester', 'name avatar address city state pincode')
-    .populate('owner', 'name avatar')
+    .populate('owner', 'name avatar city state')
+    .populate('offeredBook', '_id title author coverImageUrl')
     .sort({ createdAt: -1 });
 };
 

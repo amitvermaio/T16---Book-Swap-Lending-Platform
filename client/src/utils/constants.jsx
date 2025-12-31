@@ -7,7 +7,18 @@ import DopamineDetox from "../assets/DopamineDetox.jpg";
 import StopOverThinking from "../assets/StopOverThinking.jpg";
 import TheMountainIsYou from "../assets/TheMountainIsYou.jpg";
 
-import { RefreshCcw, Banknote, HandHeart, ArrowRightLeft, BookOpen, Clock } from 'lucide-react';
+import { RefreshCcw,
+  Banknote, 
+  HandHeart, 
+  ArrowRightLeft, 
+  BookOpen, 
+  Clock,
+  CheckCircle,
+  XCircle,
+  Slash,
+  CheckCheck,
+  PackageCheck 
+} from 'lucide-react';
 
 export const bookGenres = ["Fiction", "Non-Fiction", "Fantasy", "Science Fiction", "Romance",
   "Mystery", "Thriller", "Horror", "Historical", "Biography", "Autobiography", "Self-Help",
@@ -186,17 +197,55 @@ export const getAvailabilityBadge = (type) => {
 
 export const getTypeIcon = (type) => {
   return type === 'swap'
-    ? <div className="flex items-center gap-1 text-orange-600 bg-orange-50 px-2 py-0.5 rounded text-[10px] font-bold uppercase"><ArrowRightLeft  size={12} /> Swap</div>
+    ? <div className="flex items-center gap-1 text-orange-600 bg-orange-50 px-2 py-0.5 rounded text-[10px] font-bold uppercase"><ArrowRightLeft size={12} /> Swap</div>
     : <div className="flex items-center gap-1 text-gray-700 bg-gray-100 px-2 py-0.5 rounded text-[10px] font-bold uppercase"><BookOpen size={12} /> Lend</div>;
 };
 
 export const getStatusBadge = (status) => {
+  const baseStyles = "px-3 py-1 text-xs font-bold uppercase tracking-wide rounded-full flex items-center gap-1.5 w-max";
+
   switch (status) {
-    case 'accepted':
-      return <span className="px-3 py-1 bg-black text-white text-xs font-bold uppercase tracking-wide rounded-full">Accepted</span>;
+    case 'approved':
+      return (
+        <span className={`${baseStyles} bg-green-100 text-green-700 border border-green-200`}>
+          <CheckCircle size={12} /> Approved
+        </span>
+      );
+
+    case 'completed':
+      return (
+        <span className={`${baseStyles} bg-blue-100 text-blue-700 border border-blue-200`}>
+          <CheckCheck size={12} /> Completed
+        </span>
+      );
+
+    case 'collected':
+      return (
+        <span className={`${baseStyles} bg-purple-100 text-purple-700 border border-purple-200`}>
+          <PackageCheck size={12} /> Collected
+        </span>
+      );
+
     case 'rejected':
-      return <span className="px-3 py-1 bg-gray-100 text-gray-500 text-xs font-bold uppercase tracking-wide rounded-full">Declined</span>;
+      return (
+        <span className={`${baseStyles} bg-red-100 text-red-700 border border-red-200`}>
+          <XCircle size={12} /> Rejected
+        </span>
+      );
+
+    case 'cancelled':
+      return (
+        <span className={`${baseStyles} bg-gray-100 text-gray-600 border border-gray-200`}>
+          <Slash size={12} /> Cancelled
+        </span>
+      );
+
+    case 'pending':
     default:
-      return <span className="px-3 py-1 bg-orange-100 text-orange-600 text-xs font-bold uppercase tracking-wide rounded-full flex items-center gap-1"><Clock size={12} /> Pending</span>;
+      return (
+        <span className={`${baseStyles} bg-orange-100 text-orange-700 border border-orange-200`}>
+          <Clock size={12} /> Pending
+        </span>
+      );
   }
 };

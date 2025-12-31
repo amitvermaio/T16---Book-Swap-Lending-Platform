@@ -69,8 +69,6 @@ const BookInfo = ({ book }) => {
       notes: note
     };
 
-    console.log(requestData);
-
     dispatch(asyncsendbookrequest(requestData)).then(() => {
       setNote("");
       setDueDate("");

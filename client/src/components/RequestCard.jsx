@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useForm } from 'react-hook-form'; // Import hook
+import { useForm } from 'react-hook-form';
 import {
   MapPin,
   MessageSquare,
@@ -7,13 +7,43 @@ import {
   X,
   MoreHorizontal,
   CalendarClock,
-  CalendarDays
+  CalendarDays,
+  ArrowRightLeft // Added for swap icon
 } from 'lucide-react';
 
 import { useDispatch } from 'react-redux';
-
+import { Link } from 'react-router-dom';
 import { getStatusBadge, getTypeIcon } from '../utils/constants';
 import { asyncupdaterequeststatus } from '../store/actions/requestActions';
+
+const OfferedBookDisplay = ({ book }) => {
+  if (!book) return null;
+  
+  return (
+    <Link target='_blank' to={`/books/${book._id}`} className="mt-3 p-3 bg-orange-50/80 rounded-xl border border-orange-100 flex items-start sm:items-center gap-3 animate-in fade-in duration-300">
+      <div className="w-10 h-14 flex-shrink-0 bg-gray-200 rounded-md overflow-hidden shadow-sm">
+        <img 
+          src={book.coverImageUrl} 
+          alt={book.title} 
+          className="w-full h-full object-cover" 
+        />
+      </div>
+
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-1.5 text-orange-600 mb-0.5">
+          <ArrowRightLeft size={12} className="stroke-[2.5]" />
+          <span className="text-[10px] font-bold uppercase tracking-wider">Offered for Swap</span>
+        </div>
+        <h4 className="text-sm font-bold text-gray-900 truncate leading-tight" title={book.title}>
+          {book.title}
+        </h4>
+        <p className="text-xs text-gray-500 truncate mt-0.5">
+          by {book.author}
+        </p>
+      </div>
+    </Link>
+  );
+};
 
 const RequestCard = ({ request, isIncoming }) => {
   const dispatch = useDispatch();
@@ -40,8 +70,8 @@ const RequestCard = ({ request, isIncoming }) => {
     console.log("Form Submitted:", data);
   };
 
-  const handleCancel = () => {
-    dispatch(asyncupdaterequeststatus({ requestId: request._id, action: 'rejected' }))
+  const handleCancel = (action) => {
+    dispatch(asyncupdaterequeststatus({ requestId: request._id, action }));
     reset();
     setIsAccepting(false);
   };
@@ -50,11 +80,13 @@ const RequestCard = ({ request, isIncoming }) => {
     <div className="group bg-white rounded-2xl p-4 border border-gray-100 shadow-sm hover:shadow-md hover:border-orange-200 transition-all duration-300">
       <div className="flex flex-col sm:flex-row gap-5">
 
+        {/* Requested Book Image */}
         <div className="w-full sm:w-24 h-32 flex-shrink-0 bg-gray-100 rounded-xl overflow-hidden relative">
           <img src={request.book.coverImageUrl} alt={request.book.title} className="w-full h-full object-cover" />
         </div>
 
-        <div className="flex-1 flex flex-col justify-between">
+        {/* Main Content Area */}
+        <div className="flex-1 flex flex-col justify-between min-w-0">
           <div>
             <div className="flex justify-between items-start mb-2">
               <div className="flex flex-wrap gap-2 items-center">
@@ -70,10 +102,11 @@ const RequestCard = ({ request, isIncoming }) => {
               </div>
             </div>
 
-            <h3 className="text-lg font-bold text-gray-900 leading-tight">{request.book.title}</h3>
-            <p className="text-sm text-gray-500 mb-3">by {request.book.author}</p>
+            <h3 className="text-lg font-bold text-gray-900 leading-tight truncate">{request.book.title}</h3>
+            <p className="text-sm text-gray-500 mb-3 truncate">by {request.book.author}</p>
 
-            <div className="flex items-center gap-3 bg-gray-50 p-2 rounded-xl w-fit">
+            {/* User Info Badge */}
+            <div className="flex items-center gap-3 bg-gray-50 p-2 rounded-xl w-fit max-w-full">
               <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0 border border-gray-200">
                 {otherUser?.avatar ? (
                   <img
@@ -88,31 +121,39 @@ const RequestCard = ({ request, isIncoming }) => {
                 )}
               </div>
 
-              <div>
+              <div className="min-w-0">
                 <p className="text-xs font-bold text-gray-900">
                   {isIncoming ? "Request from" : "Owner"}
                 </p>
-                <div className="flex items-center gap-1 text-xs text-gray-500">
-                  <span className="font-medium text-gray-700">
+                <div className="flex items-center gap-1 text-xs text-gray-500 truncate">
+                  <span className="font-medium text-gray-700 truncate">
                     {otherUser?.name || "Unknown"}
                   </span>
                   <span>•</span>
-                  <span className="flex items-center gap-0.5">
+                  <span className="flex items-center gap-0.5 truncate">
                     <MapPin size={10} /> {userLocation}
                   </span>
                 </div>
               </div>
             </div>
+            
+            {/* --- NEW: Offered Book Component --- */}
+            {request.type === 'swap' && request.offeredBook && (
+               <OfferedBookDisplay book={request.offeredBook} />
+            )}
+
           </div>
 
+          {/* Notes */}
           {request.notes && !isAccepting && (
             <div className="mt-3 flex gap-2 items-start text-xs text-gray-600 italic">
               <MessageSquare size={14} className="text-orange-400 mt-0.5 flex-shrink-0" />
-              <p>"{request.notes}"</p>
+              <p className="line-clamp-2">"{request.notes}"</p>
             </div>
           )}
         </div>
 
+        {/* Actions Sidebar */}
         <div className={`flex sm:flex-col justify-end gap-2 sm:border-l sm:border-gray-100 sm:pl-5 flex-shrink-0 ${isAccepting ? 'w-full sm:w-72' : 'sm:w-32'}`}>
           <div className="sm:hidden mr-auto">{getStatusBadge(request.status)}</div>
 
@@ -125,14 +166,14 @@ const RequestCard = ({ request, isIncoming }) => {
                 <Check size={14} /> Accept
               </button>
               <button
-                onClick={() => handleCancel()}
+                onClick={() => handleCancel('rejected')}
                 className="flex-1 sm:flex-none flex items-center justify-center gap-2 border border-gray-200 text-gray-600 px-4 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-gray-50 transition-colors"
               >
                 <X size={14} /> Decline
               </button>
             </>
           ) : !isIncoming && isPending ? (
-            <button className="w-full border border-gray-200 text-gray-500 px-4 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-gray-50 hover:text-red-500 transition-colors">
+            <button onClick={() => handleCancel('cancelled')} className="w-full border border-gray-200 text-gray-500 px-4 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-gray-50 hover:text-red-500 transition-colors">
               Cancel
             </button>
           ) : !isAccepting && (
@@ -144,7 +185,7 @@ const RequestCard = ({ request, isIncoming }) => {
           {isAccepting && (
             <form
               className="flex flex-col gap-3 animate-in fade-in slide-in-from-right-4 duration-300"
-              onSubmit={(e) => e.preventDefault()} // Prevent default form submission to handle via button click
+              onSubmit={(e) => e.preventDefault()}
             >
               <div className="text-xs font-bold text-gray-900 uppercase">Pickup Details</div>
 
@@ -191,7 +232,7 @@ const RequestCard = ({ request, isIncoming }) => {
                 </button>
                 <button
                   type="button"
-                  onClick={handleCancel}
+                  onClick={() => setIsAccepting(false)}
                   className="flex-1 bg-white border border-gray-200 text-gray-600 py-2 rounded-lg text-xs font-bold uppercase hover:bg-gray-50 transition-colors"
                 >
                   Cancel

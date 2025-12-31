@@ -5,6 +5,7 @@ import {
   loadnewoutgoingrequest,
   removeincomingrequest,
 } from '../features/requestSlice';
+import { FileX } from 'lucide-react';
 import axios from '../../config/axiosconfig';
 
 export const asyncloadallincomingrequests = () => async (dispatch) => {
@@ -76,12 +77,16 @@ export const asyncupdaterequeststatus = ({ requestId, action, pickupInfo }) => a
     if (data.success && action === 'approved') {
       dispatch(removeincomingrequest(requestId));
       toast.success("Request Approved! Book moved to Tracking.");
-      return true;
     } else if (data.success && action === 'rejected') {
       dispatch(removeincomingrequest(requestId));
       toast.success("Request Rejected.");
-      return true;
+    } else if (data.success && action === 'cancelled') {
+      dispatch(removeincomingrequest(requestId));
+      toast("Request Cancelled.", { icon: <FileX/> });
+    } else {
+      toast.success(data.message || "Status Updated Successfully");
     }
+    return true;
   } catch (error) {
     console.error(error);
     toast.error("Failed to update status");

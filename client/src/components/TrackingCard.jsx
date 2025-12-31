@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { 
-  Clock, 
-  MapPin, 
-  Calendar, 
-  CheckCircle, 
-  AlertTriangle, 
-  RefreshCw, 
+import {
+  Clock,
+  MapPin,
+  Calendar,
+  CheckCircle,
+  AlertTriangle,
+  RefreshCw,
   MessageSquare,
   ArrowRightLeft
 } from 'lucide-react';
@@ -29,27 +29,27 @@ const TrackingCard = ({ data, isLending }) => {
 
   const formatDate = (dateString) => {
     if (!dateString) return "N/A";
-    return new Date(dateString).toLocaleDateString('en-US', { 
-      month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' 
+    return new Date(dateString).toLocaleDateString('en-US', {
+      month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
     });
   };
 
   const book = data.book || {};
-  const offeredBook = data.offeredBook; 
+  const offeredBook = data.offeredBook;
   const pickup = data.pickupInfo || {};
-  
+
   const otherUser = isLending ? data.requester : data.owner;
   const otherRole = isLending ? "Borrower" : "Lender";
-  
+
   const otherUserName = otherUser?.name || "Unknown User";
   const otherUserAvatar = otherUser?.avatar?.url || otherUser?.avatar || "https://via.placeholder.com/40";
-  const otherUserLocation = (otherUser?.city && otherUser?.state) 
-    ? `${otherUser.city}, ${otherUser.state}` 
+  const otherUserLocation = (otherUser?.city && otherUser?.state)
+    ? `${otherUser.city}, ${otherUser.state}`
     : "Location not shared";
 
   const handleMarkReturned = async () => {
-    if(!window.confirm(`Confirm that "${book.title}" has been returned to you?`)) return;
-    
+    if (!window.confirm(`Confirm that "${book.title}" has been returned to you?`)) return;
+
     setIsUpdating(true);
     await dispatch(asyncmarkcomplete(data._id));
     setIsUpdating(false);
@@ -72,16 +72,16 @@ const TrackingCard = ({ data, isLending }) => {
 
   return (
     <div className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden group">
-      
+
       <div className="p-5 flex gap-5">
         <div className="relative w-20 h-28 flex-shrink-0">
-          <img 
-            src={book.coverImageUrl || book.cover} 
-            alt={book.title} 
-            className="w-full h-full object-cover rounded-lg shadow-sm bg-gray-100" 
+          <img
+            src={book.coverImageUrl || book.cover}
+            alt={book.title}
+            className="w-full h-full object-cover rounded-lg shadow-sm bg-gray-100"
           />
           <div className="absolute -bottom-2 -right-2 bg-white p-1 rounded-full shadow-md border border-gray-100">
-            {data.type === 'swap' ? <RefreshCw size={14} className="text-orange-500"/> : <ArrowRightLeft size={14} className="text-blue-500"/>}
+            {data.type === 'swap' ? <RefreshCw size={14} className="text-orange-500" /> : <ArrowRightLeft size={14} className="text-blue-500" />}
           </div>
         </div>
 
@@ -94,26 +94,26 @@ const TrackingCard = ({ data, isLending }) => {
 
           <div className="flex items-center gap-4 text-xs text-gray-600 bg-gray-50 p-2 rounded-lg border border-gray-100">
             <div className="flex items-center gap-1.5">
-               <Calendar size={12} className="text-gray-400"/>
-               <span>Due: <span className={`font-semibold ${isOverdue ? 'text-red-600' : 'text-gray-900'}`}>
-                 {data.dueDate ? new Date(data.dueDate).toLocaleDateString() : 'No Due Date'}
-               </span></span>
+              <Calendar size={12} className="text-gray-400" />
+              <span>Due: <span className={`font-semibold ${isOverdue ? 'text-red-600' : 'text-gray-900'}`}>
+                {data.dueDate ? new Date(data.dueDate).toLocaleDateString() : 'No Due Date'}
+              </span></span>
             </div>
             {daysLeft !== null && !isOverdue && (
-               <span className="text-orange-600 font-medium text-[10px] bg-orange-50 px-1.5 py-0.5 rounded">
-                 {daysLeft} days left
-               </span>
+              <span className="text-orange-600 font-medium text-[10px] bg-orange-50 px-1.5 py-0.5 rounded">
+                {daysLeft} days left
+              </span>
             )}
           </div>
         </div>
       </div>
 
       <div className="px-5 pb-4 space-y-3">
-        
+
         {data.type === 'swap' && offeredBook && (
           <div className="flex items-center gap-3 bg-orange-50/50 p-3 rounded-xl border border-orange-100 border-dashed">
-            <img 
-              src={offeredBook.coverImageUrl || offeredBook.cover} 
+            <img
+              src={offeredBook.coverImageUrl || offeredBook.cover}
               alt={offeredBook.title}
               className="w-10 h-14 object-cover rounded shadow-sm"
             />
@@ -155,11 +155,11 @@ const TrackingCard = ({ data, isLending }) => {
       </div>
 
       <div className="border-t border-gray-100 p-4 bg-gray-50/30 flex items-center justify-between gap-4">
-        
+
         <div className="flex items-center gap-3 min-w-0">
-          <img 
-            src={otherUserAvatar} 
-            alt={otherUserName} 
+          <img
+            src={otherUserAvatar}
+            alt={otherUserName}
             className="w-8 h-8 rounded-full object-cover border border-white shadow-sm"
           />
           <div className="min-w-0">
@@ -173,13 +173,13 @@ const TrackingCard = ({ data, isLending }) => {
 
         <div className="flex-shrink-0">
           {isLending ? (
-            <button 
+            <button
               onClick={handleMarkReturned}
               disabled={isUpdating}
               className={`
                 flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all
-                ${isUpdating 
-                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+                ${isUpdating
+                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                   : 'bg-gray-900 text-white hover:bg-black hover:shadow-lg active:scale-95'}
               `}
             >
