@@ -6,10 +6,7 @@ import {
 
 export const asyncfetchnotifications = () => async (dispatch) => {
   try {
-    const token = localStorage.getItem('BookSwap_Token');
-    const { data } = await axios.get('/notifications', { 
-      headers: { Authorization: `Bearer ${token}` }
-    });
+    const { data } = await axios.get('/notifications');
 
     if (data.notifications) {
       dispatch(setnotifications(data.notifications));
@@ -21,10 +18,7 @@ export const asyncfetchnotifications = () => async (dispatch) => {
 
 export const asyncmarkallread = () => async (dispatch) => {
   try {
-    const token = localStorage.getItem('BookSwap_Token');
-    await axios.patch('/notifications/read-all', {}, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
+    await axios.patch('/notifications/read-all', {});
     
     dispatch(markallread());
   } catch (error) {

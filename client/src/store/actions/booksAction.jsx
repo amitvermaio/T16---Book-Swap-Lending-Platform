@@ -39,12 +39,7 @@ export const asyncloadcurrentbook = (id) => async (dispatch) => {
 
 export const asyncaddbooktofavorites = (userId, bookId) => async (dispatch) => {
   try {
-    const token = localStorage.getItem('BookSwap_Token')
-    const { data } = await axios.post(`/users/favourites`, { userId, bookId }, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    });
+    const { data } = await axios.post(`/users/favourites`, { userId, bookId });
     console.log(data);
     if (data.success) {
       dispatch(setbookfavorite(bookId));

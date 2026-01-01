@@ -4,6 +4,9 @@ import Notification from '../models/notification.model.js';
 import AppError from '../utils/AppError.js';
 import { generateOTP } from '../utils/generateOtp.js';
 import { getIO } from '../sockets/socket.js';
+import debug from 'debug';
+
+const dbgr = debug('app:request-service');
 
 export const createRequest = async ({
   requesterId,
@@ -190,6 +193,7 @@ export const markReturned = async ({ requestId, ownerId }) => {
     .populate('book')
     .populate('offeredBook');
 
+  dbgr("reqDoc", reqDoc);
   if (!reqDoc) throw new AppError('Request not found', 404);
 
   if (reqDoc.owner.toString() !== ownerId) {
@@ -230,18 +234,6 @@ export const markReturned = async ({ requestId, ownerId }) => {
   io.to(`user:${reqDoc.requester.toString()}`).emit('notification:new', notif);
 
   return reqDoc;
-};
-
-export const markReturnedController = async (req, res, next) => {
-  try {
-    const request = await markReturned({
-      requestId: req.params.id,
-      ownerId: req.user.id,
-    });
-    res.json({ success: true, request });
-  } catch (err) {
-    next(err);
-  }
 };
 
 export const getActiveTrackings = async (userId) => {

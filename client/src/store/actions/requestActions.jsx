@@ -10,13 +10,7 @@ import axios from '../../config/axiosconfig';
 
 export const asyncloadallincomingrequests = () => async (dispatch) => {
   try {
-    const token = localStorage.getItem('BookSwap_Token');
-
-    const { data } = await axios.get(`/requests?as=owner`, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      },
-    });
+    const { data } = await axios.get(`/requests?as=owner`);
     if (data.requests) {
       dispatch(loadallincomingrequest(data.requests));
     }
@@ -27,12 +21,7 @@ export const asyncloadallincomingrequests = () => async (dispatch) => {
 
 export const asyncloadoutgoingrequests = () => async (dispatch) => {
   try {
-    const token = localStorage.getItem('BookSwap_Token');
-    const { data } = await axios.get('/requests?as=requester', {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      }
-    });
+    const { data } = await axios.get('/requests?as=requester');
 
     if (data.requests) {
       dispatch(loadoutgoingrequests(data.requests));
@@ -67,12 +56,7 @@ export const asyncsendbookrequest = (bookInfo) => async (dispatch) => {
 
 export const asyncupdaterequeststatus = ({ requestId, action, pickupInfo }) => async (dispatch) => {
   try {
-    const token = localStorage.getItem('BookSwap_Token');
-    const { data } = await axios.patch(`/requests/${requestId}/status`, { action, pickupInfo }, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    });
+    const { data } = await axios.patch(`/requests/${requestId}/status`, { action, pickupInfo });
 
     if (data.success && action === 'approved') {
       dispatch(removeincomingrequest(requestId));

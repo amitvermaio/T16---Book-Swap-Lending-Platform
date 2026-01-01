@@ -5,13 +5,7 @@ import { loaduser, loaduserbooks } from "../features/userSlice";
 
 export const asyncaddtofavourite = (id) => async (dispatch, getState) => {
   try {
-    const token = localStorage.getItem('BookSwap_Token');
-
-    const res = await axios.post(`/users/favorite`, { bookId: id }, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    });
+    const res = await axios.post(`/users/favorite`, { bookId: id });
   } catch (error) {
     console.log(error.message);
   }
@@ -19,29 +13,17 @@ export const asyncaddtofavourite = (id) => async (dispatch, getState) => {
 
 export const asyncloaduser = () => async (dispatch, getState) => {
   try {
-    const token = localStorage.getItem('BookSwap_Token');
-
-    const { data } = await axios.get(`/auth/me`, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    });
+    const { data } = await axios.get(`/auth/me`);
 
     dispatch(loaduser(data.user));
   } catch (error) {
-    // Handle error if needed
     console.log(error.message);
   }
 }
 
 export const asyncloaduserbooks = () => async (dispatch, getState) => {
   try {
-    const token = localStorage.getItem('BookSwap_Token');
-    const { data } = await axios.get('/books/me', {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    });
+    const { data } = await axios.get('/books/me');
 
     if (data.books) {
       dispatch(loaduserbooks(data.books));

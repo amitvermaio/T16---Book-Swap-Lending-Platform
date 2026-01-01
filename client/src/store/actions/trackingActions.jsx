@@ -12,10 +12,7 @@ import {
 export const asyncfetchactivetrackings = () => async (dispatch) => {
   try {
     dispatch(setloading(true));
-    const token = localStorage.getItem('BookSwap_Token');
-    const { data } = await axios.get('/requests/active', {
-      headers: { Authorization: `Bearer ${token}` }
-    });
+    const { data } = await axios.get('/requests/active');
 
     if (data.data) {
       dispatch(loadactivetrackings(data.data));
@@ -29,10 +26,7 @@ export const asyncfetchactivetrackings = () => async (dispatch) => {
 export const asyncfetchhistory = () => async (dispatch) => {
   try {
     dispatch(setloading(true));
-    const token = localStorage.getItem('BookSwap_Token');
-    const { data } = await axios.get('/requests/history', {
-      headers: { Authorization: `Bearer ${token}` }
-    });
+    const { data } = await axios.get('/requests/history');
 
     if (data.data) {
       dispatch(loadhistory(data.data));
@@ -46,11 +40,7 @@ export const asyncfetchhistory = () => async (dispatch) => {
 
 export const asyncmarkcomplete = (requestId) => async (dispatch) => {
   try {
-    const token = localStorage.getItem('BookSwap_Token');
-    const { data } = await axios.patch(`/requests/${requestId}/status`,
-      { action: "completed" },
-      { headers: { Authorization: `Bearer ${token}` } }
-    );
+    const { data } = await axios.patch(`/requests/${requestId}/returned`, {});
 
     if (data.data) {
       dispatch(movetohistory(data.data));
@@ -64,11 +54,7 @@ export const asyncmarkcomplete = (requestId) => async (dispatch) => {
 
 export const asyncverifycollection = (requestId, code) => async (dispatch) => {
   try {
-    const token = localStorage.getItem('BookSwap_Token');
-    const { data } = await axios.post(`/requests/${requestId}/verify`,
-      { code },
-      { headers: { Authorization: `Bearer ${token}` } }
-    );
+    const { data } = await axios.post(`/requests/${requestId}/verify`, { code });
 
     if (data.success) {
       toast.success("Code verified! Book collected.");
@@ -82,12 +68,8 @@ export const asyncverifycollection = (requestId, code) => async (dispatch) => {
 
 export const asynccancelrequest = ({ requestId }) => async (dispatch) => {
   try {
-    const token = localStorage.getItem('BookSwap_Token');
-    const { data } = await axios.patch(`/requests/${requestId}/status`, { action: 'cancelled' }, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    });
+    
+    const { data } = await axios.patch(`/requests/${requestId}/status`, { action: 'cancelled' });
 
     if (data.success) {
       dispatch(removetracking(requestId));
