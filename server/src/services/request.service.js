@@ -2,6 +2,7 @@ import Request from '../models/request.model.js';
 import Book from '../models/book.model.js';
 import Notification from '../models/notification.model.js';
 import AppError from '../utils/AppError.js';
+import { generateOTP } from '../utils/generateOtp.js';
 import { getIO } from '../sockets/socket.js';
 
 export const createRequest = async ({
@@ -94,7 +95,7 @@ export const updateRequestStatus = async ({
 
   const isOwner = reqDoc.owner.toString() === userId;
   const isRequester = reqDoc.requester.toString() === userId;
-  // 'pending', 'approved', 'rejected', 'cancelled', 'completed'
+
   if (action === 'approved' || action === 'rejected') {
     if (!isOwner) throw new AppError('Only owner can approve/reject', 403);
   }
@@ -108,6 +109,9 @@ export const updateRequestStatus = async ({
   if (action === 'approved') {
     reqDoc.status = 'approved';
     reqDoc.pickupInfo = pickupInfo;
+
+    reqDoc.exchangeCode = generateOTP();
+
     reqDoc.book.status = 'lent';
     await reqDoc.book.save();
   } else if (action === 'rejected') {
@@ -149,6 +153,28 @@ export const updateRequestStatus = async ({
   return reqDoc;
 };
 
+export const verifyExchangeCode = async ({ requestId, ownerId, code }) => {
+  const reqDoc = await Request.findById(requestId).populate('book');
+
+  if (!reqDoc) throw new AppError('Request not found', 404);
+  if (reqDoc.owner.toString() !== ownerId) throw new AppError('Unauthorized', 403);
+
+  if (reqDoc.exchangeCode !== code) {
+    throw new AppError('Invalid Exchange Code', 400);
+  }
+
+  reqDoc.status = 'collected'; 
+  await reqDoc.save();
+
+  const io = getIO();
+  io.to(`user:${reqDoc.requester.toString()}`).emit('request:updated', {
+    requestId: reqDoc._id,
+    status: 'collected',
+  });
+
+  return reqDoc;
+};
+
 export const markReturned = async ({ requestId, ownerId }) => {
   const reqDoc = await Request.findById(requestId).populate('book');
   if (!reqDoc) throw new AppError('Request not found', 404);
@@ -186,12 +212,36 @@ export const markReturned = async ({ requestId, ownerId }) => {
 export const getActiveTrackings = async (userId) => {
   const requests = await Request.find({
     $or: [{ owner: userId }, { requester: userId }],
-    status: 'approved'
+    status: { $in: ['approved', 'collected'] }
   })
     .populate('book')
     .populate('requester', 'name avatar city state')
     .populate('owner', 'name avatar city state')
+    .populate('offeredBook', '_id title author coverImageUrl')
     .sort({ updatedAt: -1 });
+
+  const sanitizedRequests = requests.map(req => {
+    const reqObj = req.toObject();
+    if (reqObj.owner._id.toString() === userId.toString()) {
+      delete reqObj.exchangeCode; // Owner shouldn't see the exchangeCode in API response
+    }
+    return reqObj;
+  });
+
+  return sanitizedRequests;
+};
+
+export const getHistory = async (userId) => {
+  const requests = await Request.find({
+    $or: [{ owner: userId }, { requester: userId }],
+    status: { $in: ['completed', 'rejected', 'cancelled'] }
+  })
+    .populate('book')
+    .populate('requester', 'name avatar city state')
+    .populate('owner', 'name avatar city state')
+    .populate('offeredBook', '_id title author coverImageUrl')
+    .limit(10)
+    .sort({ updatedAt: -1 }); 
 
   return requests;
 };

@@ -16,6 +16,12 @@ const trackingSlice = createSlice({
       state.isLoading = false;
     },
 
+    removetracking: (state, action) => {
+      state.activeTrackings = state.activeTrackings.filter(
+        (item) => item._id !== action.payload
+      );
+    },
+
     loadhistory: (state, action) => {
       state.history = action.payload;
       state.isLoading = false;
@@ -53,6 +59,7 @@ export const {
   loadhistory, 
   addnewtracking, 
   movetohistory, 
+  removetracking,
   setloading, 
   seterror, 
   clearerror 

@@ -7,17 +7,18 @@ import DopamineDetox from "../assets/DopamineDetox.jpg";
 import StopOverThinking from "../assets/StopOverThinking.jpg";
 import TheMountainIsYou from "../assets/TheMountainIsYou.jpg";
 
-import { RefreshCcw,
-  Banknote, 
-  HandHeart, 
-  ArrowRightLeft, 
-  BookOpen, 
+import {
+  RefreshCcw,
+  Banknote,
+  HandHeart,
+  ArrowRightLeft,
+  BookOpen,
   Clock,
   CheckCircle,
   XCircle,
   Slash,
   CheckCheck,
-  PackageCheck 
+  PackageCheck
 } from 'lucide-react';
 
 export const bookGenres = ["Fiction", "Non-Fiction", "Fantasy", "Science Fiction", "Romance",

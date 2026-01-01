@@ -5,6 +5,8 @@ import {
   updateRequestStatus,
   markReturned,
   getActiveTrackings,
+  verifyExchangeCode,
+  getHistory,
 } from '../services/request.service.js';
 
 export const createRequestController = async (req, res, next) => {
@@ -70,6 +72,29 @@ export const getActiveTrackingsController = async (req, res, next) => {
   try {
     const trackings = await getActiveTrackings(req.user.id);
     res.status(200).json({ success: true, data: trackings });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const verifyExchangeCodeController = async (req, res, next) => {
+  try {
+    const { code } = req.body;
+    const request = await verifyExchangeCode({
+      requestId: req.params.id,
+      ownerId: req.user.id,
+      code
+    });
+    res.json({ success: true, request });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const getHistoryController = async (req, res, next) => {
+  try {
+    const history = await getHistory(req.user.id);
+    res.status(200).json({ success: true, data: history });
   } catch (err) {
     next(err);
   }

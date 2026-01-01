@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import {
   Clock,
@@ -8,39 +8,119 @@ import {
   AlertTriangle,
   RefreshCw,
   MessageSquare,
-  ArrowRightLeft
+  ArrowRightLeft,
+  ScanBarcode
 } from 'lucide-react';
-import { asyncmarkcomplete } from '../store/actions/trackingActions';
+import { getDaysRemaining, formatDate } from '../utils/dataUtils';
+import { asyncmarkcomplete, asyncverifycollection, asynccancelrequest } from '../store/actions/trackingActions';
+
+const StatusBadge = ({ isOverdue, daysLeft, status }) => {
+  if (status === 'collected') {
+    return (
+      <span className="flex items-center gap-1 px-2 py-1 bg-blue-50 text-blue-600 text-[10px] font-bold uppercase tracking-wider rounded-md border border-blue-100">
+        <CheckCircle size={10} /> Collected
+      </span>
+    );
+  }
+  if (isOverdue && status === 'approved') {
+    return (
+      <span className="flex items-center gap-1 px-2 py-1 bg-red-50 text-red-600 text-[10px] font-bold uppercase tracking-wider rounded-md border border-red-100">
+        <AlertTriangle size={10} /> Overdue by {Math.abs(daysLeft)} days
+      </span>
+    );
+  }
+  return (
+    <span className="flex items-center gap-1 px-2 py-1 bg-green-50 text-green-600 text-[10px] font-bold uppercase tracking-wider rounded-md border border-green-100">
+      <Clock size={10} /> Active
+    </span>
+  );
+};
+
+const SwappedBookSection = ({ offeredBook }) => {
+  if (!offeredBook) return null;
+  return (
+    <div className="flex items-center gap-3 bg-orange-50/50 p-3 rounded-xl border border-orange-100 border-dashed">
+      <img
+        src={offeredBook.coverImageUrl || offeredBook.cover}
+        alt={offeredBook.title}
+        className="w-10 h-14 object-cover rounded shadow-sm"
+      />
+      <div className="min-w-0">
+        <p className="text-[10px] text-orange-600 font-bold uppercase tracking-wide mb-0.5">Swapped For</p>
+        <p className="text-xs font-bold text-gray-900 truncate">{offeredBook.title}</p>
+        <p className="text-[10px] text-gray-500 truncate">{offeredBook.author}</p>
+      </div>
+    </div>
+  );
+};
+
+const ActionFooter = ({ isLending, isUpdating, handleMarkReturned, handleCancelRequest, status }) => {
+  if (isLending) {
+    if (status === 'collected') {
+      return (
+        <button
+          onClick={handleMarkReturned}
+          disabled={isUpdating}
+          className={`
+            flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all
+            ${isUpdating
+              ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+              : 'bg-gray-900 text-white hover:bg-black hover:shadow-lg active:scale-95'}
+          `}
+        >
+          {isUpdating ? <span>Processing...</span> : (
+            <>
+              <CheckCircle size={14} /> Mark Returned
+            </>
+          )}
+        </button>
+      );
+    }
+
+    // If owner but not collected yet
+    return (
+      <span className="text-xs font-bold text-orange-600">
+        {status === 'approved' ? 'Waiting for Collection' : status}
+      </span>
+    );
+  }
+
+  if (!isLending) {
+    // Cancel button if approved but not collected yet
+    if (status === 'approved') {
+      return (
+        <button
+          onClick={handleCancelRequest}
+          className="text-red-500 text-xs font-bold hover:bg-red-50 px-3 py-2 rounded transition-colors"
+        >
+          Cancel Request
+        </button>
+      )
+    }
+    return (
+      <div className="text-right">
+        <span className="block text-[10px] text-gray-400 uppercase tracking-wider font-bold">Status</span>
+        <span className="text-xs font-bold text-orange-600 capitalize">
+          {status}
+        </span>
+      </div>
+    );
+  }
+};
 
 const TrackingCard = ({ data, isLending }) => {
   const dispatch = useDispatch();
   const [isUpdating, setIsUpdating] = useState(false);
-
-  const getDaysRemaining = (dueDateString) => {
-    if (!dueDateString) return null;
-    const today = new Date();
-    const due = new Date(dueDateString);
-    const diffTime = due - today;
-    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  };
+  const [verificationCode, setVerificationCode] = useState(''); 
 
   const daysLeft = getDaysRemaining(data.dueDate);
   const isOverdue = daysLeft !== null && daysLeft < 0;
 
-  const formatDate = (dateString) => {
-    if (!dateString) return "N/A";
-    return new Date(dateString).toLocaleDateString('en-US', {
-      month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
-    });
-  };
-
   const book = data.book || {};
-  const offeredBook = data.offeredBook;
   const pickup = data.pickupInfo || {};
 
   const otherUser = isLending ? data.requester : data.owner;
   const otherRole = isLending ? "Borrower" : "Lender";
-
   const otherUserName = otherUser?.name || "Unknown User";
   const otherUserAvatar = otherUser?.avatar?.url || otherUser?.avatar || "https://via.placeholder.com/40";
   const otherUserLocation = (otherUser?.city && otherUser?.state)
@@ -49,30 +129,24 @@ const TrackingCard = ({ data, isLending }) => {
 
   const handleMarkReturned = async () => {
     if (!window.confirm(`Confirm that "${book.title}" has been returned to you?`)) return;
-
     setIsUpdating(true);
     await dispatch(asyncmarkcomplete(data._id));
     setIsUpdating(false);
   };
 
-  const getStatusBadge = () => {
-    if (isOverdue && data.status === 'approved') {
-      return (
-        <span className="flex items-center gap-1 px-2 py-1 bg-red-50 text-red-600 text-[10px] font-bold uppercase tracking-wider rounded-md border border-red-100">
-          <AlertTriangle size={10} /> Overdue by {Math.abs(daysLeft)} days
-        </span>
-      );
-    }
-    return (
-      <span className="flex items-center gap-1 px-2 py-1 bg-green-50 text-green-600 text-[10px] font-bold uppercase tracking-wider rounded-md border border-green-100">
-        <Clock size={10} /> Active
-      </span>
-    );
+  const handleVerifyCode = async () => {
+    if (verificationCode.length !== 6) return alert("Enter 6-digit code");
+    setIsUpdating(true);
+    await dispatch(asyncverifycollection(data._id, verificationCode));
+    setIsUpdating(false);
   };
+
+  const handleCancelRequest = () => {
+    dispatch(asynccancelrequest({ requestId: data._id }));
+  }
 
   return (
     <div className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden group">
-
       <div className="p-5 flex gap-5">
         <div className="relative w-20 h-28 flex-shrink-0">
           <img
@@ -81,14 +155,17 @@ const TrackingCard = ({ data, isLending }) => {
             className="w-full h-full object-cover rounded-lg shadow-sm bg-gray-100"
           />
           <div className="absolute -bottom-2 -right-2 bg-white p-1 rounded-full shadow-md border border-gray-100">
-            {data.type === 'swap' ? <RefreshCw size={14} className="text-orange-500" /> : <ArrowRightLeft size={14} className="text-blue-500" />}
+            {data.type === 'swap'
+              ? <RefreshCw size={14} className="text-orange-500" />
+              : <ArrowRightLeft size={14} className="text-blue-500" />
+            }
           </div>
         </div>
 
         <div className="flex-1 min-w-0">
           <div className="flex justify-between items-start mb-1">
             <h3 className="text-base font-bold text-gray-900 truncate pr-2">{book.title}</h3>
-            {getStatusBadge()}
+            <StatusBadge isOverdue={isOverdue} daysLeft={daysLeft} status={data.status} />
           </div>
           <p className="text-xs text-gray-500 mb-3">by {book.author}</p>
 
@@ -109,21 +186,7 @@ const TrackingCard = ({ data, isLending }) => {
       </div>
 
       <div className="px-5 pb-4 space-y-3">
-
-        {data.type === 'swap' && offeredBook && (
-          <div className="flex items-center gap-3 bg-orange-50/50 p-3 rounded-xl border border-orange-100 border-dashed">
-            <img
-              src={offeredBook.coverImageUrl || offeredBook.cover}
-              alt={offeredBook.title}
-              className="w-10 h-14 object-cover rounded shadow-sm"
-            />
-            <div className="min-w-0">
-              <p className="text-[10px] text-orange-600 font-bold uppercase tracking-wide mb-0.5">Swapped For</p>
-              <p className="text-xs font-bold text-gray-900 truncate">{offeredBook.title}</p>
-              <p className="text-[10px] text-gray-500 truncate">{offeredBook.author}</p>
-            </div>
-          </div>
-        )}
+        {data.type === 'swap' && <SwappedBookSection offeredBook={data.offeredBook} />}
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
           {pickup.location && (
@@ -152,10 +215,51 @@ const TrackingCard = ({ data, isLending }) => {
             <p>"{pickup.note || data.notes}"</p>
           </div>
         )}
+
+        {/* --- EXCHANGE CODE LOGIC (REQUESTER SIDE) --- */}
+        {!isLending && data.status === 'approved' && data.exchangeCode && (
+          <div className="mt-3 bg-indigo-50 border border-indigo-100 rounded-xl p-3 flex justify-between items-center">
+            <div>
+              <p className="text-[10px] uppercase font-bold text-indigo-400 tracking-wider mb-0.5">Pickup Code</p>
+              <p className="text-indigo-900 text-xs">Tell this code to the owner upon collection</p>
+            </div>
+            <div className="text-2xl font-mono font-bold text-indigo-600 tracking-widest bg-white px-3 py-1 rounded border border-indigo-100 shadow-sm">
+              {data.exchangeCode}
+            </div>
+          </div>
+        )}
+
+        {/* --- VERIFY CODE LOGIC (OWNER SIDE) --- */}
+        {isLending && data.status === 'approved' && (
+          <div className="mt-3 bg-orange-50 border border-orange-100 rounded-xl p-3">
+            <div className="flex items-center gap-2 mb-2">
+              <ScanBarcode size={14} className="text-orange-500" />
+              <p className="text-xs font-bold text-orange-800">Verify Collection</p>
+            </div>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                maxLength={6}
+                placeholder="Enter Code"
+                className="w-full text-xs p-2 rounded border border-gray-200 focus:outline-none focus:border-orange-500 font-mono text-center tracking-widest uppercase"
+                value={verificationCode}
+                onChange={(e) => setVerificationCode(e.target.value)}
+              />
+              <button
+                onClick={handleVerifyCode}
+                disabled={isUpdating || verificationCode.length < 4}
+                className="bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold px-4 rounded transition-colors disabled:opacity-50"
+              >
+                {isUpdating ? '...' : 'Verify'}
+              </button>
+            </div>
+          </div>
+        )}
+
       </div>
 
+      {/* Bottom Section: User Info & Actions */}
       <div className="border-t border-gray-100 p-4 bg-gray-50/30 flex items-center justify-between gap-4">
-
         <div className="flex items-center gap-3 min-w-0">
           <img
             src={otherUserAvatar}
@@ -172,34 +276,13 @@ const TrackingCard = ({ data, isLending }) => {
         </div>
 
         <div className="flex-shrink-0">
-          {isLending ? (
-            <button
-              onClick={handleMarkReturned}
-              disabled={isUpdating}
-              className={`
-                flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all
-                ${isUpdating
-                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                  : 'bg-gray-900 text-white hover:bg-black hover:shadow-lg active:scale-95'}
-              `}
-            >
-              {isUpdating ? (
-                <span>Processing...</span>
-              ) : (
-                <>
-                  <CheckCircle size={14} />
-                  Mark Returned
-                </>
-              )}
-            </button>
-          ) : (
-            <div className="text-right">
-              <span className="block text-[10px] text-gray-400 uppercase tracking-wider font-bold">Status</span>
-              <span className="text-xs font-bold text-orange-600">
-                {data.status === 'approved' ? 'In Possession' : data.status}
-              </span>
-            </div>
-          )}
+          <ActionFooter
+            handleCancelRequest={handleCancelRequest}
+            isLending={isLending}
+            isUpdating={isUpdating}
+            handleMarkReturned={handleMarkReturned}
+            status={data.status}
+          />
         </div>
       </div>
 

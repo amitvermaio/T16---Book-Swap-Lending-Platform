@@ -4,6 +4,7 @@ import {
   loadactivetrackings,
   loadhistory,
   movetohistory,
+  removetracking,
   setloading,
   seterror
 } from "../features/trackingSlice";
@@ -60,3 +61,43 @@ export const asyncmarkcomplete = (requestId) => async (dispatch) => {
     toast.error(error.response?.data?.message || "Update failed");
   }
 };
+
+export const asyncverifycollection = (requestId, code) => async (dispatch) => {
+  try {
+    const token = localStorage.getItem('BookSwap_Token');
+    const { data } = await axios.post(`/requests/${requestId}/verify`,
+      { code },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+
+    if (data.success) {
+      toast.success("Code verified! Book collected.");
+      dispatch(asyncfetchactivetrackings()); 
+    }
+  } catch (error) {
+    console.error(error);
+    toast.error(error.response?.data?.message || "Verification failed");
+  }
+};
+
+export const asynccancelrequest = ({ requestId }) => async (dispatch) => {
+  try {
+    const token = localStorage.getItem('BookSwap_Token');
+    const { data } = await axios.patch(`/requests/${requestId}/status`, { action: 'cancelled' }, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+
+    if (data.success) {
+      dispatch(removetracking(requestId));
+      dispatch(movetohistory(data.data));
+      toast("Request Cancelled.", { icon: <FileX/> });
+    }
+
+    return true;
+  } catch (error) {
+    console.error(error);
+    toast.error("Failed to update status");
+  }
+}

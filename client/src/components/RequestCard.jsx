@@ -67,7 +67,6 @@ const RequestCard = ({ request, isIncoming }) => {
         note: data.note,
       }
     }));
-    console.log("Form Submitted:", data);
   };
 
   const handleCancel = (action) => {

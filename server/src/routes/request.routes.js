@@ -7,6 +7,8 @@ import {
   updateRequestStatusController,
   markReturnedController,
   getActiveTrackingsController,
+  verifyExchangeCodeController,
+  getHistoryController,
 } from '../controllers/request.controller.js';
 
 import {
@@ -23,8 +25,11 @@ router.use(protect);
 router.post('/', createRequestValidation, validate, createRequestController);
 router.get('/', listRequestsController);
 router.get('/active', getActiveTrackingsController);
+router.get('/history', getHistoryController);
 router.get('/:id', getRequestController);
 router.patch('/:id/status', updateRequestStatusValidation, validate, updateRequestStatusController);
+router.post('/:id/verify', verifyExchangeCodeController);
 router.patch('/:id/returned', markReturnedController);
+
 
 export default router;
