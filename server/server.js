@@ -17,7 +17,7 @@ const start = async () => {
     initSocket(server);
 
     server.listen(PORT, () => {
-      dbgr(`Server running on port ${PORT}`);
+      dbgr(`Server running on http://localhost:${PORT}`);
     });
   } catch (err) {
     dbgr('Failed to start server', err);

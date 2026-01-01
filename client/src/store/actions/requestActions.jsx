@@ -82,7 +82,7 @@ export const asyncupdaterequeststatus = ({ requestId, action, pickupInfo }) => a
       toast.success("Request Rejected.");
     } else if (data.success && action === 'cancelled') {
       dispatch(removeincomingrequest(requestId));
-      toast("Request Cancelled.", { icon: <FileX/> });
+      toast("Request Cancelled.", { icon: <FileX /> });
     } else {
       toast.success(data.message || "Status Updated Successfully");
     }

@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { ArrowRightLeft } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { ArrowRightLeft, ArrowDownLeft, ArrowUpRight } from 'lucide-react'; // Imported specific icons
 import { useDispatch, useSelector } from 'react-redux';
 
 import { socket } from '../socket';
@@ -62,26 +62,30 @@ const Requests = () => {
         <p className="text-sm text-gray-500">Manage your swaps and lending history.</p>
 
         <div className="flex gap-8 mt-8 border-b border-gray-100">
+          {/* Incoming Tab */}
           <button
             onClick={() => setActiveTab('incoming')}
-            className={`pb-3 text-sm font-bold uppercase tracking-wide border-b-2 transition-all ${activeTab === 'incoming'
+            className={`pb-3 text-sm font-bold uppercase tracking-wide border-b-2 transition-all flex items-center gap-2 ${activeTab === 'incoming'
                 ? 'border-orange-500 text-orange-600'
                 : 'border-transparent text-gray-400 hover:text-gray-600'
               }`}
           >
+            <ArrowDownLeft size={18} />
             Incoming
             <span className="ml-1 bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded text-[10px]">
               {requestState.incomingRequests?.length || 0}
             </span>
           </button>
 
+          {/* Sent Tab */}
           <button
             onClick={() => setActiveTab('sent')}
-            className={`pb-3 text-sm font-bold uppercase tracking-wide border-b-2 transition-all ${activeTab === 'sent'
+            className={`pb-3 text-sm font-bold uppercase tracking-wide border-b-2 transition-all flex items-center gap-2 ${activeTab === 'sent'
                 ? 'border-orange-500 text-orange-600'
                 : 'border-transparent text-gray-400 hover:text-gray-600'
               }`}
           >
+            <ArrowUpRight size={18} />
             Sent
             <span className="ml-1 bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded text-[10px]">
               {requestState.outgoingRequests?.length || 0}

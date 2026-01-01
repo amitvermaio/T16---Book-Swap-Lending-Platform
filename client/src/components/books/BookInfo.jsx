@@ -132,7 +132,7 @@ const BookInfo = ({ book }) => {
         </div>
       </div>
 
-      {/* Action Selection Area with Custom Dropdown Fix */}
+      {/* Action selection area with custom dropdown fix */}
       <div className="space-y-6 bg-white p-6 rounded-3xl border border-gray-100 shadow-sm relative z-10">
         <div className="space-y-2">
           <label className="text-sm font-bold text-gray-700 uppercase tracking-wide ml-1">
@@ -159,7 +159,7 @@ const BookInfo = ({ book }) => {
                     onClick={(e) => {
                         setSelectedAction(type);
                         setOfferedBook(null);
-                        e.currentTarget.closest('details').removeAttribute('open'); // Close dropdown
+                        e.currentTarget.closest('details').removeAttribute('open');
                     }}
                     className="p-4 hover:bg-orange-50 cursor-pointer font-medium text-gray-700 hover:text-orange-700 flex items-center justify-between transition-colors border-b border-gray-50 last:border-0"
                 >

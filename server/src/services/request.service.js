@@ -8,7 +8,7 @@ import { getIO } from '../sockets/socket.js';
 export const createRequest = async ({
   requesterId,
   bookId,
-  type,
+  type, // swap, borrow
   offeredBookId,
   dueDate,
   notes,
@@ -27,6 +27,16 @@ export const createRequest = async ({
     throw new AppError('Cannot request your own book', 400);
   }
 
+  if (type === 'swap') {
+    const exchange = await Book.findById(offeredBookId).populate('owner');
+    if (!exchange) {
+      throw new AppError('Offered book not found', 404);
+    }
+    
+    exchange.status = 'swapped';
+    await exchange.save();
+  }
+
   const request = await Request.create({
     book: book._id,
     owner: book.owner._id,
@@ -37,7 +47,7 @@ export const createRequest = async ({
     notes,
   });
 
-  book.status = 'requested';
+  book.status = type === 'swap' ? 'swapped' : 'requested';
   await book.save();
 
   const notif = await Notification.create({
@@ -176,7 +186,10 @@ export const verifyExchangeCode = async ({ requestId, ownerId, code }) => {
 };
 
 export const markReturned = async ({ requestId, ownerId }) => {
-  const reqDoc = await Request.findById(requestId).populate('book');
+  const reqDoc = await Request.findById(requestId)
+    .populate('book')
+    .populate('offeredBook');
+
   if (!reqDoc) throw new AppError('Request not found', 404);
 
   if (reqDoc.owner.toString() !== ownerId) {
@@ -185,9 +198,17 @@ export const markReturned = async ({ requestId, ownerId }) => {
 
   reqDoc.status = 'completed';
   reqDoc.returnedAt = new Date();
-  reqDoc.book.status = 'available';
 
-  await reqDoc.book.save();
+  if (reqDoc.book) {
+    reqDoc.book.status = 'available';
+    await reqDoc.book.save();
+  }
+
+  if (reqDoc.type === 'swap' && reqDoc.offeredBook) {
+    reqDoc.offeredBook.status = 'available';
+    await reqDoc.offeredBook.save();
+  }
+
   await reqDoc.save();
 
   const io = getIO();
@@ -196,7 +217,9 @@ export const markReturned = async ({ requestId, ownerId }) => {
     user: reqDoc.requester,
     type: 'BOOK_RETURNED',
     title: 'Book returned',
-    message: `Book "${reqDoc.book.title}" marked as returned`,
+    message: reqDoc.type === 'swap' 
+      ? `Swap completed! Both "${reqDoc.book.title}" and "${reqDoc.offeredBook?.title}" are marked returned.`
+      : `Book "${reqDoc.book.title}" marked as returned`,
     data: { requestId: reqDoc._id, bookId: reqDoc.book._id },
   });
 
@@ -207,6 +230,18 @@ export const markReturned = async ({ requestId, ownerId }) => {
   io.to(`user:${reqDoc.requester.toString()}`).emit('notification:new', notif);
 
   return reqDoc;
+};
+
+export const markReturnedController = async (req, res, next) => {
+  try {
+    const request = await markReturned({
+      requestId: req.params.id,
+      ownerId: req.user.id,
+    });
+    res.json({ success: true, request });
+  } catch (err) {
+    next(err);
+  }
 };
 
 export const getActiveTrackings = async (userId) => {

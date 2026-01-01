@@ -1,7 +1,7 @@
 import axios from '../../config/axiosconfig';
 import { setloading, loadbooks, setcurrentbook, setcurrentbookloading, setbookfavorite } from '../features/bookSlice';
 
-export const asyncloadbooks = (pageNo) => async (dispatch, getState) => {
+export const asyncloadbooks = () => async (dispatch, getState) => {
   try {
     const { currentPage, hasMore, loading } = getState().books;
     if (!hasMore || loading) return;

@@ -47,7 +47,7 @@ export const asyncfetchhistory = () => async (dispatch) => {
 export const asyncmarkcomplete = (requestId) => async (dispatch) => {
   try {
     const token = localStorage.getItem('BookSwap_Token');
-    const { data } = await axios.put(`/requests/${requestId}/status`,
+    const { data } = await axios.patch(`/requests/${requestId}/status`,
       { action: "completed" },
       { headers: { Authorization: `Bearer ${token}` } }
     );
