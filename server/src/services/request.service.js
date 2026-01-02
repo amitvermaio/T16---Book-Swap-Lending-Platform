@@ -35,7 +35,7 @@ export const createRequest = async ({
     if (!exchange) {
       throw new AppError('Offered book not found', 404);
     }
-    
+
     exchange.status = 'swapped';
     await exchange.save();
   }
@@ -103,7 +103,10 @@ export const updateRequestStatus = async ({
   action,
   pickupInfo,
 }) => {
-  const reqDoc = await Request.findById(requestId).populate('book');
+  const reqDoc = await Request.findById(requestId)
+    .populate('book')
+    .populate('offeredBook');
+
   if (!reqDoc) throw new AppError('Request not found', 404);
 
   const isOwner = reqDoc.owner.toString() === userId;
@@ -115,6 +118,9 @@ export const updateRequestStatus = async ({
 
   if (action === 'cancelled') {
     if (!isRequester) throw new AppError('Only requester can cancel', 403);
+    if (reqDoc.status === 'collected') {
+      throw new AppError('Cannot cancel request that is collected', 400);
+    }
   }
 
   const io = getIO();
@@ -122,19 +128,36 @@ export const updateRequestStatus = async ({
   if (action === 'approved') {
     reqDoc.status = 'approved';
     reqDoc.pickupInfo = pickupInfo;
-
     reqDoc.exchangeCode = generateOTP();
 
-    reqDoc.book.status = 'lent';
-    await reqDoc.book.save();
-  } else if (action === 'rejected') {
-    reqDoc.status = 'rejected';
+    if (reqDoc.type === 'borrow') {
+      reqDoc.book.status = 'lent';
+      await reqDoc.book.save();
+    }
+    else if (reqDoc.type === 'donate') {
+      reqDoc.book.status = 'unavailable';
+      await reqDoc.book.save();
+    }
+    else if (reqDoc.type === 'swap') {
+      reqDoc.book.status = 'swapped';
+      await reqDoc.book.save();
+
+      if (reqDoc.offeredBook) {
+        reqDoc.offeredBook.status = 'swapped';
+        await reqDoc.offeredBook.save();
+      }
+    }
+
+  } else if (action === 'rejected' || action === 'cancelled') {
+    reqDoc.status = action; 
     reqDoc.book.status = 'available';
     await reqDoc.book.save();
-  } else if (action === 'cancelled') {
-    reqDoc.status = 'cancelled';
-    reqDoc.book.status = 'available';
-    await reqDoc.book.save();
+
+    // If it's a swap, reset the offered book status as well
+    if (reqDoc.type === 'swap' && reqDoc.offeredBook) {
+      reqDoc.offeredBook.status = 'available';
+      await reqDoc.offeredBook.save();
+    }
   }
 
   await reqDoc.save();
@@ -176,7 +199,7 @@ export const verifyExchangeCode = async ({ requestId, ownerId, code }) => {
     throw new AppError('Invalid Exchange Code', 400);
   }
 
-  reqDoc.status = 'collected'; 
+  reqDoc.status = 'collected';
   await reqDoc.save();
 
   const io = getIO();
@@ -221,7 +244,7 @@ export const markReturned = async ({ requestId, ownerId }) => {
     user: reqDoc.requester,
     type: 'BOOK_RETURNED',
     title: 'Book returned',
-    message: reqDoc.type === 'swap' 
+    message: reqDoc.type === 'swap'
       ? `Swap completed! Both "${reqDoc.book.title}" and "${reqDoc.offeredBook?.title}" are marked returned.`
       : `Book "${reqDoc.book.title}" marked as returned`,
     data: { requestId: reqDoc._id, bookId: reqDoc.book._id },
@@ -268,7 +291,8 @@ export const getHistory = async (userId) => {
     .populate('owner', 'name avatar city state')
     .populate('offeredBook', '_id title author coverImageUrl')
     .limit(10)
-    .sort({ updatedAt: -1 }); 
+    .sort({ updatedAt: -1 })
+    .select('-exchangeCode')
 
   return requests;
 };

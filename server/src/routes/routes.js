@@ -8,6 +8,7 @@ import requestRoutes from './request.routes.js';
 import notificationRoutes from './notification.routes.js';
 import adminRoutes from './admin.routes.js';
 import analyticsRoutes from './analytics.routes.js';
+import ratingRoutes from './rating.routes.js';
 
 router.use('/auth', authRoutes);
 router.use('/users', userRoutes);
@@ -16,5 +17,6 @@ router.use('/requests', requestRoutes);
 router.use('/notifications', notificationRoutes);
 router.use('/admin', adminRoutes);
 router.use('/analytics', analyticsRoutes);
+router.use('/ratings', ratingRoutes);
 
 export default router;

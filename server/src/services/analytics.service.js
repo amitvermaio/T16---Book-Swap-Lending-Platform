@@ -45,7 +45,7 @@ export const getBorrowTrends = async () => {
     { $match: { status: 'completed' } },
     {
       $group: {
-        _id: { $substr: ['$createdAt', 0, 10] }, // by date
+        _id: { $substr: ['$createdAt', 0, 10] },
         count: { $sum: 1 },
       },
     },

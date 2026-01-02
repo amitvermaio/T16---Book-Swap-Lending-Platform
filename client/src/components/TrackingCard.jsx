@@ -216,12 +216,12 @@ const TrackingCard = ({ data, isLending }) => {
           </div>
         )}
 
-        {/* --- EXCHANGE CODE LOGIC (REQUESTER SIDE) --- */}
+        {/* EXCHANGE CODE LOGIC (REQUESTER SIDE) */}
         {!isLending && data.status === 'approved' && data.exchangeCode && (
           <div className="mt-3 bg-indigo-50 border border-indigo-100 rounded-xl p-3 flex justify-between items-center">
             <div>
               <p className="text-[10px] uppercase font-bold text-indigo-400 tracking-wider mb-0.5">Pickup Code</p>
-              <p className="text-indigo-900 text-xs">Tell this code to the owner upon collection</p>
+              <p className="text-indigo-900 text-xs">Tell this code to the owner upon collection <span className='block'>This ensures that you've collected the book from owner</span></p>
             </div>
             <div className="text-2xl font-mono font-bold text-indigo-600 tracking-widest bg-white px-3 py-1 rounded border border-indigo-100 shadow-sm">
               {data.exchangeCode}
@@ -229,7 +229,7 @@ const TrackingCard = ({ data, isLending }) => {
           </div>
         )}
 
-        {/* --- VERIFY CODE LOGIC (OWNER SIDE) --- */}
+        {/* VERIFY CODE LOGIC (OWNER SIDE) */}
         {isLending && data.status === 'approved' && (
           <div className="mt-3 bg-orange-50 border border-orange-100 rounded-xl p-3">
             <div className="flex items-center gap-2 mb-2">

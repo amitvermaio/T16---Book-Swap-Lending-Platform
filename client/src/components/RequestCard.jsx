@@ -8,7 +8,7 @@ import {
   MoreHorizontal,
   CalendarClock,
   CalendarDays,
-  ArrowRightLeft // Added for swap icon
+  ArrowRightLeft 
 } from 'lucide-react';
 
 import { useDispatch } from 'react-redux';
@@ -18,14 +18,14 @@ import { asyncupdaterequeststatus } from '../store/actions/requestActions';
 
 const OfferedBookDisplay = ({ book }) => {
   if (!book) return null;
-  
+
   return (
     <Link target='_blank' to={`/books/${book._id}`} className="mt-3 p-3 bg-orange-50/80 rounded-xl border border-orange-100 flex items-start sm:items-center gap-3 animate-in fade-in duration-300">
       <div className="w-10 h-14 flex-shrink-0 bg-gray-200 rounded-md overflow-hidden shadow-sm">
-        <img 
-          src={book.coverImageUrl} 
-          alt={book.title} 
-          className="w-full h-full object-cover" 
+        <img
+          src={book.coverImageUrl}
+          alt={book.title}
+          className="w-full h-full object-cover"
         />
       </div>
 
@@ -135,10 +135,10 @@ const RequestCard = ({ request, isIncoming }) => {
                 </div>
               </div>
             </div>
-            
-            {/* --- NEW: Offered Book Component --- */}
+
+            {/* New offered book */}
             {request.type === 'swap' && request.offeredBook && (
-               <OfferedBookDisplay book={request.offeredBook} />
+              <OfferedBookDisplay book={request.offeredBook} />
             )}
 
           </div>
@@ -213,7 +213,7 @@ const RequestCard = ({ request, isIncoming }) => {
 
               <div>
                 <textarea
-                  placeholder="Add a note (Required)"
+                  placeholder="Add a note (Required). You can mention phone number or any other details."
                   className={`w-full p-3 bg-gray-50 border rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-orange-500 resize-none h-16
                     ${errors.note ? 'border-red-500 focus:ring-red-500' : 'border-gray-200'}`}
                   {...register("note", { required: "Please add a note for the borrower" })}

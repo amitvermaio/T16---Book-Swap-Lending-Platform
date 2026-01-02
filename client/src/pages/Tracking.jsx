@@ -2,18 +2,29 @@ import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { PackageSearch, Loader2, Inbox, Send, History } from 'lucide-react';
 import { asyncfetchactivetrackings, asyncfetchhistory } from '../store/actions/trackingActions';
+import { updateonetrackingstatus } from '../store/features/trackingSlice';
+import { socket } from '../socket';
 
 import Navbar from "../components/Navbar";
 import TrackingCard from "../components/TrackingCard";
 
 const Tracking = () => {
   const dispatch = useDispatch();
-  // Extract history from state as well
   const { activeTrackings, history, isLoading } = useSelector((state) => state.trackings);
   const user = useSelector((state) => state.users.user);
 
-  // Options: 'incoming', 'myrequests', 'history'
+  // tabs: 'incoming', 'myrequests', 'history'
   const [activeTab, setActiveTab] = useState('incoming');
+
+  useEffect(() => {
+    socket.on('request:updated', (data) => {
+      dispatch(updateonetrackingstatus(data));
+    });
+
+    return () => {
+      socket.off('request:updated');
+    }
+  }, [dispatch]);
 
   useEffect(() => {
     if (!activeTrackings || activeTrackings.length === 0) {
@@ -33,7 +44,7 @@ const Tracking = () => {
     (item) => item.requester?._id === user?._id || item.requester === user?._id
   );
 
-  // Determine current list based on tab
+  // determine current list based on tab
   let currentList = [];
   let emptyMessage = "";
   let EmptyIcon = PackageSearch;
@@ -60,7 +71,7 @@ const Tracking = () => {
         <h1 className="text-2xl font-bold mb-1">Track Books</h1>
         <p className="text-sm text-gray-500">Manage your book exchanges and view history.</p>
 
-        {/* --- TABS --- */}
+        {/* tabs */}
         <div className="flex gap-6 mt-8 border-b border-gray-100 overflow-x-auto">
 
           {/* Tab 1: Incoming Requests */}
@@ -128,7 +139,7 @@ const Tracking = () => {
             } else if (activeTab === 'myrequests') {
               isLending = false;
             } else {
-              // History: Check dynamic ownership
+              // history: Check dynamic ownership
               isLending = item.owner?._id === user?._id || item.owner === user?._id;
             }
 

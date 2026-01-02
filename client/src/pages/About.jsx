@@ -20,7 +20,7 @@ const About = () => {
   const [isTermsOpen, setIsTermsOpen] = useState(false);
 
   return (
-    <div className="w-screen min-h-screen px-6 lg:px-12 bg-white selection:bg-orange-100 selection:text-orange-900">
+    <div className="w-screen min-h-screen px-6 lg:px-12 bg-white">
       <Navbar />
 
       <main className="w-full max-w-7xl mx-auto py-10 text-neutral-900 font-sans">        
