@@ -21,8 +21,6 @@ const requestSchema = new mongoose.Schema({
     datetime: Date,
     note: String,
   },
-},
-  { timestamps: true }
-);
+},{ timestamps: true });
 
 export default mongoose.model('Request', requestSchema);

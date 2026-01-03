@@ -9,7 +9,9 @@ import {
   RefreshCw,
   MessageSquare,
   ArrowRightLeft,
-  ScanBarcode
+  ScanBarcode,
+  Star,
+  Send
 } from 'lucide-react';
 import { getDaysRemaining, formatDate } from '../utils/dataUtils';
 import { asyncmarkcomplete, asyncverifycollection, asynccancelrequest } from '../store/actions/trackingActions';
@@ -54,6 +56,99 @@ const SwappedBookSection = ({ offeredBook }) => {
   );
 };
 
+const FeedbackSection = ({ onSubmit }) => {
+  const [rating, setRating] = useState(0);
+  const [hover, setHover] = useState(0);
+  const [comment, setComment] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+
+  const handleSubmit = async () => {
+    if (rating === 0) return;
+    
+    setIsSubmitting(true);
+    await onSubmit({ rating, comment });
+    
+    setIsSubmitting(false);
+    setSubmitted(true);
+  };
+
+  if (submitted) {
+    return (
+      <div className="mt-3 bg-green-50 border border-green-100 rounded-xl p-4 text-center">
+        <p className="text-green-600 text-xs font-bold flex items-center justify-center gap-2">
+          <CheckCircle size={14} /> Thanks for your feedback!
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="mt-3 bg-yellow-50/40 border border-yellow-100 rounded-xl p-4 transition-all">
+      <p className="text-xs font-bold text-gray-800 mb-2">Rate your experience</p>
+      
+      {/* Star Rating System */}
+      <div className="flex gap-1 mb-3">
+        {[1, 2, 3, 4, 5].map((star) => (
+          <button
+            key={star}
+            type="button"
+            className="focus:outline-none transition-transform active:scale-90"
+            onClick={() => setRating(star)}
+            onMouseEnter={() => setHover(star)}
+            onMouseLeave={() => setHover(0)}
+          >
+            <Star
+              size={20}
+              className={`transition-colors duration-200 ${
+                star <= (hover || rating)
+                  ? 'text-yellow-400 fill-yellow-400'
+                  : 'text-gray-300 fill-transparent'
+              }`}
+            />
+          </button>
+        ))}
+        <span className="ml-2 text-xs font-medium text-yellow-600 pt-0.5">
+          {rating > 0 ? ['Poor', 'Fair', 'Good', 'Very Good', 'Excellent'][rating - 1] : ''}
+        </span>
+      </div>
+
+      {/* Comment Textarea */}
+      <div className="relative">
+        <textarea
+          className="w-full text-xs p-3 pr-2 rounded-lg border border-yellow-200 bg-white focus:outline-none focus:border-yellow-400 focus:ring-1 focus:ring-yellow-400 resize-none placeholder-gray-400"
+          rows={3}
+          placeholder="Write a comment (optional)..."
+          maxLength={300}
+          value={comment}
+          onChange={(e) => setComment(e.target.value)}
+        />
+        <div className="absolute bottom-2 right-2 text-[10px] text-gray-400">
+          {comment.length}/300
+        </div>
+      </div>
+
+      {/* Submit Button */}
+      <button
+        onClick={handleSubmit}
+        disabled={rating === 0 || isSubmitting}
+        className={`
+          mt-2 w-full flex items-center justify-center gap-2 py-2 rounded-lg text-xs font-bold transition-all
+          ${rating === 0 
+            ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+            : 'bg-yellow-400 text-yellow-900 hover:bg-yellow-500 shadow-sm hover:shadow active:scale-95'}
+        `}
+      >
+        {isSubmitting ? 'Submitting...' : (
+          <>
+            Submit Feedback <Send size={12} />
+          </>
+        )}
+      </button>
+    </div>
+  );
+};
+
 const ActionFooter = ({ isLending, isUpdating, handleMarkReturned, handleCancelRequest, status }) => {
   if (isLending) {
     if (status === 'collected') {
@@ -77,7 +172,6 @@ const ActionFooter = ({ isLending, isUpdating, handleMarkReturned, handleCancelR
       );
     }
 
-    // If owner but not collected yet
     return (
       <span className="text-xs font-bold text-orange-600">
         {status === 'approved' ? 'Waiting for Collection' : status}
@@ -86,7 +180,6 @@ const ActionFooter = ({ isLending, isUpdating, handleMarkReturned, handleCancelR
   }
 
   if (!isLending) {
-    // Cancel button if approved but not collected yet
     if (status === 'approved') {
       return (
         <button
@@ -145,6 +238,22 @@ const TrackingCard = ({ data, isLending }) => {
     dispatch(asynccancelrequest({ requestId: data._id }));
   }
 
+  // --- HANDLER FOR BACKEND INTEGRATION ---
+  const handleFeedbackSubmit = async ({ rating, comment }) => {
+    // TODO: Add your backend logic here
+    console.log("Submitting Feedback:", {
+      requestId: data._id,
+      rating: rating,
+      comment: comment
+    });
+    
+    // Example dispatch:
+    // await dispatch(asyncSubmitFeedback(data._id, { rating, comment }));
+    
+    // Simulate delay
+    return new Promise(resolve => setTimeout(resolve, 1000));
+  };
+
   return (
     <div className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden group">
       <div className="p-5 flex gap-5">
@@ -167,6 +276,7 @@ const TrackingCard = ({ data, isLending }) => {
             <h3 className="text-base font-bold text-gray-900 truncate pr-2">{book.title}</h3>
             <StatusBadge isOverdue={isOverdue} daysLeft={daysLeft} status={data.status} />
           </div>
+
           <p className="text-xs text-gray-500 mb-3">by {book.author}</p>
 
           <div className="flex items-center gap-4 text-xs text-gray-600 bg-gray-50 p-2 rounded-lg border border-gray-100">
@@ -216,12 +326,12 @@ const TrackingCard = ({ data, isLending }) => {
           </div>
         )}
 
-        {/* EXCHANGE CODE LOGIC (REQUESTER SIDE) */}
+        {/* EXCHANGE CODE LOGIC */}
         {!isLending && data.status === 'approved' && data.exchangeCode && (
           <div className="mt-3 bg-indigo-50 border border-indigo-100 rounded-xl p-3 flex justify-between items-center">
             <div>
               <p className="text-[10px] uppercase font-bold text-indigo-400 tracking-wider mb-0.5">Pickup Code</p>
-              <p className="text-indigo-900 text-xs">Tell this code to the owner upon collection <span className='block'>This ensures that you've collected the book from owner</span></p>
+              <p className="text-indigo-900 text-xs">Tell this code to the owner upon collection</p>
             </div>
             <div className="text-2xl font-mono font-bold text-indigo-600 tracking-widest bg-white px-3 py-1 rounded border border-indigo-100 shadow-sm">
               {data.exchangeCode}
@@ -229,7 +339,7 @@ const TrackingCard = ({ data, isLending }) => {
           </div>
         )}
 
-        {/* VERIFY CODE LOGIC (OWNER SIDE) */}
+        {/* VERIFY CODE LOGIC */}
         {isLending && data.status === 'approved' && (
           <div className="mt-3 bg-orange-50 border border-orange-100 rounded-xl p-3">
             <div className="flex items-center gap-2 mb-2">
@@ -256,9 +366,12 @@ const TrackingCard = ({ data, isLending }) => {
           </div>
         )}
 
+        {data.status === 'completed' && (
+          <FeedbackSection onSubmit={handleFeedbackSubmit} />
+        )}
+
       </div>
 
-      {/* Bottom Section: User Info & Actions */}
       <div className="border-t border-gray-100 p-4 bg-gray-50/30 flex items-center justify-between gap-4">
         <div className="flex items-center gap-3 min-w-0">
           <img

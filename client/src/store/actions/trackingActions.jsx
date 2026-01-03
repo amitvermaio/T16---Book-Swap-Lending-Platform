@@ -5,6 +5,7 @@ import {
   loadhistory,
   movetohistory,
   removetracking,
+  loadselectedtracking,
   setloading,
   seterror
 } from "../features/trackingSlice";
@@ -58,7 +59,7 @@ export const asyncverifycollection = (requestId, code) => async (dispatch) => {
 
     if (data.success) {
       toast.success("Code verified! Book collected.");
-      dispatch(asyncfetchactivetrackings()); 
+      dispatch(asyncfetchactivetrackings());
     }
   } catch (error) {
     console.error(error);
@@ -68,18 +69,46 @@ export const asyncverifycollection = (requestId, code) => async (dispatch) => {
 
 export const asynccancelrequest = ({ requestId }) => async (dispatch) => {
   try {
-    
+
     const { data } = await axios.patch(`/requests/${requestId}/status`, { action: 'cancelled' });
 
     if (data.success) {
       dispatch(removetracking(requestId));
       dispatch(movetohistory(data.data));
-      toast("Request Cancelled.", { icon: <FileX/> });
+      toast("Request Cancelled.", { icon: <FileX /> });
     }
 
     return true;
   } catch (error) {
     console.error(error);
     toast.error("Failed to update status");
+  }
+}
+
+export const asyncfetchtrackingbyid = (id) => async (dispatch) => {
+  dispatch(setloading(true));
+  try {
+    const response = await axios.get(`/requests/${id}`);
+    dispatch(loadselectedtracking(response.data.request));
+  } catch (error) {
+    console.error(error);
+    dispatch(seterror(error.response?.data?.message || "Failed to fetch tracking details"));
+  }
+};
+
+export const asyncrateuser = ({ targetUserId, requestId, rating, comment }) => async () => {
+  try {
+    const { data } = await axios.post('/ratings', { 
+      targetUserId,
+      requestId,
+      rating,
+      comment
+    });
+    if (data.success) {
+      toast.success("Thank you for your feedback!");
+    }
+
+  } catch (error) {
+    console.log(error);
   }
 }

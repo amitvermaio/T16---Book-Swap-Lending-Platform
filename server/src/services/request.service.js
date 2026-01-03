@@ -84,16 +84,15 @@ export const listRequests = async (userId, as) => {
 export const getRequestById = async (id, userId) => {
   const reqDoc = await Request.findById(id)
     .populate('book')
-    .populate('requester', 'name')
-    .populate('owner', 'name');
+    .populate('requester', 'name avatar city state email')
+    .populate('owner', 'name avatar city state email');   
 
   if (!reqDoc) throw new AppError('Request not found', 404);
-  if (
-    reqDoc.owner._id.toString() !== userId &&
-    reqDoc.requester._id.toString() !== userId
-  ) {
+
+  if (reqDoc.owner._id.toString() !== userId && reqDoc.requester._id.toString() !== userId) {
     throw new AppError('Forbidden', 403);
   }
+  
   return reqDoc;
 };
 
@@ -149,7 +148,7 @@ export const updateRequestStatus = async ({
     }
 
   } else if (action === 'rejected' || action === 'cancelled') {
-    reqDoc.status = action; 
+    reqDoc.status = action;
     reqDoc.book.status = 'available';
     await reqDoc.book.save();
 

@@ -2,6 +2,7 @@ import Rating from '../models/rating.model.js';
 import Request from '../models/request.model.js';
 import User from '../models/user.model.js';
 import AppError from '../utils/AppError.js'; 
+import { getIO } from '../sockets/socket.js';
 
 export const createRating = async (raterId, ratingData) => {
   const { targetUserId, requestId, score, comment } = ratingData;
@@ -16,8 +17,7 @@ export const createRating = async (raterId, ratingData) => {
 
   // Ensure the person rating was actually involved in this request
   const isParticipant =
-    request.sender?.toString() === raterId ||
-    request.receiver?.toString() === raterId ||
+    request.owner?.toString() === raterId ||
     request.requester?.toString() === raterId;
 
   if (!isParticipant) {
@@ -42,10 +42,30 @@ export const createRating = async (raterId, ratingData) => {
 
   targetUser.ratingStats = {
     totalRatings: newTotalRatings,
-    avgRating: parseFloat(newAvgRating.toFixed(2)) // only 2 decimal places
+    avgRating: parseFloat(newAvgRating.toFixed(2)) 
   };
 
   await targetUser.save();
+
+  const io = getIO();
+
+  const payload = {
+    type: "RATING_RECEIVED",
+    requestId,
+    fromUser: raterId,
+    toUser: targetUserId,
+    score,
+    comment,
+    createdAt: new Date(),
+  };
+
+  await Notification.create(payload);
+
+  if (raterId !== request.owner?.toString()) {
+    io.to(`user:${request.owner}`).emit('rating:new', payload);
+  } else {
+    io.to(`user:${request.requester}`).emit('rating:new', payload);
+  }
 
   return newRating;
 };

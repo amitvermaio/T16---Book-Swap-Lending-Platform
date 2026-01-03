@@ -3,6 +3,7 @@ import { createSlice } from "@reduxjs/toolkit";
 const initialState = {
   activeTrackings: [],
   history: [],
+  selectedTracking: null,
   isLoading: false,
   error: null,
 };
@@ -33,25 +34,17 @@ const trackingSlice = createSlice({
 
     movetohistory: (state, action) => {
       const updatedFromBackend = action.payload;
-
-      // find the index of the item in the CURRENT active list
-      // This ensures we have the item with 'book' and 'owner' already populated
       const index = state.activeTrackings.findIndex(
         (item) => item._id === updatedFromBackend._id
-      );
+);
 
       if (index !== -1) {
-        // get the existing populated item
         const itemToMove = state.activeTrackings[index];
-
-        // update key fields (status/dates) from backend response
-        // We do NOT spread (...updatedFromBackend) entirely, because that 
-        // would overwrite the populated 'book' object with a plain string ID.
         itemToMove.status = updatedFromBackend.status;
         itemToMove.returnedAt = updatedFromBackend.returnedAt;
         itemToMove.updatedAt = updatedFromBackend.updatedAt;
 
-        // remove from active list
+        
         state.activeTrackings.splice(index, 1);
 
         // add to history list
@@ -72,6 +65,11 @@ const trackingSlice = createSlice({
       if (historyIndex !== -1) {
         state.history[historyIndex].status = status;
       }
+    },
+
+    loadselectedtracking: (state, action) => {
+      state.selectedTracking = action.payload;
+      state.isLoading = false;
     },
 
     setloading: (state, action) => {
@@ -96,6 +94,7 @@ export const {
   movetohistory,
   removetracking,
   updateonetrackingstatus,
+  loadselectedtracking,
   setloading,
   seterror,
   clearerror

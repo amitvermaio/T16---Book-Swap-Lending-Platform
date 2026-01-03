@@ -6,7 +6,7 @@ const ratingSchema = new mongoose.Schema(
     toUser: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     request: { type: mongoose.Schema.Types.ObjectId, ref: 'Request', required: true },
     score: { type: Number, min: 1, max: 5, required: true },
-    comment: { type: String, maxLength: 500 }, // Added max length for safety
+    comment: { type: String, maxLength: 300 },
   },
   { timestamps: true }
 );

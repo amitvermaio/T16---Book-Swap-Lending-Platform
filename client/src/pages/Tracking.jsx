@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { PackageSearch, Loader2, Inbox, Send, History } from 'lucide-react';
+
+import { socket } from '../socket';
 import { asyncfetchactivetrackings, asyncfetchhistory } from '../store/actions/trackingActions';
 import { updateonetrackingstatus } from '../store/features/trackingSlice';
-import { socket } from '../socket';
 
 import Navbar from "../components/Navbar";
 import TrackingCard from "../components/TrackingCard";
@@ -78,8 +79,8 @@ const Tracking = () => {
           <button
             onClick={() => setActiveTab('incoming')}
             className={`flex items-center gap-2 pb-3 text-sm font-bold uppercase tracking-wide border-b-2 transition-all whitespace-nowrap ${activeTab === 'incoming'
-                ? 'border-orange-500 text-orange-600'
-                : 'border-transparent text-gray-400 hover:text-gray-600'
+              ? 'border-orange-500 text-orange-600'
+              : 'border-transparent text-gray-400 hover:text-gray-600'
               }`}
           >
             <Inbox size={16} />
@@ -93,8 +94,8 @@ const Tracking = () => {
           <button
             onClick={() => setActiveTab('myrequests')}
             className={`flex items-center gap-2 pb-3 text-sm font-bold uppercase tracking-wide border-b-2 transition-all whitespace-nowrap ${activeTab === 'myrequests'
-                ? 'border-orange-500 text-orange-600'
-                : 'border-transparent text-gray-400 hover:text-gray-600'
+              ? 'border-orange-500 text-orange-600'
+              : 'border-transparent text-gray-400 hover:text-gray-600'
               }`}
           >
             <Send size={16} />
@@ -108,8 +109,8 @@ const Tracking = () => {
           <button
             onClick={() => setActiveTab('history')}
             className={`flex items-center gap-2 pb-3 text-sm font-bold uppercase tracking-wide border-b-2 transition-all whitespace-nowrap ${activeTab === 'history'
-                ? 'border-orange-500 text-orange-600'
-                : 'border-transparent text-gray-400 hover:text-gray-600'
+              ? 'border-orange-500 text-orange-600'
+              : 'border-transparent text-gray-400 hover:text-gray-600'
               }`}
           >
             <History size={16} />
@@ -139,7 +140,6 @@ const Tracking = () => {
             } else if (activeTab === 'myrequests') {
               isLending = false;
             } else {
-              // history: Check dynamic ownership
               isLending = item.owner?._id === user?._id || item.owner === user?._id;
             }
 
