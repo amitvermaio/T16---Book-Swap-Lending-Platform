@@ -12,6 +12,7 @@ const notificationSchema = new mongoose.Schema(
         'REQUEST_CANCELLED',
         'BOOK_RETURNED',
         'BOOK_AVAILABLE',
+        'RATING_RECEIVED'
       ],
       required: true,
     },

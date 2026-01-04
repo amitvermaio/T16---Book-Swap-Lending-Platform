@@ -28,9 +28,11 @@ const NotificationBell = ({ isAuthorized, closeProfile }) => {
       };
 
       socket.on("notification:new", handleNewNotification);
+      socket.on("rating:new", handleNewNotification);
 
       return () => {
         socket.off("notification:new", handleNewNotification);
+        socket.off("rating:new", handleNewNotification);
       };
     }
   }, [isAuthorized, dispatch]);

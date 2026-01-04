@@ -1,42 +1,20 @@
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
-import {
-  Clock,
-  MapPin,
-  Calendar,
-  CheckCircle,
-  AlertTriangle,
-  RefreshCw,
-  MessageSquare,
-  ArrowRightLeft,
-  ScanBarcode,
-  Star,
-  Send
+import { 
+  Clock, 
+  MapPin, 
+  Calendar, 
+  RefreshCw, 
+  ScanBarcode, 
+  CheckCircle, 
+  MessageSquare, 
+  ArrowRightLeft, 
 } from 'lucide-react';
 import { getDaysRemaining, formatDate } from '../utils/dataUtils';
-import { asyncmarkcomplete, asyncverifycollection, asynccancelrequest } from '../store/actions/trackingActions';
-
-const StatusBadge = ({ isOverdue, daysLeft, status }) => {
-  if (status === 'collected') {
-    return (
-      <span className="flex items-center gap-1 px-2 py-1 bg-blue-50 text-blue-600 text-[10px] font-bold uppercase tracking-wider rounded-md border border-blue-100">
-        <CheckCircle size={10} /> Collected
-      </span>
-    );
-  }
-  if (isOverdue && status === 'approved') {
-    return (
-      <span className="flex items-center gap-1 px-2 py-1 bg-red-50 text-red-600 text-[10px] font-bold uppercase tracking-wider rounded-md border border-red-100">
-        <AlertTriangle size={10} /> Overdue by {Math.abs(daysLeft)} days
-      </span>
-    );
-  }
-  return (
-    <span className="flex items-center gap-1 px-2 py-1 bg-green-50 text-green-600 text-[10px] font-bold uppercase tracking-wider rounded-md border border-green-100">
-      <Clock size={10} /> Active
-    </span>
-  );
-};
+import { asyncmarkcomplete, asyncverifycollection, asynccancelrequest, asyncrateuser } from '../store/actions/trackingActions';
+import StatusBadge from './tracking/StatusBadge';
+import FeedbackSection from './tracking/FeedbackSection';
+import toast from 'react-hot-toast';
 
 const SwappedBookSection = ({ offeredBook }) => {
   if (!offeredBook) return null;
@@ -56,101 +34,8 @@ const SwappedBookSection = ({ offeredBook }) => {
   );
 };
 
-const FeedbackSection = ({ onSubmit }) => {
-  const [rating, setRating] = useState(0);
-  const [hover, setHover] = useState(0);
-  const [comment, setComment] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
-
-  const handleSubmit = async () => {
-    if (rating === 0) return;
-    
-    setIsSubmitting(true);
-    await onSubmit({ rating, comment });
-    
-    setIsSubmitting(false);
-    setSubmitted(true);
-  };
-
-  if (submitted) {
-    return (
-      <div className="mt-3 bg-green-50 border border-green-100 rounded-xl p-4 text-center">
-        <p className="text-green-600 text-xs font-bold flex items-center justify-center gap-2">
-          <CheckCircle size={14} /> Thanks for your feedback!
-        </p>
-      </div>
-    );
-  }
-
-  return (
-    <div className="mt-3 bg-yellow-50/40 border border-yellow-100 rounded-xl p-4 transition-all">
-      <p className="text-xs font-bold text-gray-800 mb-2">Rate your experience</p>
-      
-      {/* Star Rating System */}
-      <div className="flex gap-1 mb-3">
-        {[1, 2, 3, 4, 5].map((star) => (
-          <button
-            key={star}
-            type="button"
-            className="focus:outline-none transition-transform active:scale-90"
-            onClick={() => setRating(star)}
-            onMouseEnter={() => setHover(star)}
-            onMouseLeave={() => setHover(0)}
-          >
-            <Star
-              size={20}
-              className={`transition-colors duration-200 ${
-                star <= (hover || rating)
-                  ? 'text-yellow-400 fill-yellow-400'
-                  : 'text-gray-300 fill-transparent'
-              }`}
-            />
-          </button>
-        ))}
-        <span className="ml-2 text-xs font-medium text-yellow-600 pt-0.5">
-          {rating > 0 ? ['Poor', 'Fair', 'Good', 'Very Good', 'Excellent'][rating - 1] : ''}
-        </span>
-      </div>
-
-      {/* Comment Textarea */}
-      <div className="relative">
-        <textarea
-          className="w-full text-xs p-3 pr-2 rounded-lg border border-yellow-200 bg-white focus:outline-none focus:border-yellow-400 focus:ring-1 focus:ring-yellow-400 resize-none placeholder-gray-400"
-          rows={3}
-          placeholder="Write a comment (optional)..."
-          maxLength={300}
-          value={comment}
-          onChange={(e) => setComment(e.target.value)}
-        />
-        <div className="absolute bottom-2 right-2 text-[10px] text-gray-400">
-          {comment.length}/300
-        </div>
-      </div>
-
-      {/* Submit Button */}
-      <button
-        onClick={handleSubmit}
-        disabled={rating === 0 || isSubmitting}
-        className={`
-          mt-2 w-full flex items-center justify-center gap-2 py-2 rounded-lg text-xs font-bold transition-all
-          ${rating === 0 
-            ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
-            : 'bg-yellow-400 text-yellow-900 hover:bg-yellow-500 shadow-sm hover:shadow active:scale-95'}
-        `}
-      >
-        {isSubmitting ? 'Submitting...' : (
-          <>
-            Submit Feedback <Send size={12} />
-          </>
-        )}
-      </button>
-    </div>
-  );
-};
-
 const ActionFooter = ({ isLending, isUpdating, handleMarkReturned, handleCancelRequest, status }) => {
-  if (isLending) {
+    if (isLending) {
     if (status === 'collected') {
       return (
         <button
@@ -204,7 +89,7 @@ const ActionFooter = ({ isLending, isUpdating, handleMarkReturned, handleCancelR
 const TrackingCard = ({ data, isLending }) => {
   const dispatch = useDispatch();
   const [isUpdating, setIsUpdating] = useState(false);
-  const [verificationCode, setVerificationCode] = useState(''); 
+  const [verificationCode, setVerificationCode] = useState('');
 
   const daysLeft = getDaysRemaining(data.dueDate);
   const isOverdue = daysLeft !== null && daysLeft < 0;
@@ -238,20 +123,28 @@ const TrackingCard = ({ data, isLending }) => {
     dispatch(asynccancelrequest({ requestId: data._id }));
   }
 
-  // --- HANDLER FOR BACKEND INTEGRATION ---
   const handleFeedbackSubmit = async ({ rating, comment }) => {
-    // TODO: Add your backend logic here
-    console.log("Submitting Feedback:", {
+    if (!otherUser || !otherUser._id) return;
+    if (!data || !data._id) return;
+    if (rating<=0 || rating > 5) {
+      toast.error("Invalid rating value");
+      return;
+    }
+    if (comment.length > 300) {
+      toast.error("Comment exceeds 300 characters");
+      return;
+    }
+
+    const ratingPayload = {
+      targetUserId: otherUser._id,
       requestId: data._id,
-      rating: rating,
+      score: rating,
       comment: comment
-    });
-    
-    // Example dispatch:
-    // await dispatch(asyncSubmitFeedback(data._id, { rating, comment }));
-    
-    // Simulate delay
-    return new Promise(resolve => setTimeout(resolve, 1000));
+    };
+
+    const res = await dispatch(asyncrateuser(ratingPayload));
+
+    return res;
   };
 
   return (
@@ -367,7 +260,7 @@ const TrackingCard = ({ data, isLending }) => {
         )}
 
         {data.status === 'completed' && (
-          <FeedbackSection onSubmit={handleFeedbackSubmit} />
+          <FeedbackSection user={otherUserName} onSubmit={handleFeedbackSubmit} />
         )}
 
       </div>

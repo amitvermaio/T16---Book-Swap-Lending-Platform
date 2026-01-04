@@ -1,6 +1,7 @@
 import Rating from '../models/rating.model.js';
 import Request from '../models/request.model.js';
 import User from '../models/user.model.js';
+import Notification from '../models/notification.model.js';
 import AppError from '../utils/AppError.js'; 
 import { getIO } from '../sockets/socket.js';
 
@@ -15,7 +16,6 @@ export const createRating = async (raterId, ratingData) => {
     throw new AppError('You can only rate completed or returned transactions.', 400);
   }
 
-  // Ensure the person rating was actually involved in this request
   const isParticipant =
     request.owner?.toString() === raterId ||
     request.requester?.toString() === raterId;
@@ -23,6 +23,8 @@ export const createRating = async (raterId, ratingData) => {
   if (!isParticipant) {
     throw new AppError('You are not authorized to rate this transaction.', 403);
   }
+
+  const rater = await User.findById(raterId).select('name avatar');
 
   const newRating = await Rating.create({
     fromUser: raterId,
@@ -49,22 +51,27 @@ export const createRating = async (raterId, ratingData) => {
 
   const io = getIO();
 
-  const payload = {
+  const notificationPayload = {
+    user: targetUserId,     
     type: "RATING_RECEIVED",
-    requestId,
-    fromUser: raterId,
-    toUser: targetUserId,
-    score,
-    comment,
-    createdAt: new Date(),
+    message: `You received a ${score}★ rating from ${rater.name}`,
+    data: {
+      requestId,
+      fromUser: raterId,
+      senderName: rater.name,
+      senderAvatar: rater.avatar,
+      score,
+      comment,
+    },
+    isRead: false,
   };
 
-  await Notification.create(payload);
+  await Notification.create(notificationPayload);
 
   if (raterId !== request.owner?.toString()) {
-    io.to(`user:${request.owner}`).emit('rating:new', payload);
+    io.to(`user:${request.owner}`).emit('rating:new', notificationPayload);
   } else {
-    io.to(`user:${request.requester}`).emit('rating:new', payload);
+    io.to(`user:${request.requester}`).emit('rating:new', notificationPayload);
   }
 
   return newRating;

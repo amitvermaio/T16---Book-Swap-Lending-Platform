@@ -96,19 +96,23 @@ export const asyncfetchtrackingbyid = (id) => async (dispatch) => {
   }
 };
 
-export const asyncrateuser = ({ targetUserId, requestId, rating, comment }) => async () => {
+export const asyncrateuser = ({ targetUserId, requestId, score, comment }) => async () => {
   try {
     const { data } = await axios.post('/ratings', { 
-      targetUserId,
-      requestId,
-      rating,
-      comment
+      targetUserId, 
+      requestId, 
+      score, 
+      comment 
     });
+
     if (data.success) {
       toast.success("Thank you for your feedback!");
+      return true;
     }
-
+    
   } catch (error) {
     console.log(error);
+    toast.error(error.response?.data?.message || "Failed to submit rating");
+    return false;
   }
 }
