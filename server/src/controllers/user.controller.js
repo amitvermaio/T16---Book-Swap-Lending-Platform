@@ -5,9 +5,6 @@ import {
   getBorrowHistory,
   addBookToFavorites
 } from '../services/user.service.js';
-import { welcomeTemplate, otpTemplate, requestTemplate } from "../templates/email.template.js";
-
-import sendEmail from '../services/email.service.js';
 
 export const getMeDetails = async (req, res, next) => {
   try {
@@ -39,9 +36,8 @@ export const updateMyDetails = async (req, res, next) => {
 
 export const getUserPublicProfile = async (req, res, next) => {
   try {
-    console.log(req.params.id);
-    const user = await getUserById(req.params.id);
-    res.json({ user });
+    const data = await getUserById(req.params.id);
+    res.json(data);
   } catch (err) {
     next(err);
   }

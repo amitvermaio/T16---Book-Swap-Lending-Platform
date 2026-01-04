@@ -4,9 +4,15 @@ import Request from '../models/request.model.js';
 import AppError from '../utils/AppError.js';
 
 export const getUserById = async (id) => {
-  const user = await User.findById(id).select('-passwordHash');
+  const user = await User.findById(id).select(`
+    -passwordHash -favorites -role -emailVerificationOTP 
+    -emailVerificationOTPExpiry -resetPasswordOTP 
+    -resetPasswordOTPExpiry -emailVerified -lendingPreferences`
+  );
+
+  const books = await Book.find({ owner: id }).sort({ createdAt: -1 }); 
   if (!user) throw new AppError('User not found', 404);
-  return user;
+  return { user, books };
 };
 
 export const updateUserProfile = async (userId, updateData) => {

@@ -11,13 +11,16 @@ import {
 
 const router = Router();
 
+/* PUBLIC ROUTES */
+router.get('/:id', getUserPublicProfile);
+
+/* PROTECTED ROUTES */
 router.use(protect);
 
 router.get('/me', getMeDetails);
 router.patch('/update-details', updateMyDetails)
 router.patch('/me/preferences', updateMyPreferences);
 router.get('/me/history', getMyBorrowHistory);
-router.get('/:id', getUserPublicProfile);
 router.post('/favourites', addToFavorite);
 
 export default router;

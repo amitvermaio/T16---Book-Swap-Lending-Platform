@@ -54,8 +54,8 @@ const NotificationList = ({ notifications, onMarkRead }) => {
                             key={i}
                             size={10}
                             className={`${i < (notif.data.score || 0)
-                                ? "text-yellow-400 fill-yellow-400"
-                                : "text-gray-200 fill-gray-200"
+                              ? "text-yellow-400 fill-yellow-400"
+                              : "text-gray-200 fill-gray-200"
                               }`}
                           />
                         ))}
