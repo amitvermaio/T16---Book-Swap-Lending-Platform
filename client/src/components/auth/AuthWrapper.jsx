@@ -1,57 +1,67 @@
 import { useEffect, useState } from 'react';
-import { Navigate, Outlet } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-import axios from '../../config/axiosconfig'; 
-import { loaduser } from '../../store/features/userSlice';
-import { Loader2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
+import { loaduser, setauthentication } from '../../store/features/userSlice';
+import axios from '../../config/axiosconfig';
 
-const AuthWrapper = () => {
+const AuthWrapper = ({ children }) => {
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const { isAuthorized } = useSelector((state) => state.users);
-  const [verifying, setVerifying] = useState(!isAuthorized);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
 
   useEffect(() => {
-    if (isAuthorized) {
-      setVerifying(false);
-      return;
-    }
+    let isMounted = true;
 
-    const verifyUser = async () => {
+    const checkAuth = async () => {
       const token = localStorage.getItem('BookSwap_Token');
-      
+
       if (!token) {
-        setVerifying(false);
+        if (isMounted) {
+          dispatch(setauthentication(false));
+          setIsCheckingAuth(false);
+        }
+        navigate('/sign-in', { replace: true });
         return;
       }
 
       try {
-        const { data } = await axios.get('/auth/me'); 
-        
-        dispatch(loaduser(data.user));
+        const res = await axios.get('/auth/me');
+
+        if (isMounted) {
+          dispatch(loaduser(res.data.user));
+        }
       } catch (error) {
-        console.log("Session expired:", error);
         localStorage.removeItem('BookSwap_Token');
+        if (isMounted) {
+          dispatch(setauthentication(false));
+          setIsCheckingAuth(false);
+        }
+        navigate('/sign-in', { replace: true });
+        return;
       } finally {
-        setVerifying(false);
+        if (isMounted) {
+          setIsCheckingAuth(false);
+        }
       }
+    }
+
+    checkAuth();
+
+    return () => {
+      isMounted = false;
     };
+  }, [navigate, dispatch]);
 
-    verifyUser();
-  }, [dispatch]); 
-
-  if (verifying) {
-    return (
-      <div className="flex h-screen w-full items-center justify-center bg-gray-50">
-        <Loader2 className="animate-spin text-orange-600" size={48} />
-      </div>
-    );
+  if (isCheckingAuth) {
+    return <div>Loading...</div>;
   }
 
   if (!isAuthorized) {
-    return <Navigate to="/sign-in" replace />;
+    return null;
   }
 
-  return <Outlet />;
-};
+  return <>{children}</>
+}
 
-export default AuthWrapper;
+export default AuthWrapper

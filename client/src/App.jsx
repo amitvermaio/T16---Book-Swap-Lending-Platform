@@ -85,7 +85,8 @@ const App = () => {
         <Route path='/sign-in' element={
           <UnAuthWrapper>
             <Login />
-          </UnAuthWrapper>}
+          </UnAuthWrapper>
+          }
         />
 
       </Routes>

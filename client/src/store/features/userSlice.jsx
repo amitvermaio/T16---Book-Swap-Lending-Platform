@@ -21,6 +21,9 @@ const userSlice = createSlice({
       state.isAuthorized = false;
       state.loading = false
     },
+    setauthentication: (state, action) => {
+      state.isAuthorized = action.payload;
+    },
     setuserloading: (state, action) => {
       state.loading = action.payload;
     },
@@ -30,5 +33,5 @@ const userSlice = createSlice({
   }
 });
 
-export const { loaduser, removeuser, setuserloading, loaduserbooks } = userSlice.actions;
+export const { loaduser, removeuser, setuserloading, loaduserbooks, setauthentication } = userSlice.actions;
 export default userSlice.reducer;
