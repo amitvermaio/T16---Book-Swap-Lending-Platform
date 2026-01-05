@@ -1,8 +1,9 @@
 import { useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { MapPin, Calendar, Star, BookOpen, ShieldCheck, Mail } from "lucide-react";
+import { MapPin, Calendar, Star, BookOpen, Mail } from "lucide-react";
 import { asyncloaduserprofile } from "../store/actions/profileActions";
+import Navbar from "../components/Navbar";
 
 const UserProfile = () => {
   const { userId } = useParams();
@@ -47,10 +48,10 @@ const UserProfile = () => {
   const userBooks = books || [];
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8 bg-gray-50 min-h-screen font-sans">
+    <div className="w-screen min-h-screen px-6 lg:px-12 bg-gray-50 pb-10 max-w-7xl mx-auto">
+      <Navbar />
 
-
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-8 relative">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-8 relative my-5">
         <div className="h-3 w-full bg-orange-600"></div>
 
         <div className="p-6 md:p-8">

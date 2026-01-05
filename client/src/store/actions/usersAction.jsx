@@ -35,3 +35,24 @@ export const asyncloaduserbooks = () => async (dispatch, getState) => {
     console.log(error);
   }
 }
+
+export const asyncupdateprofile = (userPayload) => async (dispatch, getState) => {
+  try {
+    const { data } = await axios.patch(`/users/update-details`, userPayload);
+    dispatch(loaduser(data.user));
+    toast.success("Profile updated successfully.");
+  } catch (error) {
+    toast.error(error.response?.data?.message ?? "Failed to update profile.");
+  }
+}
+
+export const asyncupdateavatar = (formData) => async (dispatch, getState) => {
+  try {
+    const config = { headers: { "Content-Type": "multipart/form-data" } };
+    const { data } = await axios.put(`/users/update-avatar`, formData, config);
+    dispatch(loaduser(data.user));
+    toast.success("Avatar updated successfully.");
+  } catch (error) {
+    toast.error(error.response?.data?.message ?? "Failed to update avatar.");
+  }
+}

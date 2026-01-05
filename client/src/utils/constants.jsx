@@ -80,7 +80,7 @@ export const books = [
 
 export const CONDITIONS = ["New", "Like New", "Good", "Fair"];
 export const AVAILABILITY = ["Available", "Swapped", "Reserved", "Wishlist Only"];
-export const SORT_OPTIONS = ["Newest First", "Oldest First", "Price: Low to High", "Price: High to Low", "Distance: Nearest"];
+export const SORT_OPTIONS = ["Newest First", "Oldest First", "Distance: Nearest"];
 
 import { BadgeCheck, AlertCircle, Sparkles } from 'lucide-react';
 

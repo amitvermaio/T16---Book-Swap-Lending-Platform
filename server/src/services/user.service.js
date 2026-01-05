@@ -3,6 +3,8 @@ import Book from '../models/book.model.js';
 import Request from '../models/request.model.js';
 import AppError from '../utils/AppError.js';
 
+import { uploadToImageKit } from '../services/storage.service.js';
+
 export const getUserById = async (id) => {
   const user = await User.findById(id).select(`
     -passwordHash -favorites -role -emailVerificationOTP 
@@ -35,8 +37,8 @@ export const updateUserProfile = async (userId, updateData) => {
 
   if (isUpdatingLocation) {
     const activeBorrows = await Request.exists({ 
-      borrower: userId, 
-      status: { $in: ['borrowed', 'received', 'active'] } 
+      requester: userId, 
+      status: { $in: ['pending', 'approved', 'collected'] } 
     });
 
     if (activeBorrows) {
@@ -59,6 +61,16 @@ export const updateUserProfile = async (userId, updateData) => {
 
   return updatedUser;
 };
+
+export const updateAvatar = async (userId, fileData) => {
+  const avatarUrl = await uploadToImageKit(fileData, "/bookswap_avatars");
+  const updatedUser = await User.findByIdAndUpdate(userId, 
+    { avatar: avatarUrl },
+    { new: true }
+  );
+  
+  return updatedUser;
+}
 
 export const updatePreferences = async (userId, prefs) => {
   const user = await User.findById(userId);
@@ -83,7 +95,6 @@ export const getBorrowHistory = async (userId) => {
 
   return history;
 };
-
 
 export const addBookToFavorites = async (userId, bookId) => {
   const bookExists = await Book.findById(bookId);

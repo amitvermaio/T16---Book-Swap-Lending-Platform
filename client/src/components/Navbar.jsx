@@ -146,7 +146,7 @@ const Navbar = () => {
 
                       <div className="flex flex-col">
                         <Link
-                          to="/profile"
+                          to={`/profile/${user?._id}`}
                           onClick={() => setProfileOpen(false)}
                           className="flex items-center px-4 py-2.5 text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-colors"
                         >

@@ -18,7 +18,7 @@ import Register from './pages/auth/Register';
 import Login from './pages/auth/Login';
 import AddBookForm from './pages/AddBookForm';
 import UserProfile from './pages/UserProfile';
-
+import Settings from './pages/Settings';
 // https://ui-avatars.com/api/?name=${owner?.name}
 
 const App = () => {
@@ -68,7 +68,12 @@ const App = () => {
         <Route path="/tracking" element={<Tracking />} />
         <Route path="/about" element={<About />} />
         <Route path="/add-book" element={<AddBookForm />} />
-        <Route path="/users/:userId" element={<UserProfile />} />
+        <Route path="/profile/:userId" element={<UserProfile />} />
+        <Route path="/settings" element={
+          <AuthWrapper>
+            <Settings />
+          </AuthWrapper>
+        } />
 
         {/* Auth routes */}
         <Route path='/sign-up' element={

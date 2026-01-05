@@ -6,19 +6,22 @@ import {
   getUserPublicProfile,
   updateMyPreferences,
   getMyBorrowHistory,
-  addToFavorite
+  addToFavorite,
+  updateMyAvatar,
 } from '../controllers/user.controller.js';
+import { upload } from '../middlewares/multer.middleware.js';
 
 const router = Router();
 
-/* PUBLIC ROUTES */
+/* PUBLIC ROUTES /api/users */
 router.get('/:id', getUserPublicProfile);
 
-/* PROTECTED ROUTES */
+/* PROTECTED ROUTES /api/users */
 router.use(protect);
 
 router.get('/me', getMeDetails);
 router.patch('/update-details', updateMyDetails)
+router.put('/update-avatar', upload.single('avatar'), updateMyAvatar);
 router.patch('/me/preferences', updateMyPreferences);
 router.get('/me/history', getMyBorrowHistory);
 router.post('/favourites', addToFavorite);

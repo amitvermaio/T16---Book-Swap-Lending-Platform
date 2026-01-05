@@ -15,6 +15,7 @@ const uploadToImageKit = async (file, folderName) => {
       fileName: uniqueFileName, 
       folder: folderName,
     }, (err, response) => {
+      console.log("err", err);
       if (err) reject(err);
       else resolve(response.url);
     });

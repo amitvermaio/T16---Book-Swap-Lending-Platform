@@ -3,7 +3,8 @@ import {
   updateUserProfile,
   updatePreferences,
   getBorrowHistory,
-  addBookToFavorites
+  addBookToFavorites,
+  updateAvatar
 } from '../services/user.service.js';
 
 export const getMeDetails = async (req, res, next) => {
@@ -20,6 +21,9 @@ export const updateMyDetails = async (req, res, next) => {
     const userId = req.user.id;
     const updates = req.body;
 
+    delete updates.role;
+    delete updates.email;
+
     const user = await updateUserProfile(userId, updates);
 
     res.status(200).json({
@@ -29,6 +33,22 @@ export const updateMyDetails = async (req, res, next) => {
         user,
       },
     });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export const updateMyAvatar = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    if (!req.file || !req.file.buffer) return next(new Error("Please upload a file"));
+    const user = await updateAvatar(userId, req.file);
+
+    res.status(200).json({
+      success: true,
+      user
+    });
+
   } catch (error) {
     next(error);
   }

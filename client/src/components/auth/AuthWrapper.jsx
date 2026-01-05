@@ -7,33 +7,29 @@ import { Loader2 } from 'lucide-react';
 
 const AuthWrapper = () => {
   const dispatch = useDispatch();
-
   const { isAuthorized } = useSelector((state) => state.users);
-  const [verifying, setVerifying] = useState(true);
+  const [verifying, setVerifying] = useState(!isAuthorized);
 
   useEffect(() => {
-    const verifyUser = async () => {
-      if (isAuthorized) {
-        setVerifying(false);
-        return;
-      }
+    if (isAuthorized) {
+      setVerifying(false);
+      return;
+    }
 
+    const verifyUser = async () => {
       const token = localStorage.getItem('BookSwap_Token');
+      
       if (!token) {
         setVerifying(false);
         return;
       }
 
       try {
-        const { data } = await axios.get('/auth/me', {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
+        const { data } = await axios.get('/auth/me'); 
         
         dispatch(loaduser(data.user));
       } catch (error) {
-        console.log("Session expired or invalid:", error);
+        console.log("Session expired:", error);
         localStorage.removeItem('BookSwap_Token');
       } finally {
         setVerifying(false);
@@ -41,7 +37,7 @@ const AuthWrapper = () => {
     };
 
     verifyUser();
-  }, [dispatch, isAuthorized]);
+  }, [dispatch]); 
 
   if (verifying) {
     return (
