@@ -11,7 +11,7 @@ const RelatedBooks = ({ books }) => {
       </h2>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
         {displayBooks.map((book) => (
-          <Link to={`/book/${book._id}`} key={book._id}>
+          <Link to={`/books/${book._id}`} key={book._id}>
             <div className="group relative bg-white rounded-2xl overflow-hidden h-72 shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100">
               <img 
                 src={book.coverImageUrl} 

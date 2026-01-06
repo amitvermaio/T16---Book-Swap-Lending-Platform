@@ -12,7 +12,7 @@ const BookInfo = ({ book }) => {
     title,
     author,
     status,
-    availabilityType = [], 
+    availabilityType = [],
     genre = [],
     owner,
     location,
@@ -23,7 +23,7 @@ const BookInfo = ({ book }) => {
   const [dueDate, setDueDate] = useState("");
   const [selectedAction, setSelectedAction] = useState("");
   const [isSwapModalOpen, setIsSwapModalOpen] = useState(false);
-  const [offeredBook, setOfferedBook] = useState(null); 
+  const [offeredBook, setOfferedBook] = useState(null);
 
   const { user } = useSelector(state => state.users);
   const dispatch = useDispatch();
@@ -41,7 +41,7 @@ const BookInfo = ({ book }) => {
     }
   };
 
-  const AddToFavoritesHandler = () => {
+  const addToFavoritesHandler = () => {
     if (!user) return toast.error('Login to add to Favorites!');
     dispatch(asyncaddbooktofavorites(user._id, book._id));
   };
@@ -56,7 +56,7 @@ const BookInfo = ({ book }) => {
     if (!user) return toast.error('Please login to send a request!');
     if (!selectedAction) return toast.error('Please select an action type!');
     if (!note.trim()) return toast.error('Please write a note to the owner!');
-    
+
     if (selectedAction.toLowerCase() === 'swap' && !offeredBook) {
       return toast.error('Please select a book from your collection to Swap!');
     }
@@ -138,35 +138,35 @@ const BookInfo = ({ book }) => {
           <label className="text-sm font-bold text-gray-700 uppercase tracking-wide ml-1">
             Select Action
           </label>
-          
+
           <details className="group relative w-full">
             <summary className="list-none cursor-pointer w-full p-4 flex items-center justify-between rounded-2xl border-2 border-gray-100 bg-gray-50 hover:border-gray-300 transition-all active:scale-[0.99] focus:outline-none">
-                <span className={`font-semibold truncate pr-4 ${selectedAction ? 'text-gray-900' : 'text-gray-400'}`}>
+              <span className={`font-semibold truncate pr-4 ${selectedAction ? 'text-gray-900' : 'text-gray-400'}`}>
                 {selectedAction || "Choose action..."}
-                </span>
-                <ChevronDown className="text-gray-400 w-5 h-5 transition-transform duration-300 group-open:rotate-180 flex-shrink-0" />
+              </span>
+              <ChevronDown className="text-gray-400 w-5 h-5 transition-transform duration-300 group-open:rotate-180 flex-shrink-0" />
             </summary>
 
             <div className="absolute left-0 top-full mt-2 w-full z-50 bg-white border border-gray-100 rounded-2xl shadow-xl overflow-hidden animate-in fade-in zoom-in duration-100 origin-top">
-                <div className="p-3 bg-gray-50 border-b border-gray-100">
-                    <p className="text-xs font-bold text-gray-400 uppercase tracking-wider whitespace-normal">
-                        Choose how you want to get this book...
-                    </p>
-                </div>
-                {availabilityType.map((type) => (
+              <div className="p-3 bg-gray-50 border-b border-gray-100">
+                <p className="text-xs font-bold text-gray-400 uppercase tracking-wider whitespace-normal">
+                  Choose how you want to get this book...
+                </p>
+              </div>
+              {availabilityType.map((type) => (
                 <div
-                    key={type}
-                    onClick={(e) => {
-                        setSelectedAction(type);
-                        setOfferedBook(null);
-                        e.currentTarget.closest('details').removeAttribute('open');
-                    }}
-                    className="p-4 hover:bg-orange-50 cursor-pointer font-medium text-gray-700 hover:text-orange-700 flex items-center justify-between transition-colors border-b border-gray-50 last:border-0"
+                  key={type}
+                  onClick={(e) => {
+                    setSelectedAction(type);
+                    setOfferedBook(null);
+                    e.currentTarget.closest('details').removeAttribute('open');
+                  }}
+                  className="p-4 hover:bg-orange-50 cursor-pointer font-medium text-gray-700 hover:text-orange-700 flex items-center justify-between transition-colors border-b border-gray-50 last:border-0"
                 >
-                    <span className="truncate">{type}</span>
-                    {selectedAction === type && <CheckCircle className="w-4 h-4 text-orange-500 flex-shrink-0 ml-2" />}
+                  <span className="truncate">{type}</span>
+                  {selectedAction === type && <CheckCircle className="w-4 h-4 text-orange-500 flex-shrink-0 ml-2" />}
                 </div>
-                ))}
+              ))}
             </div>
           </details>
         </div>
@@ -174,19 +174,23 @@ const BookInfo = ({ book }) => {
         {selectedAction && (
           <div className="space-y-4 animate-in fade-in slide-in-from-top-4 duration-300">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <label className="text-sm font-bold text-gray-700 uppercase tracking-wide ml-1 flex items-center gap-2">
-                  <Calendar className="w-4 h-4" /> Due Date
-                </label>
-                <input
-                  type="date"
-                  value={dueDate}
-                  min={new Date().toISOString().split("T")[0]}
-                  onChange={(e) => setDueDate(e.target.value)}
-                  className="w-full p-3 rounded-2xl border-2 border-gray-100 focus:border-orange-500 focus:outline-none bg-white"
-                />
-              </div>
-              <div className="space-y-2">
+              {
+                !(selectedAction.toLowerCase() === 'donate') && (
+                  <div className="space-y-2">
+                    <label className="text-sm font-bold text-gray-700 uppercase tracking-wide ml-1 flex items-center gap-2">
+                      <Calendar className="w-4 h-4" /> Due Date
+                    </label>
+                    <input
+                      type="date"
+                      value={dueDate}
+                      min={new Date().toISOString().split("T")[0]}
+                      onChange={(e) => setDueDate(e.target.value)}
+                      className="w-full p-3 rounded-2xl border-2 border-gray-100 focus:border-orange-500 focus:outline-none bg-white"
+                    />
+                  </div>
+                )
+              }
+              <div className={`space-y-2 ${selectedAction.toLowerCase() === 'donate' ? 'md:col-span-2' : ''}`}>
                 <label className="text-sm font-bold text-gray-700 uppercase tracking-wide ml-1">
                   Message
                 </label>
@@ -250,7 +254,7 @@ const BookInfo = ({ book }) => {
 
       <div className="flex justify-end">
         <button
-          onClick={AddToFavoritesHandler}
+          onClick={addToFavoritesHandler}
           className="flex items-center gap-2 text-gray-500 font-semibold hover:text-red-500 transition-colors"
         >
           <Heart className="w-5 h-5" /> Add to Wishlist

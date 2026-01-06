@@ -17,8 +17,7 @@ const AddBookForm = () => {
     description: "",
     genre: [],
     availabilityType: [], 
-    // 1. Added condition to state (Defaulting to 'Good')
-    condition: "Good", 
+    condition: "good", 
   });
 
   const [coverImage, setCoverImage] = useState(null);
@@ -98,7 +97,6 @@ const AddBookForm = () => {
     form.append("author", formData.author);
     form.append("description", formData.description);
     
-    // 2. Append Condition to Form Data
     form.append("condition", formData.condition);
 
     form.append("availabilityType", JSON.stringify(formData.availabilityType));
@@ -282,7 +280,6 @@ const AddBookForm = () => {
             </div>
           </div>
 
-          {/* 3. New Condition Selection Dropdown */}
           <div>
             <label className="block text-xs font-bold uppercase text-gray-500 mb-1">Condition</label>
             <div className="relative">
@@ -292,10 +289,10 @@ const AddBookForm = () => {
                 onChange={handleInputChange}
                 className="w-full appearance-none rounded-lg border border-gray-200 px-4 py-2.5 text-sm focus:border-orange-500 focus:ring-1 focus:ring-orange-500 outline-none bg-white cursor-pointer transition-all"
               >
-                <option value="New">New (Unused)</option>
-                <option value="Good">Good (Lightly Used)</option>
-                <option value="Fair">Fair (Readable)</option>
-                <option value="Poor">Poor (Heavily Worn)</option>
+                <option value="new">New (Unused)</option>
+                <option value="good">Good (Lightly Used)</option>
+                <option value="fair">Fair (Readable)</option>
+                <option value="poor">Poor (Heavily Worn)</option>
               </select>
               {/* Custom Chevron Icon for better styling */}
               <div className="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none text-gray-500">

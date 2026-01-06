@@ -33,12 +33,7 @@ export const asyncloadoutgoingrequests = () => async (dispatch) => {
 
 export const asyncsendbookrequest = (bookInfo) => async (dispatch) => {
   try {
-    const token = localStorage.getItem('BookSwap_Token');
-    const { data } = await axios.post('/requests', bookInfo, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    });
+    const { data } = await axios.post('/requests', bookInfo);
 
     if (data.success) {
       dispatch(loadnewoutgoingrequest(data.request));

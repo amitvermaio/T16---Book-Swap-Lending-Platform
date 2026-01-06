@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MapPin, Heart, User, ArrowUpRight } from 'lucide-react'; // Added Eye icon
+import { MapPin, Heart, User, ArrowUpRight } from 'lucide-react';
 import { getAvailabilityBadge } from '../utils/constants';
 
 const BookCard = ({
@@ -18,9 +18,7 @@ const BookCard = ({
   const navigate = useNavigate();
   const [isFavorite, setIsFavorite] = useState(false);
 
-  const availabilityTypes = Array.isArray(availabilityType)
-    ? availabilityType
-    : [availabilityType];
+  const availabilityTypes = Array.isArray(availabilityType) ? availabilityType : [availabilityType];
 
   const locationText = location ? `${location.city}, ${location.state}` : 'Unknown Location';
   const primaryGenre = genre.length > 0 ? genre[0] : 'General';

@@ -11,42 +11,48 @@ const dbgr = debug('app:request-service');
 export const createRequest = async ({
   requesterId,
   bookId,
-  type, // swap, borrow
+  type, // swap, borrow, donate
   offeredBookId,
   dueDate,
   notes,
 }) => {
   const book = await Book.findById(bookId).populate('owner');
   if (!book) throw new AppError('Book not found', 404);
+
   if (book.status !== 'available') {
     throw new AppError('Book not available', 400);
   }
-
-  if (type === 'swap' && !offeredBookId) {
-    throw new AppError('offeredBookId is required for swap', 400);
-  }
-
   if (book.owner._id.toString() === requesterId) {
     throw new AppError('Cannot request your own book', 400);
   }
 
   if (type === 'swap') {
+    if (!offeredBookId) {
+      throw new AppError('offeredBookId is required for swap', 400);
+    }
     const exchange = await Book.findById(offeredBookId).populate('owner');
-    if (!exchange) {
-      throw new AppError('Offered book not found', 404);
+    if (!exchange) throw new AppError('Offered book not found', 404);
+
+    if (exchange.owner._id.toString() !== requesterId) {
+      throw new AppError('You can only swap your own books', 403);
     }
 
     exchange.status = 'swapped';
     await exchange.save();
   }
 
+  if (type === 'borrow' && !dueDate) {
+    throw new AppError('Due date is required for borrowing', 400);
+  }
+
+
   const request = await Request.create({
     book: book._id,
     owner: book.owner._id,
     requester: requesterId,
     type,
-    offeredBook: offeredBookId || null,
-    dueDate: dueDate || null,
+    offeredBook: (type === 'swap') ? offeredBookId : null, // Donate/Borrow me null
+    dueDate: (type === 'borrow' || type === 'swap') ? dueDate : null,         // Donate me null
     notes,
   });
 
@@ -85,14 +91,14 @@ export const getRequestById = async (id, userId) => {
   const reqDoc = await Request.findById(id)
     .populate('book')
     .populate('requester', 'name avatar city state email')
-    .populate('owner', 'name avatar city state email');   
+    .populate('owner', 'name avatar city state email');
 
   if (!reqDoc) throw new AppError('Request not found', 404);
 
   if (reqDoc.owner._id.toString() !== userId && reqDoc.requester._id.toString() !== userId) {
     throw new AppError('Forbidden', 403);
   }
-  
+
   return reqDoc;
 };
 
@@ -130,7 +136,7 @@ export const updateRequestStatus = async ({
     reqDoc.exchangeCode = generateOTP();
 
     if (reqDoc.type === 'borrow') {
-      reqDoc.book.status = 'lent';
+      reqDoc.book.status = 'lent'; 
       await reqDoc.book.save();
     }
     else if (reqDoc.type === 'donate') {
@@ -147,12 +153,22 @@ export const updateRequestStatus = async ({
       }
     }
 
-  } else if (action === 'rejected' || action === 'cancelled') {
+    //  Reject all other pending requests for this book 
+    // Kyunki book ab kisi ek ko promise ho gayi hai
+    await Request.updateMany(
+      {
+        book: reqDoc.book._id,
+        _id: { $ne: reqDoc._id }, // current request ko chhodkar
+        status: 'pending',
+      },
+      { status: 'rejected' }
+    );
+  } 
+  else if (action === 'rejected' || action === 'cancelled') {
     reqDoc.status = action;
     reqDoc.book.status = 'available';
     await reqDoc.book.save();
 
-    // If it's a swap, reset the offered book status as well
     if (reqDoc.type === 'swap' && reqDoc.offeredBook) {
       reqDoc.offeredBook.status = 'available';
       await reqDoc.offeredBook.save();
@@ -160,7 +176,7 @@ export const updateRequestStatus = async ({
   }
 
   await reqDoc.save();
-
+  
   const targetUserId = isOwner ? reqDoc.requester : reqDoc.owner;
 
   const data = { requestId: reqDoc._id, status: reqDoc.status };
@@ -170,9 +186,12 @@ export const updateRequestStatus = async ({
 
   const notif = await Notification.create({
     user: targetUserId,
-    type: action === 'approved' ? 'REQUEST_APPROVED' :
-      action === 'rejected' ? 'REQUEST_REJECTED' :
-        'REQUEST_CANCELLED',
+    type:
+      action === 'approved'
+        ? 'REQUEST_APPROVED'
+        : action === 'rejected'
+        ? 'REQUEST_REJECTED'
+        : 'REQUEST_CANCELLED',
     title: `Request ${action}`,
     message: `Your request for "${reqDoc.book.title}" is ${reqDoc.status}`,
     data: data,
