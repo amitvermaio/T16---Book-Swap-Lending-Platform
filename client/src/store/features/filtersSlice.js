@@ -2,11 +2,10 @@ import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
   searchTerm: "",
-  genre: [],
-  condition: [],
-  type: [],
-  availability: [],
-  location: "Nearby",
+  genre: "",            // String for single select
+  condition: "",        // String for single select
+  availabilityType: "", // Renamed to match model & String for single select
+  location: "",
   sort: "Newest First"
 };
 
@@ -19,16 +18,15 @@ const filtersSlice = createSlice({
     },
     setFilter: (state, action) => {
       const { category, value } = action.payload;
-      // If we want single select for filters, we replace the array. 
-      // If you want multi-select later, you can push/filter here.
-      // Based on previous code, it behaves as single select per category:
-      state[category] = [value]; 
+      // Exact single select behavior: replace the value directly
+      // If the same value is clicked again, we can toggle it off (optional, but good UX)
+      state[category] = state[category] === value ? "" : value; 
     },
     setLocation: (state, action) => {
       state.location = action.payload;
     },
     clearLocation: (state) => {
-      state.location = null;
+      state.location = "";
     },
     setSort: (state, action) => {
       state.sort = action.payload;
@@ -37,7 +35,15 @@ const filtersSlice = createSlice({
   }
 });
 
-export const { setSearchTerm, setFilter, setLocation, clearLocation, setSort, resetFilters } = filtersSlice.actions;
+export const { 
+  setSearchTerm, 
+  setFilter, 
+  setLocation, 
+  clearLocation, 
+  setSort, 
+  resetFilters 
+} = filtersSlice.actions;
+
 export const selectFilters = (state) => state.filters;
 
 export default filtersSlice.reducer;

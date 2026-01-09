@@ -1,24 +1,44 @@
 import { useState, useRef, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Search, ChevronDown, X, MapPin, Check } from 'lucide-react';
-import { 
-  setSearchTerm, 
-  setFilter, 
-  setLocation, 
-  clearLocation as clearLocationAction, 
-  setSort, 
-  selectFilters 
-} from '../store/features/filtersSlice'; 
+import { Search, ChevronDown, X, MapPin, Check, RotateCcw } from 'lucide-react';
+import {
+  setSearchTerm,
+  setFilter,
+  setLocation,
+  clearLocation as clearLocationAction,
+  setSort,
+  resetFilters,
+  selectFilters
+} from '../store/features/filtersSlice';
+import { asyncloadbooks } from '../store/actions/booksAction'; // Import action
+import { resetbooks } from '../store/features/bookSlice'; // Import reset
 import { CONDITIONS, AVAILABILITY, SORT_OPTIONS, bookGenres as BOOK_GENRES } from "../utils/constants";
 
 const SearchFilterBar = () => {
   const dispatch = useDispatch();
   const filters = useSelector(selectFilters);
+  const { isAuthorized } = useSelector(state => state.users);
 
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [locationSearch, setLocationSearch] = useState("");
   const dropdownRef = useRef(null);
+  const isFirstRender = useRef(true);
 
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+
+    const handler = setTimeout(() => {
+      dispatch(resetbooks());
+      dispatch(asyncloadbooks());
+    }, 1000); 
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [filters, dispatch]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -40,7 +60,7 @@ const SearchFilterBar = () => {
       setActiveDropdown(null);
       return;
     }
-    
+
     if (category === 'location') {
       dispatch(setLocation(value));
       setActiveDropdown(null);
@@ -54,15 +74,23 @@ const SearchFilterBar = () => {
   const handleClearLocation = (e) => {
     e.stopPropagation();
     dispatch(clearLocationAction());
+    setLocationSearch("");
   };
 
   const handleSearchChange = (e) => {
     dispatch(setSearchTerm(e.target.value));
   };
 
+  const handleClearAll = () => {
+    dispatch(resetFilters());
+    setLocationSearch("");
+    setActiveDropdown(null);
+  };
+
   return (
     <div className="w-full mt-10 bg-white p-4 rounded-2xl shadow-sm border border-gray-100 font-sans" ref={dropdownRef}>
-      
+
+      {/* Main Search Bar */}
       <div className="relative mb-4">
         <div className="absolute left-4 top-1/2 -translate-y-1/2 text-orange-500">
           <Search size={20} strokeWidth={2.5} />
@@ -77,46 +105,47 @@ const SearchFilterBar = () => {
       </div>
 
       <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 relative">
-        
+
         <div className="flex flex-wrap items-center gap-2">
-          
+
+          {/* Filters Mapped */}
           {[
             { label: 'Genre', key: 'genre', options: BOOK_GENRES },
             { label: 'Condition', key: 'condition', options: CONDITIONS },
-            { label: 'Availability', key: 'availability', options: AVAILABILITY },
+            { label: 'Availability', key: 'availabilityType', options: AVAILABILITY },
           ].map((filter) => {
-             // Safe check if array exists in redux state
-             const currentSelection = filters[filter.key] || [];
-             const isSelected = currentSelection.length > 0;
-             
-             return (
+            // Access state directly (single string)
+            const currentSelection = filters[filter.key];
+            const isSelected = !!currentSelection; // Check if string is not empty
+
+            return (
               <div key={filter.key} className="relative">
-                <button 
+                <button
                   onClick={() => toggleDropdown(filter.key)}
                   className={`group flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-full transition-all border
                     ${isSelected || activeDropdown === filter.key
-                      ? 'bg-orange-100 border-orange-200 text-orange-600' 
-                      : 'bg-gray-100 border-gray-200 hover:bg-gray-100 text-black'}`} 
+                      ? 'bg-orange-100 border-orange-200 text-orange-600'
+                      : 'bg-gray-100 border-gray-200 hover:bg-gray-100 text-black'}`}
                 >
-                  {isSelected ? currentSelection[0] : filter.label}
-                  <ChevronDown 
-                    size={14} 
+                  {isSelected ? currentSelection : filter.label}
+                  <ChevronDown
+                    size={14}
                     className={`transition-transform duration-200 ${activeDropdown === filter.key ? 'rotate-180' : ''} 
-                    ${isSelected ? 'text-orange-400' : 'text-black'}`} 
+                    ${isSelected ? 'text-orange-400' : 'text-black'}`}
                   />
                 </button>
 
-                {/* Dropdown Menu */}
                 {activeDropdown === filter.key && (
                   <div className="absolute top-full mt-2 left-0 w-48 max-h-64 overflow-y-auto bg-white rounded-xl shadow-xl border border-gray-100 z-50 p-1 scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent">
                     {filter.options.map((option) => (
                       <button
                         key={option}
                         onClick={() => handleSelect(filter.key, option)}
-                        className="w-full text-left px-3 py-2 text-sm text-gray-900 hover:bg-orange-50 hover:text-orange-600 rounded-lg transition-colors flex items-center justify-between"
+                        className="w-full text-left px-3 capitalize py-2 text-sm text-gray-900 hover:bg-orange-50 hover:text-orange-600 rounded-lg transition-colors flex items-center justify-between"
                       >
                         {option}
-                        {currentSelection.includes(option) && <Check size={14} className="text-orange-500" />}
+                        {/* Check exact match for single select */}
+                        {currentSelection === option && <Check size={14} className="text-orange-500" />}
                       </button>
                     ))}
                   </div>
@@ -127,51 +156,68 @@ const SearchFilterBar = () => {
 
           {/* Location Filter */}
           <div className="relative">
-            <button 
+            <button
               onClick={() => toggleDropdown('location')}
               className={`flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-full transition-all border
-                ${filters.location 
-                  ? 'bg-orange-50 border-orange-100 text-orange-600' 
+                ${filters.location
+                  ? 'bg-orange-50 border-orange-100 text-orange-600'
                   : 'bg-[#FCFCFC] border-transparent hover:bg-gray-100 text-gray-900'}`}
             >
               Location: <span className={filters.location ? "text-orange-600" : "text-gray-900"}>{filters.location || "Any"}</span>
               {filters.location ? (
-                 <X size={14} className="ml-1 cursor-pointer hover:text-orange-800" onClick={handleClearLocation} />
+                <X size={14} className="ml-1 cursor-pointer hover:text-orange-800" onClick={handleClearLocation} />
               ) : (
-                 <ChevronDown size={14} className="text-gray-400" />
+                <ChevronDown size={14} className="text-gray-400" />
               )}
             </button>
-            
+
             {activeDropdown === 'location' && (
-               <div className="absolute top-full mt-2 left-0 w-64 bg-white rounded-xl shadow-xl border border-gray-100 z-50 p-3">
-                 <div className="relative mb-2">
-                    <MapPin size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"/>
-                    <input 
-                      autoFocus
-                      type="text" 
-                      placeholder="Enter city or zip..." 
-                      className="w-full bg-gray-50 text-sm pl-9 pr-3 py-2 rounded-lg border border-gray-200 focus:outline-none focus:border-orange-300 focus:ring-2 focus:ring-orange-100 text-gray-900"
-                      value={locationSearch}
-                      onChange={(e) => setLocationSearch(e.target.value)}
-                      onKeyDown={(e) => {
-                        if(e.key === 'Enter') handleSelect('location', locationSearch);
-                      }}
-                    />
-                 </div>
-                 <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1 px-1">Suggestions</div>
-                 <button onClick={() => handleSelect('location', 'Nearby')} className="w-full text-left px-3 py-2 text-sm text-gray-900 hover:bg-orange-50 hover:text-orange-600 rounded-lg">Nearby</button>
-                 <button onClick={() => handleSelect('location', 'New York, NY')} className="w-full text-left px-3 py-2 text-sm text-gray-900 hover:bg-orange-50 hover:text-orange-600 rounded-lg">New York, NY</button>
-                 <button onClick={() => handleSelect('location', 'Remote / Shipping')} className="w-full text-left px-3 py-2 text-sm text-gray-900 hover:bg-orange-50 hover:text-orange-600 rounded-lg">Remote / Shipping</button>
-               </div>
+              <div className="absolute top-full mt-2 left-0 w-64 bg-white rounded-xl shadow-xl border border-gray-100 z-50 p-3">
+                <div className="relative mb-3">
+                  <MapPin size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                  <input
+                    autoFocus
+                    type="text"
+                    placeholder="Enter city or zip..."
+                    className="w-full bg-gray-50 text-sm pl-9 pr-3 py-2 rounded-lg border border-gray-200 focus:outline-none focus:border-orange-300 focus:ring-2 focus:ring-orange-100 text-gray-900"
+                    value={locationSearch}
+                    onChange={(e) => setLocationSearch(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') handleSelect('location', locationSearch);
+                    }}
+                  />
+                </div>
+
+                {isAuthorized && (
+                  <>
+                    <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1 px-1">Quick Select</div>
+                    <button
+                      onClick={() => handleSelect('location', 'Nearby')}
+                      className="w-full text-left px-3 py-2 text-sm text-gray-900 hover:bg-orange-50 hover:text-orange-600 rounded-lg flex items-center gap-2"
+                    >
+                      <MapPin size={14} /> Nearby Books
+                      {filters.location === 'Nearby' && <Check size={14} className="text-orange-500 ml-auto" />}
+                    </button>
+                  </>
+                )}
+              </div>
             )}
           </div>
 
+          <button
+            onClick={handleClearAll}
+            className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-gray-400 hover:text-red-500 transition-colors ml-2"
+            title="Reset all filters"
+          >
+            <RotateCcw size={14} />
+            Clear
+          </button>
         </div>
 
-        {/* Right Side: Sort Options */}
-        <div className="relative flex items-center gap-2 ml-auto sm:ml-0">
+        {/* Sort Options */}
+        <div className="relative flex items-center gap-2 ml-auto sm:ml-0 border-l pl-4 border-gray-100">
           <span className="text-gray-400 text-sm font-normal hidden sm:inline-block">Sort by:</span>
-          <button 
+          <button
             onClick={() => toggleDropdown('sort')}
             className="flex items-center gap-1 text-gray-900 text-sm font-semibold hover:text-black group"
           >

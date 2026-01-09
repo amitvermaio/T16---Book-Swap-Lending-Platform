@@ -25,6 +25,7 @@ export const listRequestsController = async (req, res, next) => {
   try {
     const as = req.query.as || 'requester';
     const requests = await listRequests(req.user.id, as);
+    console.log(requests)
     res.json({ requests });
   } catch (err) {
     next(err);

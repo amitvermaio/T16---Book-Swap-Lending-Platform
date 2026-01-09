@@ -1,14 +1,14 @@
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { 
-  Clock, 
-  MapPin, 
-  Calendar, 
-  RefreshCw, 
-  ScanBarcode, 
-  CheckCircle, 
-  MessageSquare, 
-  ArrowRightLeft, 
+import {
+  Clock,
+  MapPin,
+  Calendar,
+  RefreshCw,
+  ScanBarcode,
+  CheckCircle,
+  MessageSquare,
+  ArrowRightLeft,
 } from 'lucide-react';
 import { getDaysRemaining, formatDate } from '../utils/dataUtils';
 import { asyncmarkcomplete, asyncverifycollection, asynccancelrequest, asyncrateuser } from '../store/actions/trackingActions';
@@ -34,13 +34,13 @@ const SwappedBookSection = ({ offeredBook }) => {
   );
 };
 
-const ActionFooter = ({ isLending, isUpdating, handleMarkReturned, handleCancelRequest, status }) => {
-    if (isLending) {
-    if (status === 'collected') {
+const ActionFooter = ({ isLending, isUpdating, handleMarkReturned, handleCancelRequest, status, isDonate }) => {
+  if (isLending) {
+    if (status === 'collected' && !isDonate) {
       return (
         <button
           onClick={handleMarkReturned}
-          disabled={isUpdating}
+          disabled={isUpdating || status !== 'collected' || isDonate}
           className={`
             flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all
             ${isUpdating
@@ -126,7 +126,7 @@ const TrackingCard = ({ data, isLending }) => {
   const handleFeedbackSubmit = async ({ rating, comment }) => {
     if (!otherUser || !otherUser._id) return;
     if (!data || !data._id) return;
-    if (rating<=0 || rating > 5) {
+    if (rating <= 0 || rating > 5) {
       toast.error("Invalid rating value");
       return;
     }
@@ -147,6 +147,14 @@ const TrackingCard = ({ data, isLending }) => {
     return res;
   };
 
+  const getTypeStyles = (type) => {
+    switch (type) {
+      case 'swap': return 'bg-purple-50 text-purple-700 border-purple-100';
+      case 'donate': return 'bg-emerald-50 text-emerald-700 border-emerald-100';
+      default: return 'bg-blue-50 text-blue-700 border-blue-100';
+    }
+  };
+
   return (
     <div className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden group">
       <div className="p-5 flex gap-5">
@@ -165,6 +173,12 @@ const TrackingCard = ({ data, isLending }) => {
         </div>
 
         <div className="flex-1 min-w-0">
+          <div className="mb-2">
+            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide border ${getTypeStyles(data.type)}`}>
+              {data.type}
+            </span>
+          </div>
+
           <div className="flex justify-between items-start mb-1">
             <h3 className="text-base font-bold text-gray-900 truncate pr-2">{book.title}</h3>
             <StatusBadge isOverdue={isOverdue} daysLeft={daysLeft} status={data.status} />
@@ -219,7 +233,7 @@ const TrackingCard = ({ data, isLending }) => {
           </div>
         )}
 
-        {/* EXCHANGE CODE LOGIC */}
+        {/* otp field */}
         {!isLending && data.status === 'approved' && data.exchangeCode && (
           <div className="mt-3 bg-indigo-50 border border-indigo-100 rounded-xl p-3 flex justify-between items-center">
             <div>
@@ -232,7 +246,7 @@ const TrackingCard = ({ data, isLending }) => {
           </div>
         )}
 
-        {/* VERIFY CODE LOGIC */}
+        {/* verify otp */}
         {isLending && data.status === 'approved' && (
           <div className="mt-3 bg-orange-50 border border-orange-100 rounded-xl p-3">
             <div className="flex items-center gap-2 mb-2">
@@ -288,6 +302,7 @@ const TrackingCard = ({ data, isLending }) => {
             isUpdating={isUpdating}
             handleMarkReturned={handleMarkReturned}
             status={data.status}
+            isDonate={data.type === 'donate'}
           />
         </div>
       </div>

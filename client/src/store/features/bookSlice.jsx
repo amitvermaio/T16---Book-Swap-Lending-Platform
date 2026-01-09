@@ -28,6 +28,9 @@ const bookSlice = createSlice({
       state.hasMore = action.payload.hasMore;
       state.loading = false;
     },
+    addnewbook: (state, action) => {
+      state.books.unshift(action.payload);
+    },
     resetbooks: (state) => {
       state.books = [];
       state.currentPage = 1;
@@ -56,6 +59,13 @@ const bookSlice = createSlice({
   }
 })
 
-export const { setloading, loadbooks, resetbooks, setcurrentbook, setcurrentbookloading, setbookfavorite } = bookSlice.actions;
+export const { setloading,
+  loadbooks, 
+  resetbooks, 
+  setcurrentbook, 
+  setcurrentbookloading, 
+  setbookfavorite, 
+  addnewbook 
+} = bookSlice.actions;
 export default bookSlice.reducer;
 

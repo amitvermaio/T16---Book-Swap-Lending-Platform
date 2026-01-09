@@ -19,6 +19,7 @@ import Login from './pages/auth/Login';
 import AddBookForm from './pages/AddBookForm';
 import UserProfile from './pages/UserProfile';
 import Settings from './pages/Settings';
+import NotFound from './pages/NotFound';
 // https://ui-avatars.com/api/?name=${owner?.name}
 
 const App = () => {
@@ -88,10 +89,10 @@ const App = () => {
           </UnAuthWrapper>
           }
         />
-
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </Router>
   )
 }
 
-export default App
+export default App;

@@ -1,9 +1,10 @@
 import { Navigate, Outlet } from 'react-router-dom';
+import { useSelector } from 'react-redux'
 
 const UnAuthWrapper = ({ children }) => {
-  const token = localStorage.getItem('BookSwap_Token');
+  const { isAuthorized } = useSelector((state) => state.users);
 
-  if (token) {
+  if (isAuthorized) {
     return <Navigate to="/" replace />;
   }
   

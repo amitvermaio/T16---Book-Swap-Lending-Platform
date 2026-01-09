@@ -1,28 +1,29 @@
 import { useState } from "react";
 import { toast } from "react-hot-toast";
 import { bookGenres as BOOK_GENRES } from "../utils/constants";
-import { Upload, X, Image as ImageIcon, Loader2, ArrowLeft, ChevronDown } from "lucide-react"; 
+import { Upload, X, Image as ImageIcon, Loader2, ArrowLeft, ChevronDown } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-
-import axios from "../config/axiosconfig"; 
+import { useDispatch } from 'react-redux';
+import { addnewbook } from "../store/features/bookSlice";
+import axios from "../config/axiosconfig";
 
 const AddBookForm = () => {
   const navigate = useNavigate();
-
+  const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
-  
+
   const [formData, setFormData] = useState({
     title: "",
     author: "",
     description: "",
     genre: [],
-    availabilityType: [], 
-    condition: "good", 
+    availabilityType: [],
+    condition: "good",
   });
 
   const [coverImage, setCoverImage] = useState(null);
   const [coverPreview, setCoverPreview] = useState(null);
-  const [galleryImages, setGalleryImages] = useState([]); 
+  const [galleryImages, setGalleryImages] = useState([]);
   const [galleryPreviews, setGalleryPreviews] = useState([]);
 
   const handleInputChange = (e) => {
@@ -62,7 +63,7 @@ const AddBookForm = () => {
 
   const handleGalleryChange = (e) => {
     const files = Array.from(e.target.files);
-    
+
     if (galleryImages.length + files.length > 5) {
       toast.error("You can only upload a maximum of 5 additional images.");
       return;
@@ -82,7 +83,7 @@ const AddBookForm = () => {
     e.preventDefault();
     if (!coverImage) return toast.error("Cover image is required!");
     if (!formData.title || !formData.author) return toast.error("Title and Author are required!");
-    
+
     if (formData.availabilityType.length === 0) {
       return toast.error("Please select at least one purpose.");
     }
@@ -96,43 +97,48 @@ const AddBookForm = () => {
     form.append("title", formData.title);
     form.append("author", formData.author);
     form.append("description", formData.description);
-    
+
     form.append("condition", formData.condition);
 
     form.append("availabilityType", JSON.stringify(formData.availabilityType));
-    form.append("genre", JSON.stringify(formData.genre)); 
+    form.append("genre", JSON.stringify(formData.genre));
 
     form.append("coverImage", coverImage);
-    
+
     galleryImages.forEach((img) => {
       form.append("galleryImages", img);
     });
-
+    console.log(form)
     try {
-      const token = localStorage.getItem('BookSwap_Token');
+      const { data } = await axios.post(`/books/add`, form);
 
-      const { data } = await axios.post(`/books/add`, form, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
-      
       if (data.statusCode === 400) {
-        toast.error(data.message ? data.message : 'Something went wrong!');
+        toast.error(data.error?.data?.message ?? 'Something went wrong!');
       } else {
-        toast.success(data.message ? data.message : "Book added successfully!");      
-        // Optional: Redirect after success
-        // navigate('/my-books');
+        toast.success(data.message ? data.message : "Book added successfully!");
+        setCoverImage(null);
+        setCoverPreview(null);
+        setGalleryImages([]);
+        setGalleryPreviews([]);
+        setFormData({
+          title: "",
+          author: "",
+          description: "",
+          genre: [],
+          availabilityType: [],
+          condition: "good",
+        });
+        dispatch(addnewbook(data.book));
       }
-        
+
     } catch (error) {
       console.error(error);
       const errMessage = error.response?.data?.message || "";
-      
+
       if (errMessage.includes("location") || errMessage.includes("profile")) {
-         toast.error("Incomplete Profile: Please add your Address in settings first.", { duration: 4000 });
+        toast.error("Incomplete Profile: Please add your Address in settings first.", { duration: 4000 });
       } else {
-         toast.error(errMessage || "Failed to add book");
+        toast.error(errMessage || "Failed to add book");
       }
     } finally {
       setLoading(false);
@@ -141,10 +147,10 @@ const AddBookForm = () => {
 
   return (
     <div className="max-w-4xl mx-auto p-6 bg-white rounded-2xl shadow-sm border border-gray-100 my-10">
-      
+
       {/* HEADER WITH BACK BUTTON */}
       <div className="flex items-center gap-4 mb-6">
-        <button 
+        <button
           onClick={() => navigate(-1)}
           className="p-2 rounded-full hover:bg-gray-100 text-gray-600 transition-colors"
           title="Go Back"
@@ -155,10 +161,10 @@ const AddBookForm = () => {
       </div>
 
       <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        
+
         {/* LEFT COLUMN: IMAGES */}
         <div className="space-y-6">
-          
+
           {/* Cover Image Upload */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -168,7 +174,7 @@ const AddBookForm = () => {
               {coverPreview ? (
                 <>
                   <img src={coverPreview} alt="Preview" className="w-full h-full object-contain p-2" />
-                  <button 
+                  <button
                     type="button"
                     onClick={() => { setCoverImage(null); setCoverPreview(null); }}
                     className="absolute top-2 right-2 bg-white p-1.5 rounded-full shadow-md hover:bg-red-50 text-red-500 transition-colors"
@@ -182,10 +188,10 @@ const AddBookForm = () => {
                   <p className="text-sm text-gray-500">Click to upload cover</p>
                 </>
               )}
-              <input 
-                type="file" 
+              <input
+                type="file"
                 accept="image/*"
-                onChange={handleCoverChange} 
+                onChange={handleCoverChange}
                 className={`absolute inset-0 w-full h-full opacity-0 cursor-pointer ${coverPreview ? "pointer-events-none" : ""}`}
               />
             </div>
@@ -194,13 +200,13 @@ const AddBookForm = () => {
           {/* Additional Images */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Additional Images (Max 5). <span className="text-red-500 tracking-tighter text-xs"><br/>Make sure you're adding real images of your book here.*</span>
+              Additional Images (Max 5). <span className="text-red-500 tracking-tighter text-xs"><br />Make sure you're adding real images of your book here.*</span>
             </label>
             <div className="grid grid-cols-3 gap-3">
               {galleryPreviews.map((src, index) => (
                 <div key={index} className="relative aspect-square rounded-lg overflow-hidden border border-gray-200 group">
                   <img src={src} alt={`Gallery ${index}`} className="w-full h-full object-cover" />
-                  <button 
+                  <button
                     type="button"
                     onClick={() => removeGalleryImage(index)}
                     className="absolute top-1 right-1 bg-black/50 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
@@ -209,26 +215,26 @@ const AddBookForm = () => {
                   </button>
                 </div>
               ))}
-              
+
               {galleryImages.length < 5 && (
                 <div className="relative aspect-square bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center hover:bg-orange-50 hover:border-orange-300 transition-colors">
                   <ImageIcon className="w-5 h-5 text-gray-400" />
-                  <input 
-                    type="file" 
+                  <input
+                    type="file"
                     accept="image/*"
                     multiple
-                    onChange={handleGalleryChange} 
+                    onChange={handleGalleryChange}
                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                   />
                 </div>
               )}
             </div>
-          </div>   
+          </div>
         </div>
 
         {/* RIGHT COLUMN: DETAILS */}
-        <div className="space-y-5 "> 
-          
+        <div className="space-y-5 ">
+
           {/* Title & Author */}
           <div className="space-y-4">
             <div>
@@ -268,8 +274,8 @@ const AddBookForm = () => {
                     onClick={() => handleGenreToggle(genreItem)}
                     className={`
                       px-3 py-1.5 rounded-full text-xs font-medium border transition-all
-                      ${isSelected 
-                        ? "bg-orange-500 border-orange-500 text-white shadow-sm" 
+                      ${isSelected
+                        ? "bg-orange-500 border-orange-500 text-white shadow-sm"
                         : "bg-white border-gray-200 text-gray-600 hover:border-orange-300 hover:bg-orange-50"}
                     `}
                   >
@@ -305,7 +311,7 @@ const AddBookForm = () => {
           <div>
             <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Purpose (Select all that apply)</label>
             <div className="grid grid-cols-3 gap-3">
-              {['swap', 'lend', 'donate'].map((type) => {
+              {['swap', 'borrow', 'donate'].map((type) => {
                 const isSelected = formData.availabilityType.includes(type);
                 return (
                   <div
@@ -313,8 +319,8 @@ const AddBookForm = () => {
                     onClick={() => handlePurposeToggle(type)}
                     className={`
                       cursor-pointer text-center py-2.5 rounded-lg border text-sm font-medium capitalize transition-all select-none
-                      ${isSelected 
-                        ? "bg-orange-500 border-orange-500 text-white shadow-md" 
+                      ${isSelected
+                        ? "bg-orange-500 border-orange-500 text-white shadow-md"
                         : "bg-white border-gray-200 text-gray-600 hover:border-orange-300 hover:bg-orange-50"}
                     `}
                   >

@@ -56,3 +56,26 @@ npm run dev --prefix server
 npm run dev --prefix client
 ```
 6) Open the Vite dev URL (typically http://localhost:5173) and ensure the API is reachable at the base URL you configured.
+
+## Run Server with Docker
+
+Instead of running the server directly with npm, you can use Docker.
+
+1) **Prerequisites**: Ensure Docker is installed and running.
+2) **Navigate** to the server directory:
+   ```bash
+   cd server
+   ```
+3) **Build** the Docker image:
+   ```bash
+   docker build -t bookswap-server .
+   ```
+4) **Run** the container:
+   ensure you have your `.env` file in the `server` directory with the necessary variables.
+   
+   *Note: If connecting to a local MongoDB on your host machine, you may need to use `host.docker.internal` instead of `localhost` or `127.0.0.1` in your `MONGO_URI`.*
+
+   ```bash
+   docker run -d -p 5000:5000 --env-file .env --name bookswap-server bookswap-server
+   ```
+

@@ -79,7 +79,7 @@ export const books = [
 ];
 
 export const CONDITIONS = ["New", "Like New", "Good", "Fair"];
-export const AVAILABILITY = ["Available", "Swapped", "Reserved", "Wishlist Only"];
+export const AVAILABILITY = ["borrow", "swap", "donate", "wishlist"];
 export const SORT_OPTIONS = ["Newest First", "Oldest First", "Distance: Nearest"];
 
 import { BadgeCheck, AlertCircle, Sparkles } from 'lucide-react';

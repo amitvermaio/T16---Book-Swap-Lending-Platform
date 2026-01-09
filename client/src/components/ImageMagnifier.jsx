@@ -2,8 +2,8 @@ import { useState } from "react";
 
 const ImageMagnifier = ({
   src,
-  width = "100%",
-  height = "auto",
+  width = "auto",
+  height = "100%",
   magnifierHeight = 150,
   magnifierWidth = 150,
   zoomLevel = 2.0

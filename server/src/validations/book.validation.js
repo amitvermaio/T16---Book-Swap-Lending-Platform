@@ -32,7 +32,7 @@ export const createBookValidation = [
       const invalidItems = types.filter(item => !validOptions.includes(item));
 
       if (invalidItems.length > 0) {
-        throw new Error(`Invalid values found: ${invalidItems.join(", ")}. Allowed: lend, swap, donate`);
+        throw new Error(`Invalid values found: ${invalidItems.join(", ")}. Allowed: borrow, swap, donate`);
       }
 
       return true;

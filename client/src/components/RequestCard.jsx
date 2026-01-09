@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import {
   MapPin,
@@ -79,7 +79,6 @@ const RequestCard = ({ request, isIncoming }) => {
     <div className="group bg-white rounded-2xl p-4 border border-gray-100 shadow-sm hover:shadow-md hover:border-orange-200 transition-all duration-300">
       <div className="flex flex-col sm:flex-row gap-5">
 
-        {/* Requested Book Image */}
         <div className="w-full sm:w-24 h-32 flex-shrink-0 bg-gray-100 rounded-xl overflow-hidden relative">
           <img src={request.book.coverImageUrl} alt={request.book.title} className="w-full h-full object-cover" />
         </div>

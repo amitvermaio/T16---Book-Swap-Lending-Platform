@@ -1,3 +1,6 @@
+## IMPORTANT BEFORE DEPLOYMENT 
+- **Remove `Debug` from .env or make its value production.**
+
 ### Book.Model.JS
 1. change `lent` in **status enum** to `borrowed`. 
 2. Also from `service functions` in each file.
@@ -12,3 +15,5 @@
     `condition`=['new', 'good', 'fair', 'poor']
   ```
 - I need to change backend's enum into the frontend's enum;
+
+3. Add **`protected route` component** on every `protected pages`.
