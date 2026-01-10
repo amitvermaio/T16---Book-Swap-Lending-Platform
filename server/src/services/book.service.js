@@ -5,10 +5,11 @@ import AppError from '../utils/AppError.js';
 
 export const getBookById = async (id) => {
   const book = await Book.findById(id).populate('owner', 'name ratingStats');
-  
+
   const relatedBooks = await Book.find({
     _id: { $ne: id },
-    genre: { $in: book.genre }
+    genre: { $in: book.genre },
+    availabilityType: 'available'
   }).limit(4);
 
   if (!book) throw new AppError('Book not found', 404);
@@ -30,7 +31,7 @@ export const createBook = async (user, bookData, files) => {
     address: user.address,
     city: user.city,
     state: user.state,
-    pincode: user.pincode 
+    pincode: user.pincode
   };
 
   if (user.country) locationData.country = user.country;
@@ -69,38 +70,63 @@ export const deleteBook = async (bookId, ownerId) => {
 
 export const searchBooks = async (query) => {
   const {
-    title,
-    author,
+    search,
     genre,
-    city,
+    condition,
     availabilityType,
-    // status,
+    location,
+    sort = "Newest First",
     page = 1,
-    limit = 12,
+    limit = 8,
   } = query;
 
   const filter = {};
 
-  if (title) filter.title = new RegExp(title, 'i'); // title → Regular Expression bana raha user ka input, 'i' → case-insensitive
-  if (author) filter.author = new RegExp(author, 'i');
+  if (search) {
+    filter.$or = [
+      { title: new RegExp(search, 'i') }, // title → Regular Expression bana raha user ka input, 'i' → case-insensitive
+      { author: new RegExp(search, 'i') }
+    ];
+  }
+
   if (genre) filter.genre = genre;
-  if (city) filter['location.city'] = new RegExp(city, 'i');
+  if (condition) filter.condition = condition;
   if (availabilityType) filter.availabilityType = availabilityType;
+  if (location) filter['location.city'] = new RegExp(location, 'i');
+
   filter.status = { $ne: 'unavailable' };
+
+  let sortOptions = { createdAt: -1 };
+
+  switch (sort) {
+    case "Newest First":
+      sortOptions = { createdAt: -1 };
+      break;
+    case "Oldest First":
+      sortOptions = { createdAt: 1 };
+      break;
+    case "Title (A-Z)":
+      sortOptions = { title: 1 };
+      break;
+    case "Title (Z-A)":
+      sortOptions = { title: -1 };
+      break;
+    default:
+      sortOptions = { createdAt: -1 };
+  }
 
   const skip = (page - 1) * limit;
   /**
-   *  page → kaunsa page chahiye (1, 2, 3…)
+   * page → kaunsa page chahiye (1, 2, 3…)
       skip = itne records chhod do
       limit = uske baad itne records bhejo
    */
 
   const books = await Book.find(filter)
     .populate('owner', 'name ratingStats')
-    .sort({ createdAt: -1 })
+    .sort(sortOptions)
     .skip(skip)
     .limit(Number(limit));
-
 
   const total = await Book.countDocuments(filter);
 

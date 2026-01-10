@@ -8,15 +8,14 @@ import {
   clearLocation as clearLocationAction,
   setSort,
   resetFilters,
-  selectFilters
 } from '../store/features/filtersSlice';
-import { asyncloadbooks } from '../store/actions/booksAction'; // Import action
-import { resetbooks } from '../store/features/bookSlice'; // Import reset
+import { asyncloadbooks } from '../store/actions/booksAction';
+import { resetbooks } from '../store/features/bookSlice';
 import { CONDITIONS, AVAILABILITY, SORT_OPTIONS, bookGenres as BOOK_GENRES } from "../utils/constants";
 
 const SearchFilterBar = () => {
   const dispatch = useDispatch();
-  const filters = useSelector(selectFilters);
+  const filters = useSelector(state => state.filters);
   const { isAuthorized } = useSelector(state => state.users);
 
   const [activeDropdown, setActiveDropdown] = useState(null);
@@ -33,7 +32,7 @@ const SearchFilterBar = () => {
     const handler = setTimeout(() => {
       dispatch(resetbooks());
       dispatch(asyncloadbooks());
-    }, 1000); 
+    }, 1000);
 
     return () => {
       clearTimeout(handler);
@@ -88,7 +87,7 @@ const SearchFilterBar = () => {
   };
 
   return (
-    <div className="w-full mt-10 bg-white p-4 rounded-2xl shadow-sm border border-gray-100 font-sans" ref={dropdownRef}>
+    <div className="w-full mt-2 sm:mt-10 bg-white p-4 rounded-2xl shadow-sm border border-gray-100 font-sans" ref={dropdownRef}>
 
       {/* Main Search Bar */}
       <div className="relative mb-4">

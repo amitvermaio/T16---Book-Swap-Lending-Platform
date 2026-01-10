@@ -31,10 +31,9 @@ const BookCard = ({
   return (
     <div
       onClick={handleViewDetails}
-      className="w-[17.37rem] bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100 hover:shadow-xl transition-shadow duration-300 group flex flex-col h-full cursor-pointer"
+      className="w-full max-w-sm sm:max-w-none mx-auto bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100 hover:shadow-xl transition-shadow duration-300 group flex flex-col h-full cursor-pointer"
     >
-      {/* --- Image Section --- */}
-      <div className="relative h-64 bg-gray-100 overflow-hidden shrink-0">
+      <div className="relative h-64 sm:h-72 md:h-64 bg-gray-100 overflow-hidden shrink-0">
         <img
           src={coverImageUrl || "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?auto=format&fit=crop&q=80&w=2730"}
           alt={title}
@@ -54,7 +53,6 @@ const BookCard = ({
           </button>
         </div>
 
-        {/* Favorite Button */}
         <button
           onClick={(e) => {
             e.stopPropagation();
@@ -71,7 +69,6 @@ const BookCard = ({
           />
         </button>
 
-        {/* Tags */}
         {tags.length > 0 && (
           <div className="absolute top-3 right-3 px-2.5 py-1 rounded-md shadow-sm flex items-center gap-1.5 text-gray-700 bg-white/90 backdrop-blur-md z-20">
             <span className="text-xs font-bold uppercase tracking-wide">
@@ -80,7 +77,6 @@ const BookCard = ({
           </div>
         )}
 
-        {/* Availability Badges */}
         <div className="absolute bottom-3 left-3 flex flex-wrap gap-1.5 max-w-[90%] z-20">
           {availabilityTypes.map((type, index) => {
             const info = getAvailabilityBadge(type);
@@ -100,7 +96,6 @@ const BookCard = ({
         </div>
       </div>
 
-      {/* --- Details Section --- */}
       <div className="p-4 flex flex-col gap-1 flex-grow">
 
         <span className="text-orange-500 text-[10px] font-bold uppercase tracking-wider">

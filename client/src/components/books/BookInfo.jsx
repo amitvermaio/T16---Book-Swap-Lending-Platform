@@ -2,6 +2,7 @@ import { MapPin, Star, Heart, Repeat, BookOpen, Gift, Send, Calendar, ChevronDow
 import { useSelector, useDispatch } from 'react-redux';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
+import { Link } from 'react-router-dom';
 
 import { asyncaddbooktofavorites } from '../../store/actions/booksAction';
 import { asyncsendbookrequest } from '../../store/actions/requestActions';
@@ -116,8 +117,9 @@ const BookInfo = ({ book }) => {
               alt={owner?.name}
               className="w-14 h-14 rounded-full border-2 border-white shadow-sm"
             />
+             {/* owner details */}
             <div>
-              <h3 className="font-bold text-lg text-gray-900">{owner?.name}</h3>
+              <Link to={`/profile/${owner._id}`} className="font-bold text-lg text-gray-900 ">{owner?.name}</Link>
               <div className="flex items-center text-sm text-gray-600 mt-0.5">
                 <Star className="w-4 h-4 text-yellow-400 fill-current mr-1" />
                 <span className="font-semibold text-black mr-1">{owner?.ratingStats?.avgRating || "New"}</span>
