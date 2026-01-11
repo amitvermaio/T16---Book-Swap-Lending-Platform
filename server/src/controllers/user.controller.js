@@ -83,13 +83,16 @@ export const getMyBorrowHistory = async (req, res, next) => {
 
 export const addToFavorite = async (req, res, next) => {
   try {
-    const { user, book } = req.body;
+    const user = req.user.id;
+    const book = req.params.bookId;
+    const action = req.query.action;
 
-    if (!user || !book) {
-      return res.status(400).json({ message: "User ID and Book ID are required" });
+    if (!user || !book || !action) {
+      console.log(user, book, action)
+      return res.status(400).json({ message: "User ID, Book ID, and action are required" });
     }
 
-    const updatedUser = await addBookToFavorites(user, book);
+    const updatedUser = await addBookToFavorites(user, book, action);
 
     res.status(200).json({
       success: true,

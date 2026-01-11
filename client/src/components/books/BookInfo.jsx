@@ -4,7 +4,7 @@ import { useState } from 'react';
 import toast from 'react-hot-toast';
 import { Link } from 'react-router-dom';
 
-import { asyncaddbooktofavorites } from '../../store/actions/booksAction';
+import { asyncaddbooktofavorites } from '../../store/actions/usersAction';
 import { asyncsendbookrequest } from '../../store/actions/requestActions';
 import SwapBookModal from './SwapBookModal';
 

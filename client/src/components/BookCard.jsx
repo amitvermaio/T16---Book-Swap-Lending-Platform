@@ -1,7 +1,10 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MapPin, Heart, User, ArrowUpRight } from 'lucide-react';
 import { getAvailabilityBadge } from '../utils/constants';
+import { useSelector, useDispatch } from 'react-redux';
+
+import { selectFavoriteSet } from '../store/features/userSlice';
+import { asynctogglebookfavorite } from '../store/actions/usersAction';
 
 const BookCard = ({
   _id,
@@ -15,8 +18,11 @@ const BookCard = ({
   tags = [],
   status = 'available'
 }) => {
+  const isFavorite = useSelector(state => selectFavoriteSet(state).has(_id));
+
+
+  const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [isFavorite, setIsFavorite] = useState(false);
 
   const availabilityTypes = Array.isArray(availabilityType) ? availabilityType : [availabilityType];
 
@@ -27,6 +33,12 @@ const BookCard = ({
   const handleViewDetails = () => {
     navigate(`/books/${_id}`);
   };
+
+  const handleBookFavorite = (e) => {
+    e.stopPropagation();
+    dispatch(asynctogglebookfavorite(_id, isFavorite));
+  };
+
 
   return (
     <div
@@ -54,10 +66,7 @@ const BookCard = ({
         </div>
 
         <button
-          onClick={(e) => {
-            e.stopPropagation();
-            setIsFavorite(!isFavorite);
-          }}
+          onClick={handleBookFavorite}
           className="absolute top-3 left-3 p-2 bg-white/90 backdrop-blur-sm rounded-full shadow-sm hover:bg-white hover:scale-110 transition-all duration-200 group/heart z-20"
         >
           <Heart

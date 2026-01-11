@@ -24,6 +24,6 @@ router.patch('/update-details', updateMyDetails)
 router.put('/update-avatar', upload.single('avatar'), updateMyAvatar);
 router.patch('/me/preferences', updateMyPreferences);
 router.get('/me/history', getMyBorrowHistory);
-router.post('/favourites', addToFavorite);
+router.post('/favourites/:bookId', addToFavorite);
 
 export default router;

@@ -1,15 +1,7 @@
 /* eslint-disable no-unused-vars */
 import toast from "react-hot-toast";
 import axios from "../../config/axiosconfig";
-import { loaduser, loaduserbooks } from "../features/userSlice";
-
-export const asyncaddtofavourite = (id) => async (dispatch, getState) => {
-  try {
-    const res = await axios.post(`/users/favorite`, { bookId: id });
-  } catch (error) {
-    console.log(error.message);
-  }
-}
+import { loaduser, loaduserbooks, removebookfavorite, setbookfavorite } from "../features/userSlice";
 
 export const asyncloaduser = () => async (dispatch, getState) => {
   try {
@@ -55,4 +47,27 @@ export const asyncupdateavatar = (formData) => async (dispatch, getState) => {
   } catch (error) {
     toast.error(error.response?.data?.message ?? "Failed to update avatar.");
   }
+}
+
+export const asyncaddbooktofavorites = (userId, bookId) => async (dispatch) => {
+  try {
+    const { data } = await axios.post(`/users/favourites/${bookId}`, {});
+    if (data.success) {
+      dispatch(setbookfavorite(bookId));
+    }
+  } catch (error) {
+    console.error("Failed to add in Favorites", error);
+  } 
+}
+
+export const asynctogglebookfavorite = (bookId, isFavorite) => async (dispatch) => {
+  try {
+    const action = isFavorite ? 'remove' : 'add';
+    const { data } = await axios.post(`/users/favourites/${bookId}?action=${action}`, {});
+     if (data.success) {
+      isFavorite ? dispatch(removebookfavorite(bookId)) : dispatch(setbookfavorite(bookId));
+    }
+  } catch (error) {
+    console.error("Failed to add in Favorites", error);
+  } 
 }

@@ -4,7 +4,6 @@ import {
   loadbooks, 
   setcurrentbook, 
   setcurrentbookloading, 
-  setbookfavorite, 
 } from '../features/bookSlice';
 
 export const asyncloadbooks = () => async (dispatch, getState) => {
@@ -55,13 +54,3 @@ export const asyncloadcurrentbook = (id) => async (dispatch) => {
   }
 };
 
-export const asyncaddbooktofavorites = (userId, bookId) => async (dispatch) => {
-  try {
-    const { data } = await axios.post(`/users/favourites`, { userId, bookId });
-    if (data.success) {
-      dispatch(setbookfavorite(bookId));
-    }
-  } catch (error) {
-    console.error("Failed to add in Favorites", error);
-  } 
-}
