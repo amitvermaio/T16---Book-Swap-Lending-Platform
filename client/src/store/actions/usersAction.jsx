@@ -49,17 +49,6 @@ export const asyncupdateavatar = (formData) => async (dispatch, getState) => {
   }
 }
 
-export const asyncaddbooktofavorites = (userId, bookId) => async (dispatch) => {
-  try {
-    const { data } = await axios.post(`/users/favourites/${bookId}`, {});
-    if (data.success) {
-      dispatch(setbookfavorite(bookId));
-    }
-  } catch (error) {
-    console.error("Failed to add in Favorites", error);
-  } 
-}
-
 export const asynctogglebookfavorite = (bookId, isFavorite) => async (dispatch) => {
   try {
     const action = isFavorite ? 'remove' : 'add';
