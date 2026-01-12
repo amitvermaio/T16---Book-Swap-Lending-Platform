@@ -33,10 +33,10 @@ const BookDetails = () => {
   return (
     <div className="w-full min-h-screen px-4 lg:px-12 selection:bg-orange-100 selection:text-orange-900 bg-[#f8f5f0] pb-12">
       <Navbar />
-      
+
       <div className="max-w-7xl mx-auto mt-8 space-y-16">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-          
+
           <div className="lg:col-span-5">
             <BookHero images={allImages} />
           </div>

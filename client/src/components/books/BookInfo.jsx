@@ -3,8 +3,8 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
 import { Link } from 'react-router-dom';
-
-import { asyncaddbooktofavorites } from '../../store/actions/usersAction';
+import { selectFavoriteSet } from '../../store/features/userSlice';
+import { asynctogglebookfavorite } from '../../store/actions/usersAction';
 import { asyncsendbookrequest } from '../../store/actions/requestActions';
 import SwapBookModal from './SwapBookModal';
 
@@ -27,6 +27,7 @@ const BookInfo = ({ book }) => {
   const [offeredBook, setOfferedBook] = useState(null);
 
   const { user } = useSelector(state => state.users);
+  const isFavorite = useSelector(state => selectFavoriteSet(state).has(book._id));
   const dispatch = useDispatch();
 
   const getActionDetails = (type) => {
@@ -42,10 +43,10 @@ const BookInfo = ({ book }) => {
     }
   };
 
-  const addToFavoritesHandler = () => {
-    if (!user) return toast.error('Login to add to Favorites!');
-    dispatch(asyncaddbooktofavorites(user._id, book._id));
-  };
+  const handleToggleFavorite = (e) => {
+    e.preventDefault();
+    dispatch(asynctogglebookfavorite(book._id, isFavorite));
+  }
 
   const handleBookSelection = (selectedUserBook) => {
     setOfferedBook(selectedUserBook);
@@ -256,10 +257,11 @@ const BookInfo = ({ book }) => {
 
       <div className="flex justify-end">
         <button
-          onClick={addToFavoritesHandler}
           className="flex items-center gap-2 text-gray-500 font-semibold hover:text-red-500 transition-colors"
+          onClick={handleToggleFavorite}
         >
-          <Heart className="w-5 h-5" /> Add to Wishlist
+          <Heart color={isFavorite ? "red" : "gray"} fill={isFavorite ? "red" : "none"} className="w-5 h-5" /> 
+          {isFavorite ? "Added to Wishlist" : "Add to Wishlist"}
         </button>
       </div>
 

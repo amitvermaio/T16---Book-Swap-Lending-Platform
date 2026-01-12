@@ -1,10 +1,25 @@
 import { createSlice, createSelector } from "@reduxjs/toolkit";
+import { jwtDecode } from "jwt-decode";
+
+function getUserRole() {
+  const token = localStorage.getItem("BookSwap_Token");
+  if (!token) return null;
+
+  try {
+    const decoded = jwtDecode(token);
+    return decoded?.role ?? null;
+  } catch {
+    return null;
+  }
+}
+
 
 const initialState = {
   user: null,
   bookCollection: [],
   isAuthorized: false,
   favorites: [],
+  role: null,
   loading: false
 }
 
@@ -15,7 +30,8 @@ const userSlice = createSlice({
     loaduser: (state, action) => {
       state.user = action.payload;
       state.favorites = action.payload.favorites || [];
-      state.isAuthorized = true
+      state.isAuthorized = true;
+      state.role = getUserRole();
       state.loading = false
     },
     removeuser: (state) => {

@@ -13,6 +13,8 @@ router.use(protect, requireRole('admin'));
 
 router.get('/users', listUsersController);
 router.patch('/users/:id/ban', banUserController);
+router.get('/books', () => {});
+router.patch('/books/:id/disable', () => {});
 router.get('/requests', listAllRequestsController);
 
 export default router;
