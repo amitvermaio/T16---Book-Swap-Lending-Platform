@@ -1,10 +1,13 @@
 import axios from '../../config/axiosconfig';
 import { toast } from 'react-hot-toast';
+import { loaduserslist } from '../features/adminSlice';
 
 export const asyncfetchusers = () => async (dispatch) => {
   try {
     const { data } = await axios.get(`/admin/users`);
-    dispatch({ type: 'FETCH_USERS_SUCCESS', payload: data });
+    if (data.success) {
+      dispatch(loaduserslist(data.users));
+    }
   } catch {
     toast.error("Failed to fetch users");
   }

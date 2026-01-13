@@ -2,7 +2,15 @@ import User from '../models/user.model.js';
 import Request from '../models/request.model.js';
 
 export const listUsers = async () => {
-  return User.find().select('-passwordHash').limit(200);
+  return await User.find()
+    .select(
+      "-passwordHash -lendingPreferences -favorites " +
+      "-emailVerificationOTP -emailVerificationOTPExpiry " +
+      "-resetPasswordOTP -resetPasswordOTPExpiry"
+    )
+    .limit(40)
+    .sort({ createdAt: -1 })
+    .lean();
 };
 
 export const banUser = async (userId, isBanned) => {

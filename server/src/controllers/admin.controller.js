@@ -7,7 +7,7 @@ import {
 export const listUsersController = async (req, res, next) => {
   try {
     const users = await listUsers();
-    res.json({ users });
+    res.json({ success: true, users });
   } catch (err) {
     next(err);
   }

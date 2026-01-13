@@ -9,7 +9,7 @@ import {
 
 const router = Router();
 
-router.use(protect, requireRole('admin'));
+router.use(protect, requireRole(['admin', 'superadmin']));
 
 router.get('/users', listUsersController);
 router.patch('/users/:id/ban', banUserController);
