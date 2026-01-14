@@ -1,5 +1,6 @@
 import {
   listUsers,
+  changeUserRole,
   banUser,
   listAllRequests,
 } from '../services/admin.service.js';
@@ -12,6 +13,16 @@ export const listUsersController = async (req, res, next) => {
     next(err);
   }
 };
+
+export const changeUserRoleController = async (req, res, next) => {
+  try {
+    console.log(req.user);
+    const user = await changeUserRole(req.params.id, req.body.role);
+    res.json({ success: true, user });
+  } catch (error) {
+    next(error);
+  }
+}
 
 export const banUserController = async (req, res, next) => {
   try {

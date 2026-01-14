@@ -24,6 +24,13 @@ const adminSlice = createSlice({
       state.usersList = action.payload;
       state.isLoading = false;
     },
+    changeuserrole: (state, action) => {
+      const updatedUser = action.payload;
+      const index = state.usersList.findIndex(user => user._id === updatedUser._id);
+      if (index !== -1) {
+        state.usersList[index] = updatedUser;
+      }
+    },
     loadpendingrequests: (state, action) => {
       state.pendingRequests = action.payload;
       state.isLoading = false;
@@ -52,6 +59,7 @@ const adminSlice = createSlice({
 
 export const {
   loaduserslist,
+  changeuserrole,
   loadpendingrequests,
   handlerequestaction,
   loadflaggedcontent,

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Eye, ChevronDown, Mail } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import EmailCompose from '../../components/admin/EmailCompose';
-import { asyncfetchusers } from '../../store/actions/adminActions';
+import { asyncfetchusers, asyncchangeuserrole } from '../../store/actions/adminActions';
 import { useDispatch, useSelector } from 'react-redux';
 
 const Users = () => {
@@ -15,6 +15,12 @@ const Users = () => {
       dispatch(asyncfetchusers());
     }
   }, []);
+
+  const handleRoleChange = async (e, userId) => {
+    if (!e.target.value || !userId) return;
+    console.log(e.target.value, userId);
+    await dispatch(asyncchangeuserrole(userId, e.target.value));
+  }
 
   return (
     <div className="p-6 space-y-6">
@@ -33,12 +39,19 @@ const Users = () => {
           </thead>
           <tbody className="divide-y divide-gray-100">
             {users.map((user) => (
-              <tr key={user.id} className="hover:bg-gray-50 transition-colors">
-                {/* User Info & Avatar */}
+              <tr key={user._id} className="hover:bg-gray-50 transition-colors">
                 <td className="p-4">
                   <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-sm">
-                      {user.name.charAt(0)}
+                    <div className="h-10 w-10 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-sm overflow-hidden">
+                      {user.avatar ? (
+                        <img
+                          className="w-full h-full object-cover"
+                          src={user.avatar}
+                          alt={user.name}
+                        />
+                      ) : (
+                        user.name?.charAt(0)
+                      )}
                     </div>
                     <div>
                       <div className="font-medium text-gray-900">{user.name}</div>
@@ -47,14 +60,14 @@ const Users = () => {
                   </div>
                 </td>
 
-                {/* Role with Change Button */}
                 <td className="p-4">
                   <div className="relative max-w-[120px]">
                     <select
                       name="role"
-                      id={`${user.id}`}
-                      defaultValue={user.role.toLowerCase()}
+                      id={`${user._id}`}
+                      value={user.role.toLowerCase() || 'user'}
                       className="block w-full cursor-pointer appearance-none rounded-lg border border-gray-200 bg-white py-2 pl-3 pr-8 text-sm font-medium text-gray-700 transition-all hover:border-indigo-300 hover:bg-gray-50 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                      onChange={(e) => handleRoleChange(e, user._id)}
                     >
                       <option value="user">User</option>
                       <option value="admin">Admin</option>
@@ -76,7 +89,7 @@ const Users = () => {
                   </button>
 
                   <Link
-                    to={`/profile/${user.id}`}
+                    to={`/profile/${user._id}`}
                     className="inline-flex items-center gap-1 text-sm font-semibold text-indigo-600 hover:text-indigo-800"
                   >
                     <Eye size={16} />

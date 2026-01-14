@@ -1,6 +1,6 @@
 import axios from '../../config/axiosconfig';
 import { toast } from 'react-hot-toast';
-import { loaduserslist } from '../features/adminSlice';
+import { loaduserslist, changeuserrole } from '../features/adminSlice';
 
 export const asyncfetchusers = () => async (dispatch) => {
   try {
@@ -10,6 +10,20 @@ export const asyncfetchusers = () => async (dispatch) => {
     }
   } catch {
     toast.error("Failed to fetch users");
+  }
+}
+
+export const asyncchangeuserrole = (userId, newRole) => async (dispatch) => {
+  try {
+    console.log("call gya")
+    const { data } = await axios.patch(`/admin/users/${userId}/role`, { role: newRole });
+    console.log(data)
+    if (data.success) {
+      dispatch(changeuserrole(data.user));
+      toast.success("User role updated successfully");
+    }
+  } catch {
+    toast.error("Failed to update user role");
   }
 }
 

@@ -1,16 +1,26 @@
 import User from '../models/user.model.js';
 import Request from '../models/request.model.js';
 
+const notselectedFields = `
+  -passwordHash -lendingPreferences -favorites
+  -emailVerificationOTP -emailVerificationOTPExpiry
+  -resetPasswordOTP -resetPasswordOTPExpiry
+  `;
+
 export const listUsers = async () => {
-  return await User.find()
-    .select(
-      "-passwordHash -lendingPreferences -favorites " +
-      "-emailVerificationOTP -emailVerificationOTPExpiry " +
-      "-resetPasswordOTP -resetPasswordOTPExpiry"
-    )
+  return await User.find({ role: { $ne: 'superadmin' } })
+    .select(notselectedFields)
     .limit(40)
     .sort({ createdAt: -1 })
     .lean();
+};
+
+export const changeUserRole = async (userId, newRole) => {
+  return User.findByIdAndUpdate(
+    userId,
+    { $set: { role: newRole } },
+    { new: true }
+  ).select(notselectedFields);
 };
 
 export const banUser = async (userId, isBanned) => {
