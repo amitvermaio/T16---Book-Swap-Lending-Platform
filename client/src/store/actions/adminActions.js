@@ -1,6 +1,15 @@
 import axios from '../../config/axiosconfig';
 import { toast } from 'react-hot-toast';
-import { loaduserslist, changeuserrole } from '../features/adminSlice';
+import {
+  loaduserslist,
+  changeuserrole,
+  loadbookslist,
+  removebookfromlist,
+  setanalyticsloading,
+  loadtopbooks,
+  loadtopcontributors,
+  loadborrowingtrends,
+} from '../features/adminSlice';
 
 export const asyncfetchusers = () => async (dispatch) => {
   try {
@@ -15,9 +24,7 @@ export const asyncfetchusers = () => async (dispatch) => {
 
 export const asyncchangeuserrole = (userId, newRole) => async (dispatch) => {
   try {
-    console.log("call gya")
     const { data } = await axios.patch(`/admin/users/${userId}/role`, { role: newRole });
-    console.log(data)
     if (data.success) {
       dispatch(changeuserrole(data.user));
       toast.success("User role updated successfully");
@@ -36,3 +43,46 @@ export const asynctoggleuserban = (userId, isBan) => async (dispatch) => {
     toast.error("Failed to update user status");
   }
 }
+
+export const asyncfetchbooks = () => async (dispatch) => {
+  try {
+    const { data } = await axios.get(`/admin/books`);
+    if (data.success) {
+      dispatch(loadbookslist(data.books));
+    }
+  } catch {
+    toast.error("Failed to fetch books");
+  }
+}
+
+export const asyncdeletebook = (bookId, reason) => async (dispatch) => {
+  try {
+    const { data } = await axios.delete(`/admin/books/${bookId}`, { reason });
+    if (data.success) {
+      dispatch(removebookfromlist(bookId));
+      toast.success("Book deleted successfully");
+    }
+  } catch {
+    toast.error("Failed to delete book");
+  }
+}
+
+export const asyncfetchanalytics = () => async (dispatch) => {
+  try {
+    dispatch(setanalyticsloading());
+
+    const [booksRes, contributorsRes, trendsRes] = await Promise.all([
+      axios.get('/analytics/top-books'),
+      axios.get('/analytics/top-contributors'),
+      axios.get('/analytics/trends')
+    ]);
+
+    dispatch(loadtopbooks(booksRes.data.data));
+    dispatch(loadtopcontributors(contributorsRes.data.data));
+    dispatch(loadborrowingtrends(trendsRes.data.data));
+
+  } catch (error) {
+    console.error(error);
+    toast.error("Failed to load analytics data");
+  }
+};

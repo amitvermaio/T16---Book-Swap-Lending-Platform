@@ -12,10 +12,8 @@ const AdminSidebar = () => {
     { name: 'Dashboard', path: '/admin/dashboard', icon: <LayoutDashboard size={20} /> },
     { name: 'User Management', path: '/admin/users', icon: <Users size={20} /> },
     { name: 'Book Management', path: '/admin/books', icon: <BookOpen size={20} /> },
-    { name: 'Flagged Content', path: '/admin/flagged', icon: <Flag size={20} /> },
     { name: 'Disputes', path: '/admin/disputes', icon: <Gavel size={20} /> },
     { name: 'Analytics', path: '/admin/analytics', icon: <BarChart2 size={20} /> },
-    { name: 'Settings', path: '/admin/settings', icon: <Settings size={20} /> },
   ];
 
   return (

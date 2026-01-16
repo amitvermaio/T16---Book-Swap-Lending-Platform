@@ -2,14 +2,15 @@ import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
   usersList: [],
+  booksList: [],
   pendingRequests: [],
-  flaggedContent: [],
   disputes: [],
 
   analytics: {
-    stats: { totalUsers: 0, activeListings: 0, ongoingBorrows: 0, openDisputes: 0 },
-    borrowingTrends: [],
+    topBooks: [],
     topContributors: [],
+    borrowingTrends: [],
+    isLoading: false,
   },
 
   isLoading: false,
@@ -31,6 +32,14 @@ const adminSlice = createSlice({
         state.usersList[index] = updatedUser;
       }
     },
+    loadbookslist: (state, action) => {
+      state.booksList = action.payload;
+      state.isLoading = false;
+    },
+    removebookfromlist: (state, action) => {
+      const bookId = action.payload;
+      state.booksList = state.booksList.filter(book => book._id !== bookId);
+    },
     loadpendingrequests: (state, action) => {
       state.pendingRequests = action.payload;
       state.isLoading = false;
@@ -39,16 +48,20 @@ const adminSlice = createSlice({
       const { requestId } = action.payload;
       state.pendingRequests = state.pendingRequests.filter(req => req.id !== requestId);
     },
-    loadflaggedcontent: (state, action) => {
-      state.flaggedContent = action.payload;
-      state.isLoading = false;
+    setanalyticsloading: (state) => {
+      state.analytics.isLoading = true;
     },
-    loadadminanalytics: (state, action) => {
-      state.analytics = action.payload;
-      state.isLoading = false;
+    loadtopbooks: (state, action) => {
+      state.analytics.topBooks = action.payload;
+      state.analytics.isLoading = false;
     },
-    setadminloading: (state, action) => {
-      state.isLoading = action.payload;
+    loadtopcontributors: (state, action) => {
+      state.analytics.topContributors = action.payload;
+      state.analytics.isLoading = false;
+    },
+    loadborrowingtrends: (state, action) => {
+      state.analytics.borrowingTrends = action.payload;
+      state.analytics.isLoading = false;
     },
     setadminerror: (state, action) => {
       state.error = action.payload;
@@ -60,12 +73,16 @@ const adminSlice = createSlice({
 export const {
   loaduserslist,
   changeuserrole,
+  loadbookslist,
   loadpendingrequests,
   handlerequestaction,
-  loadflaggedcontent,
-  loadadminanalytics,
   setadminloading,
-  setadminerror
+  setadminerror,
+  removebookfromlist,
+  setanalyticsloading,
+  loadtopbooks,
+  loadtopcontributors,
+  loadborrowingtrends
 } = adminSlice.actions;
 
 export default adminSlice.reducer;

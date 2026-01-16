@@ -24,6 +24,8 @@ export const getTopBooks = async () => {
   }));
 };
 
+import User from '../models/user.model.js'; // Make sure to import User model
+
 export const getTopContributors = async () => {
   const agg = await Request.aggregate([
     { $match: { status: 'completed' } },
@@ -37,7 +39,14 @@ export const getTopContributors = async () => {
     { $limit: 10 },
   ]);
 
-  return agg; // frontend can resolve names or you can populate separately
+  const userIds = agg.map((item) => item._id);
+
+  const users = await User.find({ _id: { $in: userIds } }).select('name avatar email ratingStats');
+
+  return agg.map((item) => ({
+    count: item.count,
+    user: users.find((u) => u._id.toString() === item._id.toString()) || null,
+  }));
 };
 
 export const getBorrowTrends = async () => {

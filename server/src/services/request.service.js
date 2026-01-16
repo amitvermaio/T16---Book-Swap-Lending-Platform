@@ -8,7 +8,7 @@ import debug from 'debug';
 
 const dbgr = debug('app:request-service');
 
-export const createRequest = async ({
+export const createRequest = async ({  
   requesterId,
   bookId,
   type, // swap, borrow, donate

@@ -1,20 +1,14 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Eye, ChevronDown, Mail } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import EmailCompose from '../../components/admin/EmailCompose';
-import { asyncfetchusers, asyncchangeuserrole } from '../../store/actions/adminActions';
+import { asyncchangeuserrole } from '../../store/actions/adminActions';
 import { useDispatch, useSelector } from 'react-redux';
 
 const Users = () => {
   const [emailComposeOpen, setEmailComposeOpen] = useState(false);
   const dispatch = useDispatch();
   const users = useSelector(state => state.admin.usersList);
-
-  useEffect(() => {
-    if (users.length === 0) {
-      dispatch(asyncfetchusers());
-    }
-  }, []);
 
   const handleRoleChange = async (e, userId) => {
     if (!e.target.value || !userId) return;

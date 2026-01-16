@@ -2,28 +2,28 @@ import { useState, useEffect } from "react";
 import { Link, NavLink } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { toast } from "react-hot-toast";
-import { MoveRight, Menu, X, User, Settings, LogOut } from "lucide-react";
+import { MoveRight, Menu, X, User, Settings, LogOut, LayoutDashboard } from "lucide-react";
 import { removeuser } from "../store/features/userSlice";
 import { asyncfetchnotifications } from "../store/actions/notificationActions";
 
 import LogoImg from "../assets/Logo.png";
 import NotificationBell from "./NotificationBell";
 
-const NAV_LINKS = [
+const BASE_LINKS = [
   { path: "/books", label: "Browse Books" },
   { path: "/requests", label: "Requests" },
   { path: "/tracking", label: "Tracking" },
   { path: "/about", label: "About" },
 ];
 
-const DesktopNav = () => (
+const DesktopNav = ({ links }) => (
   <div className="hidden lg:flex font-Inter items-center gap-12 text-xs tracking-tight text-black uppercase">
-    {NAV_LINKS.map((link) => (
+    {links.map((link) => (
       <NavLink
         key={link.path}
         to={link.path}
         className={({ isActive }) =>
-          isActive ? "underline underline-offset-4" : "text-black"
+          isActive ? "underline underline-offset-4 font-bold" : "text-black hover:text-orange-600 transition-colors"
         }
       >
         {link.label}
@@ -32,7 +32,7 @@ const DesktopNav = () => (
   </div>
 );
 
-const MobileSidebar = ({ isOpen, closeSidebar }) => (
+const MobileSidebar = ({ isOpen, closeSidebar, links }) => (
   <>
     <div
       className={`fixed top-0 left-0 h-full w-64 bg-[#fbf7f3] shadow-lg z-50 transition-transform duration-300 ${isOpen ? "translate-x-0" : "-translate-x-full"
@@ -45,8 +45,13 @@ const MobileSidebar = ({ isOpen, closeSidebar }) => (
         </button>
       </div>
       <div className="flex flex-col gap-6 px-6 pt-8 text-black font-Inter uppercase tracking-tight">
-        {NAV_LINKS.map((link) => (
-          <NavLink key={link.path} to={link.path} onClick={closeSidebar}>
+        {links.map((link) => (
+          <NavLink
+            key={link.path}
+            to={link.path}
+            onClick={closeSidebar}
+            className={({ isActive }) => isActive ? "text-orange-600 font-bold" : ""}
+          >
             {link.label}
           </NavLink>
         ))}
@@ -66,8 +71,9 @@ const Navbar = () => {
   const [profileOpen, setProfileOpen] = useState(false);
 
   const dispatch = useDispatch();
-  const { user, isAuthorized } = useSelector((state) => state.users);
+  const { user, isAuthorized, role } = useSelector((state) => state.users);
 
+  const navLinks = BASE_LINKS
   useEffect(() => {
     if (isAuthorized) {
       dispatch(asyncfetchnotifications());
@@ -90,7 +96,7 @@ const Navbar = () => {
             <img src={LogoImg} alt="Logo" className="h-10 object-contain" />
           </Link>
 
-          <DesktopNav />
+          <DesktopNav links={navLinks} />
 
           <div className="flex items-center gap-4">
 
@@ -139,12 +145,30 @@ const Navbar = () => {
                         <p className="text-sm font-bold text-gray-900 truncate">
                           {user?.name || "User"}
                         </p>
-                        <p className="text-xs text-gray-500 truncate">
-                          {user?.email || "user@example.com"}
-                        </p>
+                        <div className="flex items-center gap-2">
+                          <p className="text-xs text-gray-500 truncate">
+                            {user?.email || "user@example.com"}
+                          </p>
+                          {(role === 'admin' || role === 'superadmin') && (
+                            <span className="text-[10px] bg-orange-100 text-orange-600 px-1.5 py-0.5 rounded font-bold uppercase">
+                              {role}
+                            </span>
+                          )}
+                        </div>
                       </div>
 
                       <div className="flex flex-col">
+                        {(role === "admin" || role === "superadmin") && (
+                          <Link
+                            to="/admin/dashboard"
+                            onClick={() => setProfileOpen(false)}
+                            className="flex items-center px-4 py-2.5 text-sm text-orange-600 font-bold hover:bg-orange-50 transition-colors"
+                          >
+                            <LayoutDashboard className="w-4 h-4 mr-3" />
+                            Admin Dashboard
+                          </Link>
+                        )}
+
                         <Link
                           to={`/profile/${user?._id}`}
                           onClick={() => setProfileOpen(false)}
@@ -153,6 +177,7 @@ const Navbar = () => {
                           <User className="w-4 h-4 mr-3" />
                           My Profile
                         </Link>
+
                         <Link
                           to="/settings"
                           onClick={() => setProfileOpen(false)}
@@ -189,6 +214,7 @@ const Navbar = () => {
       <MobileSidebar
         isOpen={sidebarOpen}
         closeSidebar={() => setSidebarOpen(false)}
+        links={navLinks}
       />
     </>
   );

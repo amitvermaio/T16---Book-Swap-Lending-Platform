@@ -5,6 +5,8 @@ import {
   listUsersController,
   changeUserRoleController,
   banUserController,
+  listBooksController,
+  deleteBookController,
   listAllRequestsController,
 } from '../controllers/admin.controller.js';
 
@@ -15,8 +17,8 @@ router.use(protect, requireRole);
 router.get('/users', listUsersController);
 router.patch('/users/:id/role', changeUserRoleController);
 router.patch('/users/:id/ban', banUserController);
-router.get('/books', () => {});
-router.patch('/books/:id/disable', () => {});
+router.get('/books', listBooksController);
+router.delete('/books/:id', deleteBookController);
 router.get('/requests', listAllRequestsController);
 
 export default router;

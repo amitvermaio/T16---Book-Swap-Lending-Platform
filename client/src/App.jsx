@@ -28,9 +28,7 @@ import AdminDashboard from './pages/admin/AdminDashboard';
 import Users from './pages/admin/Users';
 import BooksAdmin from './pages/admin/Books';
 import Analytics from './pages/admin/Analytics';
-import Flagged from './pages/admin/FlaggedContent';
 import Disputes from './pages/admin/Disputes';
-const SettingsAdmin = () => <div className="p-4">Settings Page</div>;
 
 const App = () => {
 
@@ -107,10 +105,8 @@ const App = () => {
           <Route path="dashboard" element={<AdminDashboard />} />
           <Route path="users" element={<Users />} />
           <Route path="books" element={<BooksAdmin />} />
-          <Route path="flagged" element={<Flagged />} />
           <Route path="disputes" element={<Disputes />} />
           <Route path="analytics" element={<Analytics />} />
-          <Route path="settings" element={<SettingsAdmin />} />
         </Route>
 
         <Route path="*" element={<NotFound />} />
