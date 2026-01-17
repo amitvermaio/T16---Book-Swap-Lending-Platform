@@ -9,6 +9,7 @@ import notificationRoutes from './notification.routes.js';
 import adminRoutes from './admin.routes.js';
 import analyticsRoutes from './analytics.routes.js';
 import ratingRoutes from './rating.routes.js';
+import disputeRoutes from './dispute.route.js';
 
 router.use('/auth', authRoutes);
 router.use('/users', userRoutes);
@@ -18,5 +19,6 @@ router.use('/notifications', notificationRoutes);
 router.use('/admin', adminRoutes);
 router.use('/analytics', analyticsRoutes);
 router.use('/ratings', ratingRoutes);
+router.use('/disputes', disputeRoutes);
 
 export default router;
