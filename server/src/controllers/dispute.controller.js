@@ -19,15 +19,12 @@ export const createDisputeController = async (req, res, next) => {
       return res.status(400).json({ message: "You can upload up to 4 images only" });
     }
 
-    console.log(req.files);
-    return;
-
     const dispute = await createDispute({
       requestId,
       userId: req.user.id,
       reason,
       message,
-      images: req.files || []
+      files: req.files || []
     });
 
     res.status(201).json({

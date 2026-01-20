@@ -6,6 +6,32 @@ import {
   addBookToFavorites,
   updateAvatar
 } from '../services/user.service.js';
+import { answerQuery } from '../services/ai.service.js';
+
+export const aiQuery = async (req, res, next) => {
+  try {
+    const { query } = req.body;
+
+    // SSE headers 
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+
+    res.flushHeaders();
+
+    await answerQuery(query, (token) => {
+      res.write(`data: ${token}\n\n`);
+    });
+
+    res.write(`event: end\n`);
+    res.write(`data: [DONE]\n\n`);
+    res.end();
+
+  } catch (error) {
+    next(error);
+  }
+};
+
 
 export const getMeDetails = async (req, res, next) => {
   try {
@@ -97,9 +123,9 @@ export const addToFavorite = async (req, res, next) => {
     res.status(200).json({
       success: true,
       message: "Book added to favorites successfully",
-      favorites: updatedUser.favorites 
+      favorites: updatedUser.favorites
     });
-    
+
   } catch (error) {
     next(error);
   }

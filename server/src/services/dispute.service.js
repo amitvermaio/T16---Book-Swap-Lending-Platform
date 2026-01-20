@@ -2,6 +2,8 @@ import Dispute from '../models/dispute.model.js';
 import Request from '../models/request.model.js';
 import AppError from '../utils/AppError.js';
 
+import { uploadToImageKit } from './storage.service.js';
+
 const COMPLETED_DISPUTE_WINDOW_HOURS = 48;
 
 export const createDispute = async ({
@@ -9,7 +11,7 @@ export const createDispute = async ({
   userId,
   reason,
   message,
-  images = [],
+  files,
 }) => {
   const request = await Request.findById(requestId);
   if (!request) {
@@ -28,12 +30,13 @@ export const createDispute = async ({
         400
       );
     }
-  } else if (request.status !== 'collected') {
-    throw new AppError(
-      'Dispute can only be raised after book collection',
-      400
-    );
   }
+  // } else if (request.status !== 'collected') {
+  //   throw new AppError(
+  //     'Dispute can only be raised after book collection',
+  //     400
+  //   );
+  // }
 
   const existingDispute = await Dispute.findOne({ requestId });
   if (existingDispute) {
@@ -43,12 +46,21 @@ export const createDispute = async ({
     );
   }
 
+  let imagesUrls = [];
+  if (files.length > 0) {
+    const uploadPromises = files.map((file) => {
+      return uploadToImageKit(file, "/bookswap_disputes");
+    });
+
+    imagesUrls = await Promise.all(uploadPromises);
+  }
+
   const dispute = await Dispute.create({
     requestId,
     raisedBy: userId,
     reason,
     message,
-    images,
+    images: imagesUrls,
   });
 
   return dispute;

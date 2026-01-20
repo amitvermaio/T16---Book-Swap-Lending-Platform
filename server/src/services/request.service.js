@@ -8,7 +8,7 @@ import debug from 'debug';
 
 const dbgr = debug('app:request-service');
 
-export const createRequest = async ({  
+export const createRequest = async ({
   requesterId,
   bookId,
   type, // swap, borrow, donate
@@ -136,7 +136,7 @@ export const updateRequestStatus = async ({
     reqDoc.exchangeCode = generateOTP();
 
     if (reqDoc.type === 'borrow') {
-      reqDoc.book.status = 'lent'; 
+      reqDoc.book.status = 'lent';
       await reqDoc.book.save();
     }
     else if (reqDoc.type === 'donate') {
@@ -163,7 +163,7 @@ export const updateRequestStatus = async ({
       },
       { status: 'rejected' }
     );
-  } 
+  }
   else if (action === 'rejected' || action === 'cancelled') {
     reqDoc.status = action;
     reqDoc.book.status = 'available';
@@ -176,7 +176,7 @@ export const updateRequestStatus = async ({
   }
 
   await reqDoc.save();
-  
+
   const targetUserId = isOwner ? reqDoc.requester : reqDoc.owner;
 
   const data = { requestId: reqDoc._id, status: reqDoc.status };
@@ -190,8 +190,8 @@ export const updateRequestStatus = async ({
       action === 'approved'
         ? 'REQUEST_APPROVED'
         : action === 'rejected'
-        ? 'REQUEST_REJECTED'
-        : 'REQUEST_CANCELLED',
+          ? 'REQUEST_REJECTED'
+          : 'REQUEST_CANCELLED',
     title: `Request ${action}`,
     message: `Your request for "${reqDoc.book.title}" is ${reqDoc.status}`,
     data: data,
@@ -217,7 +217,11 @@ export const verifyExchangeCode = async ({ requestId, ownerId, code }) => {
     throw new AppError('Invalid Exchange Code', 400);
   }
 
-  reqDoc.status = 'collected';
+  if (reqDoc.type === 'donate') {
+    reqDoc.status = 'completed';
+  } else {
+    reqDoc.status = 'collected';
+  }
   await reqDoc.save();
 
   const io = getIO();

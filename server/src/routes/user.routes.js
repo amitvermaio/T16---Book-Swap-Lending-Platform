@@ -14,6 +14,7 @@ import { upload } from '../middlewares/multer.middleware.js';
 const router = Router();
 
 /* PUBLIC ROUTES /api/users */
+router.post('/ai-query', () => {})
 router.get('/:id', getUserPublicProfile);
 
 /* PROTECTED ROUTES /api/users */
