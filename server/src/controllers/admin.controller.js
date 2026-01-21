@@ -5,6 +5,7 @@ import {
   listAllBooks,
   deleteBook,
   listAllRequests,
+  listAllDisputes,
 } from '../services/admin.service.js';
 import Book from '../models/book.model.js';
 
@@ -65,10 +66,19 @@ export const deleteBookController = async (req, res, next) => {
   }
 };
 
-export const listAllRequestsController = async (req, res, next) => {
+export const countAllRequestsController = async (req, res, next) => {
   try {
     const requests = await listAllRequests();
-    res.json({ requests });
+    res.json({ requests: requests.length });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const listAllDisputesController = async (req, res, next) => {
+  try {
+    const disputes = await listAllDisputes();
+    res.json({ disputes });
   } catch (err) {
     next(err);
   }

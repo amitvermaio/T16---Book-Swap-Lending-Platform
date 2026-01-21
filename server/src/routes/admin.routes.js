@@ -7,7 +7,8 @@ import {
   banUserController,
   listBooksController,
   deleteBookController,
-  listAllRequestsController,
+  countAllRequestsController,
+  listAllDisputesController,
 } from '../controllers/admin.controller.js';
 
 const router = Router();
@@ -19,6 +20,7 @@ router.patch('/users/:id/role', changeUserRoleController);
 router.patch('/users/:id/ban', banUserController);
 router.get('/books', listBooksController);
 router.delete('/books/:id', deleteBookController);
-router.get('/requests', listAllRequestsController);
+router.get('/requests', countAllRequestsController);
+router.get('/disputes', listAllDisputesController);
 
 export default router;

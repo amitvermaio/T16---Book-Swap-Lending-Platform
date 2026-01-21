@@ -9,6 +9,8 @@ import {
   loadtopbooks,
   loadtopcontributors,
   loadborrowingtrends,
+  loaddisputes,
+  loadongoingrequestscount,
 } from '../features/adminSlice';
 
 export const asyncfetchusers = () => async (dispatch) => {
@@ -71,18 +73,28 @@ export const asyncfetchanalytics = () => async (dispatch) => {
   try {
     dispatch(setanalyticsloading());
 
-    const [booksRes, contributorsRes, trendsRes] = await Promise.all([
+    const [booksRes, contributorsRes, trendsRes, requestsRes] = await Promise.all([
       axios.get('/analytics/top-books'),
       axios.get('/analytics/top-contributors'),
-      axios.get('/analytics/trends')
+      axios.get('/analytics/trends'),
+      axios.get('/admin/requests')
     ]);
 
     dispatch(loadtopbooks(booksRes.data.data));
     dispatch(loadtopcontributors(contributorsRes.data.data));
     dispatch(loadborrowingtrends(trendsRes.data.data));
-
+    dispatch(loadongoingrequestscount(requestsRes.data.requests));
   } catch (error) {
     console.error(error);
     toast.error("Failed to load analytics data");
   }
 };
+
+export const asyncfetchdisputes = () => async (dispatch) => {
+  try {
+    const { data } = await axios.get(`/admin/disputes`);
+    dispatch(loaddisputes(data.disputes));
+  } catch (error) {
+    toast.error(error?.response?.data?.message || "Failed to fetch disputes");
+  }
+}

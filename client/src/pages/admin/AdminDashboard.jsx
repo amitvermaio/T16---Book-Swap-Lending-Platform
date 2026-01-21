@@ -21,8 +21,7 @@ const StatCard = ({ title, count, icon, colorClass }) => (
 
 const AdminDashboard = () => {
   const dispatch = useDispatch();
-  const { usersList, booksList, analytics, isLoading } = useSelector((state) => state.admin);
-  const { stats } = analytics;
+  const { usersList, booksList, disputes, onGoingRequests, isLoading } = useSelector((state) => state.admin);
 
   useEffect(() => {
     dispatch(asyncfetchanalytics());
@@ -44,29 +43,29 @@ const AdminDashboard = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard 
-          title="Total Users" 
-          count={usersList?.length} 
-          icon={<Users size={22} className="text-blue-600" />} 
-          colorClass="bg-blue-50" 
+        <StatCard
+          title="Total Users"
+          count={usersList?.length}
+          icon={<Users size={22} className="text-blue-600" />}
+          colorClass="bg-blue-50"
         />
-        <StatCard 
-          title="Active Listings" 
-          count={booksList?.length} 
-          icon={<BookOpen size={22} className="text-orange-600" />} 
-          colorClass="bg-orange-50" 
+        <StatCard
+          title="Active Listings"
+          count={booksList?.length}
+          icon={<BookOpen size={22} className="text-orange-600" />}
+          colorClass="bg-orange-50"
         />
-        <StatCard 
-          title="Disputes Open" 
-          count={stats?.openDisputes} 
-          icon={<AlertTriangle size={22} className="text-red-600" />} 
-          colorClass="bg-red-50" 
+        <StatCard
+          title="Disputes Open"
+          count={disputes?.length}
+          icon={<AlertTriangle size={22} className="text-red-600" />}
+          colorClass="bg-red-50"
         />
-        <StatCard 
-          title="Ongoing Requests" 
-          count={stats?.ongoingBorrows} 
-          icon={<Activity size={22} className="text-green-600" />} 
-          colorClass="bg-green-50" 
+        <StatCard
+          title="Ongoing Requests"
+          count={onGoingRequests}
+          icon={<Activity size={22} className="text-green-600" />}
+          colorClass="bg-green-50"
         />
       </div>
 

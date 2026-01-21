@@ -5,6 +5,7 @@ const initialState = {
   booksList: [],
   pendingRequests: [],
   disputes: [],
+  onGoingRequests: 0,
 
   analytics: {
     topBooks: [],
@@ -63,8 +64,16 @@ const adminSlice = createSlice({
       state.analytics.borrowingTrends = action.payload;
       state.analytics.isLoading = false;
     },
+    loadongoingrequestscount: (state, action) => {
+      state.onGoingRequests = action.payload;
+      state.isLoading = false;
+    },
     setadminerror: (state, action) => {
       state.error = action.payload;
+      state.isLoading = false;
+    },
+    loaddisputes: (state, action) => {
+      state.disputes = action.payload;
       state.isLoading = false;
     }
   },
@@ -82,7 +91,9 @@ export const {
   setanalyticsloading,
   loadtopbooks,
   loadtopcontributors,
-  loadborrowingtrends
+  loadborrowingtrends,
+  loaddisputes,
+  loadongoingrequestscount,
 } = adminSlice.actions;
 
 export default adminSlice.reducer;

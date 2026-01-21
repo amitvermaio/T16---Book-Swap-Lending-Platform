@@ -14,6 +14,7 @@ import { getDaysRemaining, formatDate } from '../utils/dataUtils';
 import { asyncmarkcomplete, asyncverifycollection, asynccancelrequest, asyncrateuser } from '../store/actions/trackingActions';
 import StatusBadge from './tracking/StatusBadge';
 import FeedbackSection from './tracking/FeedbackSection';
+import DisputeSection from './tracking/DisputeSection';
 import toast from 'react-hot-toast';
 
 const SwappedBookSection = ({ offeredBook }) => {
@@ -276,6 +277,12 @@ const TrackingCard = ({ data, isLending }) => {
         {data.status === 'completed' && (
           <FeedbackSection user={otherUserName} onSubmit={handleFeedbackSubmit} />
         )}
+
+        <DisputeSection 
+          requestId={data._id} 
+          status={data.status} 
+          updatedAt={data.updatedAt} 
+        />
 
       </div>
 

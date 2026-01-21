@@ -116,3 +116,20 @@ export const asyncrateuser = ({ targetUserId, requestId, score, comment }) => as
     return false;
   }
 }
+
+export const asynccreatedispute = ({ requestId, reason, message, images }) => async () => {
+  try {
+    const { data } = await axios.post('/disputes', {
+      requestId,
+      reason,
+      message,
+      images
+    });
+    if (data.success) {
+      return true;
+    }
+  } catch (error) {
+    console.error(error);
+    throw new Error(error.response?.data?.message || "Failed to create dispute");
+  }
+};

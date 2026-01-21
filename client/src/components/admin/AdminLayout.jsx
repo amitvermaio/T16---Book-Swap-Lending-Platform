@@ -1,7 +1,7 @@
 import AdminSidebar from './AdminSidebar';
 import { Outlet } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { asyncfetchusers, asyncfetchbooks } from '../../store/actions/adminActions';
+import { asyncfetchusers, asyncfetchbooks, asyncfetchdisputes } from '../../store/actions/adminActions';
 import { useEffect } from 'react';
 
 const AdminLayout = () => {
@@ -10,6 +10,7 @@ const AdminLayout = () => {
   useEffect(() => {
     dispatch(asyncfetchusers());
     dispatch(asyncfetchbooks());
+    dispatch(asyncfetchdisputes());
   }, [dispatch]);
 
   return (
@@ -18,7 +19,7 @@ const AdminLayout = () => {
 
       <div className="flex-1 flex flex-col h-screen overflow-y-auto pt-16 md:pt-0">
         <main className="flex-1 p-6">
-           <Outlet />
+          <Outlet />
         </main>
       </div>
     </div>

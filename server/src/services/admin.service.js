@@ -2,6 +2,7 @@ import User from '../models/user.model.js';
 import Book from '../models/book.model.js';
 import Request from '../models/request.model.js';
 import Notification from '../models/notification.model.js';
+import Dispute from '../models/dispute.model.js';
 import { getIO } from '../sockets/socket.js';
 
 const notselectedFields = `
@@ -56,10 +57,14 @@ export const deleteBook = async (book, reason) => {
 }
 
 export const listAllRequests = async () => {
-  return Request.find()
-    .populate('book')
-    .populate('owner', 'name')
-    .populate('requester', 'name')
-    .sort({ createdAt: -1 })
-    .limit(200);
+  return Request.find({ status: { $in: ['pending', 'approved', 'collected'] } });
 };
+
+export const listAllDisputes = async () => {
+  return Dispute.find({ 
+    $or: [ { status: 'OPEN' }, { status: 'UNDER_REVIEW' } ] 
+  })
+  .populate('requestId')
+  .populate('raisedBy', 'name email avatar')
+  .sort({ createdAt: 1 });
+}
