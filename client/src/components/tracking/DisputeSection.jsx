@@ -1,17 +1,18 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useDispatch } from 'react-redux';
-import { AlertTriangle, Send, X, Image as ImageIcon } from 'lucide-react';
+import { AlertTriangle, Send, X, Image as ImageIcon, Plus } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { asynccreatedispute } from '../../store/actions/trackingActions';
 
 const DisputeSection = ({ requestId, status, updatedAt }) => {
   const dispatch = useDispatch();
+  const fileInputRef = useRef(null);
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     reason: '',
     message: '',
-    images: [] 
+    images: []
   });
 
   const isVisible = () => {
@@ -24,6 +25,28 @@ const DisputeSection = ({ requestId, status, updatedAt }) => {
     return false;
   };
 
+  const handleImageChange = (e) => {
+    const files = Array.from(e.target.files);
+    
+    if (formData.images.length + files.length > 4) {
+      return toast.error("You can only upload up to 4 images");
+    }
+
+    setFormData(prev => ({
+      ...prev,
+      images: [...prev.images, ...files]
+    }));
+    
+    e.target.value = '';
+  };
+
+  const removeImage = (index) => {
+    setFormData(prev => ({
+      ...prev,
+      images: prev.images.filter((_, i) => i !== index)
+    }));
+  };
+
   if (!isVisible()) return null;
 
   const handleSubmit = async (e) => {
@@ -32,16 +55,20 @@ const DisputeSection = ({ requestId, status, updatedAt }) => {
 
     setIsSubmitting(true);
     try {
-      const disputeData = {
-        requestId,
-        reason: formData.reason,
-        message: formData.message,
-        // images: formData.images
-      };
+      const submissionData = new FormData();
+      submissionData.append('requestId', requestId);
+      submissionData.append('reason', formData.reason);
+      submissionData.append('message', formData.message);
+      formData.images.forEach((file) => {
+        submissionData.append('images', file);
+      });
 
-      await dispatch(asynccreatedispute(disputeData));
-      toast.success("Dispute raised successfully");
+      console.log(submissionData);
+      
+      await dispatch(asynccreatedispute(submissionData));
+      
       setIsOpen(false);
+      setFormData({ reason: '', message: '', images: [] });
     } catch {
       toast.error("Failed to raise dispute");
     } finally {
@@ -101,13 +128,62 @@ const DisputeSection = ({ requestId, status, updatedAt }) => {
           />
         </div>
 
+        {/* Image Upload Setion */}
+        <div className="w-1/2">
+          <label className="block text-[10px] font-bold text-gray-500 uppercase mb-2">
+            Attachments ({formData.images.length}/4)
+          </label>
+          
+          <div className="grid grid-cols-4 gap-2">
+            {formData.images.map((file, index) => (
+              <div key={index} className="relative aspect-square rounded-lg overflow-hidden border border-gray-100 bg-gray-50">
+                <img 
+                  src={URL.createObjectURL(file)} 
+                  alt="preview" 
+                  className="w-full h-full object-cover"
+                />
+                <button
+                  type="button"
+                  onClick={() => removeImage(index)}
+                  className="absolute top-1 right-1 bg-black/50 text-white rounded-full p-0.5 hover:bg-black/70"
+                >
+                  <X size={12} />
+                </button>
+              </div>
+            ))}
+
+            {formData.images.length < 4 && (
+              <button
+                type="button"
+                onClick={() => fileInputRef.current.click()}
+                className="aspect-square flex flex-col items-center justify-center border-2 border-dashed border-gray-200 rounded-lg hover:border-red-300 hover:bg-red-50 transition-colors text-gray-400"
+              >
+                <Plus size={18} />
+                <span className="text-[8px] font-bold mt-1">ADD</span>
+              </button>
+            )}
+          </div>
+
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleImageChange}
+            accept="image/*"
+            multiple
+            className="hidden"
+          />
+        </div>
+
         <button
           type="submit"
           disabled={isSubmitting}
           className="w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg text-xs font-bold flex items-center justify-center gap-2 transition-all disabled:opacity-50"
         >
           {isSubmitting ? "Submitting..." : (
-            <><Send size={14} /> Submit Dispute</>
+            <>
+              <Send size={14} /> 
+              Submit Dispute
+            </>
           )}
         </button>
       </form>

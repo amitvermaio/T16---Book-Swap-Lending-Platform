@@ -7,32 +7,19 @@ const disputeSchema = new mongoose.Schema({
     required: true,
     unique: true 
   },
-
   raisedBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
     required: true
   },
-
   reason: {
     type: String,
-    enum: [
-      "DAMAGED_BOOK",
-      "WRONG_BOOK",
-      "NOT_DELIVERED",
-      "FAKE_CONDITION",
-      "OTHER"
-    ],
+    enum: ["DAMAGED_BOOK", "WRONG_BOOK", "NOT_DELIVERED", "FAKE_CONDITION", "OTHER"],
     required: true
   },
-
   message: String,
-
-  images: {
-    type: [String],
-    maxlength: 4
-  },
-
+  images: [String],
+  adminNote: String, 
   status: {
     type: String,
     enum: ["OPEN", "UNDER_REVIEW", "RESOLVED", "REJECTED"],

@@ -12,6 +12,6 @@ const router = Router();
 router.use(protect);
 router.post("/", upload.array('images', 4), createDisputeController);
 router.get("/request/:requestId", getDisputeByRequestController);
-router.patch("/:id", updateDisputeStatusController); 
+router.patch("/:id", requireRole, updateDisputeStatusController); 
 
 export default router;

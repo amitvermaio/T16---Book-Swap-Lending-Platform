@@ -117,19 +117,18 @@ export const asyncrateuser = ({ targetUserId, requestId, score, comment }) => as
   }
 }
 
-export const asynccreatedispute = ({ requestId, reason, message, images }) => async () => {
+export const asynccreatedispute = (formData) => async () => {
   try {
-    const { data } = await axios.post('/disputes', {
-      requestId,
-      reason,
-      message,
-      images
+    const { data } = await axios.post('/disputes', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      }
     });
     if (data.success) {
-      return true;
+      toast.success("Dispute raised successfully");
     }
   } catch (error) {
     console.error(error);
-    throw new Error(error.response?.data?.message || "Failed to create dispute");
+    toast.error(error.response?.data?.message || "Failed to create dispute");
   }
 };
