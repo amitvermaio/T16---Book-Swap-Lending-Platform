@@ -11,7 +11,6 @@ const signToken = (user) =>
   );
 
 export const registerUser = async ({ name, email, password }) => {
-  await User.collection.dropIndexes();
   const existing = await User.findOne({ email });
 
   if (existing) throw new AppError('Email already registered', 409);

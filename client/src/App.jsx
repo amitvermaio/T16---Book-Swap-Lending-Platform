@@ -1,4 +1,5 @@
-import { useEffect } from 'react';
+import { useEffect, Suspense } from 'react';
+import { lazy } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 
@@ -7,28 +8,27 @@ import { asyncloaduser } from './store/actions/usersAction';
 
 import AuthWrapper from './components/auth/AuthWrapper';
 import UnAuthWrapper from './components/auth/UnAuthWrapper';
+import Loader from './components/Loader';
 
-import Home from './pages/Home';
-import Books from './pages/Books'
-import BookDetails from './pages/BookDetails';
-import Requests from './pages/Requests';
-import Tracking from './pages/Tracking';
-import About from './pages/About';
-import Register from './pages/auth/Register';
-import Login from './pages/auth/Login';
-import AddBookForm from './pages/AddBookForm';
-import UserProfile from './pages/UserProfile';
-import Settings from './pages/Settings';
-import NotFound from './pages/NotFound';
-// https://ui-avatars.com/api/?name=${owner?.name}
+const Home = lazy(() => import('./pages/Home'));
+const Books = lazy(() => import('./pages/Books'));
+const BookDetails = lazy(() => import('./pages/BookDetails'));
+const Requests = lazy(() => import('./pages/Requests'));
+const Tracking = lazy(() => import('./pages/Tracking'));
+const About = lazy(() => import('./pages/About'));
+const Register = lazy(() => import('./pages/auth/Register'));
+const Login = lazy(() => import('./pages/auth/Login'));
+const AddBookForm = lazy(() => import('./pages/AddBookForm'));
+const UserProfile = lazy(() => import('./pages/UserProfile'));
+const Settings = lazy(() => import('./pages/Settings'));
+const NotFound = lazy(() => import('./pages/NotFound'));
 
-// Import Admin Components
-import AdminLayout from './components/admin/AdminLayout';
-import AdminDashboard from './pages/admin/AdminDashboard';
-import Users from './pages/admin/Users';
-import BooksAdmin from './pages/admin/Books';
-import Analytics from './pages/admin/Analytics';
-import Disputes from './pages/admin/Disputes';
+const AdminLayout = lazy(() => import('./components/admin/AdminLayout'));
+const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
+const Users = lazy(() => import('./pages/admin/Users'));
+const BooksAdmin = lazy(() => import('./pages/admin/Books'));
+const Analytics = lazy(() => import('./pages/admin/Analytics'));
+const Disputes = lazy(() => import('./pages/admin/Disputes'));
 
 const App = () => {
 
@@ -69,48 +69,71 @@ const App = () => {
 
   return (
     <Router>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/books" element={<Books />} />
-        <Route path="/books/:id" element={<BookDetails />} />
-        <Route path="/requests" element={<Requests />} />
-        <Route path="/tracking" element={<Tracking />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/add-book" element={<AddBookForm />} />
-        <Route path="/profile/:userId" element={<UserProfile />} />
-        <Route path="/settings" element={
-          <AuthWrapper>
-            <Settings />
-          </AuthWrapper>
-        } />
+      <Suspense fallback={<Loader />}>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/books" element={<Books />} />
+          <Route path="/books/:id" element={<BookDetails />} />
+          <Route path="/requests" element={
+            <AuthWrapper>
+              <Requests />
+            </AuthWrapper>
+          } />
+          <Route path="/tracking" element={
+            <AuthWrapper>
+              <Tracking />
+            </AuthWrapper>
+          } />
+          <Route path="/about" element={<About />} />
+          <Route path="/add-book" element={
+            <AuthWrapper>
+              <AddBookForm />
+            </AuthWrapper>
+          } />
+          <Route path="/profile/:userId" element={
+            <AuthWrapper>
+              <UserProfile />
+            </AuthWrapper>
+          } />
+          <Route path="/settings" element={
+            <AuthWrapper>
+              <Settings />
+            </AuthWrapper>
+          } />
 
-        {/* Auth routes */}
-        <Route path='/sign-up' element={
-          <UnAuthWrapper>
-            <Register />
-          </UnAuthWrapper>}
-        />
+          {/* Auth routes */}
+          <Route path='/sign-up' element={
+            <UnAuthWrapper>
+              <Register />
+            </UnAuthWrapper>
+          }
+          />
 
-        <Route path='/sign-in' element={
-          <UnAuthWrapper>
-            <Login />
-          </UnAuthWrapper>
-        }
-        />
-        {/* Admin Routes */}
-        <Route path="/admin" element={<AdminLayout />}>
-          {/* Redirect /admin to /admin/dashboard */}
-          <Route index element={<Navigate to="dashboard" replace />} />
+          <Route path='/sign-in' element={
+            <UnAuthWrapper>
+              <Login />
+            </UnAuthWrapper>
+          }
+          />
 
-          <Route path="dashboard" element={<AdminDashboard />} />
-          <Route path="users" element={<Users />} />
-          <Route path="books" element={<BooksAdmin />} />
-          <Route path="disputes" element={<Disputes />} />
-          <Route path="analytics" element={<Analytics />} />
-        </Route>
+          {/* Admin Routes */}
+          <Route path="/admin" element={
+            <AuthWrapper>
+              <AdminLayout />
+            </AuthWrapper>
+          }>
+            <Route index element={<Navigate to="dashboard" replace />} />
 
-        <Route path="*" element={<NotFound />} />
-      </Routes>
+            <Route path="dashboard" element={<AdminDashboard />} />
+            <Route path="users" element={<Users />} />
+            <Route path="books" element={<BooksAdmin />} />
+            <Route path="disputes" element={<Disputes />} />
+            <Route path="analytics" element={<Analytics />} />
+          </Route>
+
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </Suspense>
     </Router>
   )
 }

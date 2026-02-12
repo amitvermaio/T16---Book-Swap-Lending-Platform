@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import { Server } from "socket.io";
 import jwt from "jsonwebtoken";
 import debug from "debug";
@@ -9,7 +10,7 @@ let io;
 export const initSocket = (server) => {
   io = new Server(server, {
     cors: {
-      origin: "http://localhost:5173",
+      origin: process.env.FRONTEND_URL,
       credentials: true,
     },
   });

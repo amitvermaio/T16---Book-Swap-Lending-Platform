@@ -12,12 +12,13 @@ export const register = async (req, res, next) => {
     const { name, email, password } = req.body;
     
     const { user, token } = await registerUser({ name, email, password });
+    
 
     res.cookie("BookSwap_Token", token);
     res.status(201).json({ user, token });
 
     const welcomeHtmlContent = welcomeTemplate({ name: user.name });
-    sendEmail(user.email, "Welcome to Reader Haven", "Welcome to Reader Haven", welcomeHtmlContent);
+    await sendEmail(user.email, "Welcome to Reader Haven", "Welcome to Reader Haven", welcomeHtmlContent);
   } catch (err) {
     dbgr(err); 
     next(err);
