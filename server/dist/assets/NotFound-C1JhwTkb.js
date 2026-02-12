@@ -1,0 +1,7 @@
+import{u as s,j as e}from"./index-D6hQ08Y0.js";import{c as a}from"./createLucideIcon-C9Hrp4nZ.js";import{A as o}from"./arrow-left-CQ6JUytA.js";const r=[["path",{d:"m14.5 7-5 5",key:"dy991v"}],["path",{d:"M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H6.5a1 1 0 0 1 0-5H20",key:"k3hazp"}],["path",{d:"m9.5 7 5 5",key:"s45iea"}]],n=a("book-x",r),m=()=>{const t=s();return e.jsxs("div",{className:"min-h-screen w-full bg-white flex flex-col items-center justify-center p-6 text-center font-sans",children:[e.jsx("div",{className:"w-24 h-24 bg-orange-50 rounded-full flex items-center justify-center mb-6 animate-pulse",children:e.jsx(n,{size:48,className:"text-orange-600",strokeWidth:1.5})}),e.jsx("h1",{className:"text-6xl font-bold text-gray-900 mb-2 tracking-tighter",children:"404"}),e.jsx("h2",{className:"text-2xl font-semibold text-gray-800 mb-3",children:"Page Not Found"}),e.jsx("p",{className:"text-gray-500 mb-8 max-w-md mx-auto leading-relaxed",children:"Oops! It looks like this book is missing from our shelf. The page you are looking for might have been removed or doesn't exist."}),e.jsxs("button",{onClick:()=>t(-1),className:`\r
+          flex items-center gap-2 \r
+          bg-black hover:bg-gray-800 text-white \r
+          px-8 py-3 rounded-xl \r
+          font-semibold text-sm transition-all duration-200 \r
+          shadow-lg hover:shadow-xl active:scale-95\r
+        `,children:[e.jsx(o,{size:18}),"Go Back"]})]})};export{m as default};
