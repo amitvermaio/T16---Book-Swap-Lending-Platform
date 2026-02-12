@@ -33,8 +33,9 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', uptime: process.uptime() });
 });
 
-app.get('*', (req, res, next) => {
-  if (req.path.startsWith('/api')) return next();
+
+app.use((req, res, next) => {
+  if (req.method !== 'GET' || req.path.startsWith('/api')) return next();
   res.sendFile(path.join(distPath, 'index.html'));
 });
 
