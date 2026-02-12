@@ -8,9 +8,15 @@ const dbgr = debug("dev:socket");
 
 let io;
 export const initSocket = (server) => {
+  const allowedOrigins = [
+    process.env.FRONTEND_URL,
+    'https://reader-haven.onrender.com',
+    'http://localhost:5173',
+  ].filter(Boolean);
+
   io = new Server(server, {
     cors: {
-      origin: process.env.FRONTEND_URL,
+      origin: allowedOrigins,
       credentials: true,
     },
   });
